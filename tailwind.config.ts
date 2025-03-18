@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,17 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				brand: {
+					purple: '#8860FF',
+					'light-purple': '#A98EFF',
+					'dark-purple': '#6447CC',
+					orange: '#FF7D54',
+					'light-orange': '#FFA88A',
+					green: '#4CAF50',
+					'light-green': '#81C784',
+					blue: '#42A5F5',
+					'light-blue': '#90CAF9',
 				}
 			},
 			borderRadius: {
@@ -84,11 +96,73 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'fade-in': {
+					'0%': {
+						opacity: '0',
+						transform: 'translateY(10px)'
+					},
+					'100%': {
+						opacity: '1',
+						transform: 'translateY(0)'
+					}
+				},
+				'fade-in-right': {
+					'0%': {
+						opacity: '0',
+						transform: 'translateX(20px)'
+					},
+					'100%': {
+						opacity: '1',
+						transform: 'translateX(0)'
+					}
+				},
+				'fade-in-left': {
+					'0%': {
+						opacity: '0',
+						transform: 'translateX(-20px)'
+					},
+					'100%': {
+						opacity: '1',
+						transform: 'translateX(0)'
+					}
+				},
+				'scale-in': {
+					'0%': {
+						opacity: '0',
+						transform: 'scale(0.95)'
+					},
+					'100%': {
+						opacity: '1',
+						transform: 'scale(1)'
+					}
+				},
+				'float': {
+					'0%, 100%': {
+						transform: 'translateY(0)'
+					},
+					'50%': {
+						transform: 'translateY(-10px)'
+					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'fade-in': 'fade-in 0.6s ease-out',
+				'fade-in-right': 'fade-in-right 0.6s ease-out',
+				'fade-in-left': 'fade-in-left 0.6s ease-out',
+				'scale-in': 'scale-in 0.5s ease-out',
+				'float': 'float 4s ease-in-out infinite'
+			},
+			fontFamily: {
+				sans: ['Inter var', 'sans-serif'],
+				display: ['Plus Jakarta Sans', 'sans-serif']
+			},
+			boxShadow: {
+				'subtle': '0 5px 15px rgba(0, 0, 0, 0.05)',
+				'hover': '0 10px 25px rgba(0, 0, 0, 0.08)',
+				'card': '0 2px 8px rgba(0, 0, 0, 0.05)'
 			}
 		}
 	},
