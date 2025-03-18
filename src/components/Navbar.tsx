@@ -44,22 +44,6 @@ const Navbar = () => {
             <span className="font-display font-bold text-xl">Future Skills School</span>
           </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
-            <Link to="/" className="font-medium text-foreground/80 hover:text-brand-purple transition-colors">
-              Home
-            </Link>
-            <Link to="/assessments" className="font-medium text-foreground/80 hover:text-brand-purple transition-colors">
-              Assessments
-            </Link>
-            <Link to="/about" className="font-medium text-foreground/80 hover:text-brand-purple transition-colors">
-              About
-            </Link>
-            <Link to="/contact" className="font-medium text-foreground/80 hover:text-brand-purple transition-colors">
-              Contact
-            </Link>
-          </nav>
-
           <div className="hidden md:block">
             <Button className="button-primary">Start Assessment</Button>
           </div>
@@ -84,34 +68,6 @@ const Navbar = () => {
         <div className="md:hidden absolute top-full left-0 right-0 bg-white shadow-md animate-fade-in">
           <div className="container mx-auto px-4 py-4">
             <nav className="flex flex-col space-y-4">
-              <Link 
-                to="/" 
-                className="font-medium text-foreground p-2 rounded-md hover:bg-muted" 
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Home
-              </Link>
-              <Link 
-                to="/assessments" 
-                className="font-medium text-foreground p-2 rounded-md hover:bg-muted" 
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Assessments
-              </Link>
-              <Link 
-                to="/about" 
-                className="font-medium text-foreground p-2 rounded-md hover:bg-muted" 
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                About
-              </Link>
-              <Link 
-                to="/contact" 
-                className="font-medium text-foreground p-2 rounded-md hover:bg-muted" 
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Contact
-              </Link>
               <Button className="button-primary w-full mt-2">Start Assessment</Button>
             </nav>
           </div>

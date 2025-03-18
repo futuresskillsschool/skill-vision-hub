@@ -7,9 +7,9 @@ const Footer = () => {
   return (
     <footer className="bg-gray-50 border-t border-gray-200">
       <div className="container mx-auto px-4 md:px-6 py-12 md:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
           {/* Column 1 - Logo and description */}
-          <div className="col-span-1 md:col-span-2 lg:col-span-1">
+          <div>
             <Link to="/" className="flex items-center space-x-2 mb-4">
               <div className="w-8 h-8 bg-brand-purple rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-lg">FS</span>
@@ -38,51 +38,7 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Column 2 - Quick Links */}
-          <div>
-            <h3 className="font-semibold text-foreground mb-4">Quick Links</h3>
-            <ul className="space-y-3">
-              <li>
-                <Link to="/" className="text-foreground/70 hover:text-brand-purple transition-colors">Home</Link>
-              </li>
-              <li>
-                <Link to="/assessments" className="text-foreground/70 hover:text-brand-purple transition-colors">Assessments</Link>
-              </li>
-              <li>
-                <Link to="/about" className="text-foreground/70 hover:text-brand-purple transition-colors">About Us</Link>
-              </li>
-              <li>
-                <Link to="/testimonials" className="text-foreground/70 hover:text-brand-purple transition-colors">Testimonials</Link>
-              </li>
-              <li>
-                <Link to="/contact" className="text-foreground/70 hover:text-brand-purple transition-colors">Contact</Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Column 3 - Assessments */}
-          <div>
-            <h3 className="font-semibold text-foreground mb-4">Our Assessments</h3>
-            <ul className="space-y-3">
-              <li>
-                <Link to="/assessment/career-vision" className="text-foreground/70 hover:text-brand-purple transition-colors">Career Vision</Link>
-              </li>
-              <li>
-                <Link to="/assessment/scct" className="text-foreground/70 hover:text-brand-purple transition-colors">SCCT Assessment</Link>
-              </li>
-              <li>
-                <Link to="/assessment/riasec" className="text-foreground/70 hover:text-brand-purple transition-colors">RIASEC Model</Link>
-              </li>
-              <li>
-                <Link to="/assessment/eq-navigator" className="text-foreground/70 hover:text-brand-purple transition-colors">EQ Navigator</Link>
-              </li>
-              <li>
-                <Link to="/assessment/future-pathways" className="text-foreground/70 hover:text-brand-purple transition-colors">Future Pathways</Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Column 4 - Contact */}
+          {/* Column 2 - Contact */}
           <div>
             <h3 className="font-semibold text-foreground mb-4">Contact Us</h3>
             <ul className="space-y-3">
@@ -113,9 +69,6 @@ const Footer = () => {
               </Link>
               <Link to="/terms" className="text-sm text-foreground/60 hover:text-brand-purple transition-colors">
                 Terms of Service
-              </Link>
-              <Link to="/sitemap" className="text-sm text-foreground/60 hover:text-brand-purple transition-colors">
-                Sitemap
               </Link>
             </div>
           </div>
