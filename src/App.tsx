@@ -8,6 +8,8 @@ import Index from "./pages/Index";
 import AssessmentDetail from "./pages/AssessmentDetail";
 import LeadForm from "./pages/LeadForm";
 import NotFound from "./pages/NotFound";
+import EQNavigatorAssessment from "./pages/EQNavigatorAssessment";
+import EQNavigatorResults from "./pages/EQNavigatorResults";
 
 // Add framer-motion for animations
 import { motion, AnimatePresence } from "framer-motion";
@@ -25,6 +27,8 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/assessment/:id" element={<AssessmentDetail />} />
             <Route path="/assessment/:id/lead-form" element={<LeadForm />} />
+            <Route path="/eq-navigator" element={<EQNavigatorAssessment />} />
+            <Route path="/eq-navigator/results" element={<EQNavigatorResults />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

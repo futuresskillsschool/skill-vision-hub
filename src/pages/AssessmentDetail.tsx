@@ -68,7 +68,7 @@ const assessments = {
     description: 'Measure your emotional intelligence across key dimensions including self-awareness, self-regulation, motivation, empathy, and social skills. Develop the crucial soft skills needed for personal and professional success in today\'s workplace.',
     image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f',
     duration: '25 minutes',
-    questions: 40,
+    questions: 10, // Updated to match our implementation
     users: '3.4k',
     rating: 4.7,
     benefits: [
@@ -78,7 +78,7 @@ const assessments = {
       'Enhance your leadership and interpersonal skills',
       'Improve your ability to navigate workplace relationships'
     ],
-    ideal: 'Leaders, managers, or anyone wanting to improve their interpersonal effectiveness, conflict resolution skills, or ability to navigate complex social dynamics in the workplace.'
+    ideal: 'Indian high school students (ages 13-17) wanting to improve their interpersonal effectiveness, conflict resolution skills, or ability to navigate complex social dynamics.'
   },
   'future-pathways': {
     title: 'Future Pathways Assessment',
@@ -119,7 +119,13 @@ const AssessmentDetail = () => {
   }
 
   const handleStartAssessment = () => {
-    navigate(`/assessment/${id}/lead-form`);
+    // For EQ Navigator, go directly to the assessment page
+    if (id === 'eq-navigator') {
+      navigate('/eq-navigator');
+    } else {
+      // For other assessments, go to the lead form
+      navigate(`/assessment/${id}/lead-form`);
+    }
   };
 
   return (
@@ -131,7 +137,7 @@ const AssessmentDetail = () => {
         <section className="bg-brand-purple/5 pt-12 pb-16">
           <div className="container mx-auto px-4 md:px-6">
             <div className="mb-8">
-              <Link to="/assessments" className="inline-flex items-center text-brand-purple hover:underline mb-4">
+              <Link to="/" className="inline-flex items-center text-brand-purple hover:underline mb-4">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to Assessments
               </Link>
