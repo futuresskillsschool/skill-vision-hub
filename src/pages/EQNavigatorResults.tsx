@@ -456,7 +456,7 @@ const EQNavigatorResults = () => {
               </Button>
               
               <Button 
-                onClick={() => navigate('/assessment/eq-navigator')}
+                onClick={() => navigate('/eq-navigator')}
                 className="bg-brand-purple hover:bg-brand-dark-purple"
               >
                 Take Another Assessment
