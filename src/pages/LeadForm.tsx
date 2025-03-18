@@ -99,9 +99,14 @@ const LeadForm = () => {
         description: "Your information has been saved successfully. Starting your assessment now.",
       });
       
-      // In a real application, you would navigate to the actual assessment questions
-      // For now, we'll just navigate back to the detail page
-      navigate(`/assessment/${id}`);
+      // Navigate to the correct assessment based on ID
+      if (id === 'eq-navigator') {
+        navigate('/eq-navigator');
+      } else {
+        // For other assessments, navigate back to the detail page for now
+        // In a real app, you would navigate to the specific assessment
+        navigate(`/assessment/${id}`);
+      }
     }, 1500);
   };
   

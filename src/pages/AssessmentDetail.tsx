@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -68,7 +67,7 @@ const assessments = {
     description: 'Measure your emotional intelligence across key dimensions including self-awareness, self-regulation, motivation, empathy, and social skills. Develop the crucial soft skills needed for personal and professional success in today\'s workplace.',
     image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f',
     duration: '25 minutes',
-    questions: 10, // Updated to match our implementation
+    questions: 10,
     users: '3.4k',
     rating: 4.7,
     benefits: [
@@ -119,13 +118,7 @@ const AssessmentDetail = () => {
   }
 
   const handleStartAssessment = () => {
-    // For EQ Navigator, go directly to the assessment page
-    if (id === 'eq-navigator') {
-      navigate('/eq-navigator');
-    } else {
-      // For other assessments, go to the lead form
-      navigate(`/assessment/${id}/lead-form`);
-    }
+    navigate(`/assessment/${id}/lead-form`);
   };
 
   return (
