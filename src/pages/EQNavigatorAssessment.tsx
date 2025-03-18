@@ -60,7 +60,7 @@ const eqQuestions: Question[] = [
       { id: "a", text: "Offer a listening ear and support, letting them know you're there for them.", score: 4 },
       { id: "b", text: "Try to give them advice, even if you're not sure what to say.", score: 3 },
       { id: "c", text: "Avoid them because you don't know how to handle the situation.", score: 1 },
-      { id: "d", text: "Tell them to "toughen up."", score: 1 }
+      { id: "d", text: "Tell them to \"toughen up.\"", score: 1 }
     ]
   },
   {

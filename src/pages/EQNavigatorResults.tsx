@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -49,7 +48,7 @@ const profiles: Record<string, EQProfile> = {
   'empathetic': {
     title: 'Empathetic Explorer',
     subtitle: 'High Emotional Intelligence',
-    description: 'You demonstrate strong emotional intelligence! You're likely good at understanding and managing your own emotions, and you show empathy and consideration for others. You handle challenging situations with maturity and find healthy ways to cope with stress.',
+    description: "You demonstrate strong emotional intelligence! You're likely good at understanding and managing your own emotions, and you show empathy and consideration for others. You handle challenging situations with maturity and find healthy ways to cope with stress.",
     icon: <Sparkles className="h-8 w-8" />,
     color: 'bg-brand-purple text-white',
     strengthsIntro: "Here's what you're great at:",
@@ -91,7 +90,7 @@ const profiles: Record<string, EQProfile> = {
   'developing': {
     title: 'Developing Navigator',
     subtitle: 'Growing Emotional Intelligence',
-    description: 'You have a good foundation in emotional intelligence, and you're developing your skills in several areas. You show some self-awareness and empathy, but there's room for growth in managing your emotions and navigating social situations.',
+    description: "You have a good foundation in emotional intelligence, and you're developing your skills in several areas. You show some self-awareness and empathy, but there's room for growth in managing your emotions and navigating social situations.",
     icon: <PenTool className="h-8 w-8" />,
     color: 'bg-brand-blue text-white',
     strengthsIntro: "Your notable strengths:",
@@ -137,14 +136,14 @@ const profiles: Record<string, EQProfile> = {
   'emerging': {
     title: 'Emerging Explorer',
     subtitle: 'Developing Emotional Intelligence',
-    description: 'Emotional intelligence is a skill that can be learned and strengthened, and you're at the beginning of your journey. You might sometimes find it challenging to understand or manage your emotions, or to see things from others' perspectives. Don't be discouraged!',
+    description: "Emotional intelligence is a skill that can be learned and strengthened, and you're at the beginning of your journey. You might sometimes find it challenging to understand or manage your emotions, or to see things from others' perspectives. Don't be discouraged!",
     icon: <Heart className="h-8 w-8" />,
     color: 'bg-brand-orange text-white',
     strengthsIntro: "Here's what you can build on:",
     strengths: [
       'Your willingness to learn and grow emotionally',
       'Moments when you do recognize your own emotions',
-      'Times when you've shown care for others'
+      "Times when you've shown care for others"
     ],
     growthIntro: "Focus areas for your development:",
     growthAreas: [
@@ -177,8 +176,8 @@ const profiles: Record<string, EQProfile> = {
         icon: <Brain />
       },
       {
-        title: 'Beginner's Guide to Empathy',
-        description: 'Easy exercises to practice seeing others' perspectives',
+        title: "Beginner's Guide to Empathy",
+        description: "Easy exercises to practice seeing others' perspectives",
         icon: <Heart />
       }
     ]
@@ -186,7 +185,7 @@ const profiles: Record<string, EQProfile> = {
   'compass': {
     title: 'Compass Explorer',
     subtitle: 'Beginning Your EQ Journey',
-    description: 'It appears that you could benefit from additional support in developing your emotional intelligence. This assessment is just a starting point, and it's important to remember that everyone can learn and grow. With some guidance and practice, you can develop these important skills!',
+    description: "It appears that you could benefit from additional support in developing your emotional intelligence. This assessment is just a starting point, and it's important to remember that everyone can learn and grow. With some guidance and practice, you can develop these important skills!",
     icon: <Brain className="h-8 w-8" />,
     color: 'bg-brand-green text-white',
     strengthsIntro: "Remember that everyone has EQ strengths:",
@@ -473,3 +472,4 @@ const EQNavigatorResults = () => {
 };
 
 export default EQNavigatorResults;
+
