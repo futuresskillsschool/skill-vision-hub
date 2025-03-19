@@ -10,6 +10,8 @@ import LeadForm from "./pages/LeadForm";
 import NotFound from "./pages/NotFound";
 import EQNavigatorAssessment from "./pages/EQNavigatorAssessment";
 import EQNavigatorResults from "./pages/EQNavigatorResults";
+import FuturePathwaysAssessment from "./pages/FuturePathwaysAssessment";
+import FuturePathwaysResults from "./pages/FuturePathwaysResults";
 
 // Add framer-motion for animations
 import { motion, AnimatePresence } from "framer-motion";
@@ -29,6 +31,8 @@ const App = () => (
             <Route path="/assessment/:id/lead-form" element={<LeadForm />} />
             <Route path="/eq-navigator" element={<EQNavigatorAssessment />} />
             <Route path="/eq-navigator/results" element={<EQNavigatorResults />} />
+            <Route path="/future-pathways" element={<FuturePathwaysAssessment />} />
+            <Route path="/future-pathways/results" element={<FuturePathwaysResults />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

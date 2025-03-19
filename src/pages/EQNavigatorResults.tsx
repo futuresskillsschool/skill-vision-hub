@@ -1,12 +1,15 @@
-import { useEffect, useState } from 'react';
+
+import { useEffect, useState, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Sparkles, Heart, ArrowRight, Brain, BookOpen, PenTool, Home } from 'lucide-react';
+import { Sparkles, Heart, ArrowRight, Brain, BookOpen, PenTool, Home, Download } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 // Types for the EQ results
 interface EQResultsProps {
@@ -239,6 +242,7 @@ const EQNavigatorResults = () => {
   const [profile, setProfile] = useState<EQProfile | null>(null);
   const [scoreRange, setScoreRange] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
+  const reportRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -284,6 +288,39 @@ const EQNavigatorResults = () => {
     return Math.round((totalScore / 40) * 100);
   };
 
+  const downloadAsPDF = async () => {
+    if (!reportRef.current) return;
+    
+    try {
+      const canvas = await html2canvas(reportRef.current, {
+        scale: 2,
+        logging: false,
+        useCORS: true,
+        allowTaint: true
+      });
+      
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+      
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+      const imgX = (pdfWidth - imgWidth * ratio) / 2;
+      const imgY = 30;
+      
+      pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
+      pdf.save('eq-navigator-results.pdf');
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+    }
+  };
+
   if (isLoading || !profile) {
     return (
       <div className="min-h-screen flex flex-col">
@@ -305,164 +342,175 @@ const EQNavigatorResults = () => {
       
       <main className="flex-grow pt-24 pb-16">
         <div className="container mx-auto px-4 md:px-6">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="max-w-4xl mx-auto"
-          >
-            {/* Header Section */}
-            <div className={cn(
-              "rounded-xl p-8 mb-8 text-center",
-              profile.color
-            )}>
+          <div className="mb-6 flex justify-end">
+            <Button 
+              onClick={downloadAsPDF} 
+              variant="outline" 
+              className="flex items-center gap-2"
+            >
+              <Download className="h-4 w-4" />
+              Download as PDF
+            </Button>
+          </div>
+
+          <div ref={reportRef} className="max-w-4xl mx-auto bg-white p-8 rounded-xl shadow-card">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              {/* Header Section */}
+              <div className={cn(
+                "rounded-xl p-8 mb-8 text-center",
+                profile.color
+              )}>
+                <motion.div 
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.2, duration: 0.5 }}
+                  className="w-20 h-20 mx-auto bg-white/20 rounded-full flex items-center justify-center mb-4"
+                >
+                  {profile.icon}
+                </motion.div>
+                
+                <h1 className="text-3xl md:text-4xl font-bold mb-2">{profile.title}</h1>
+                <p className="text-xl opacity-90 mb-4">{profile.subtitle}</p>
+                
+                <div className="flex justify-center items-center gap-6 mt-6">
+                  <div className="text-center">
+                    <div className="text-4xl font-bold">{scoreData.totalScore}</div>
+                    <div className="text-sm opacity-80">Score</div>
+                  </div>
+                  
+                  <div className="h-12 w-px bg-white/30"></div>
+                  
+                  <div className="text-center">
+                    <div className="text-4xl font-bold">{scorePercentage}%</div>
+                    <div className="text-sm opacity-80">Percentage</div>
+                  </div>
+                  
+                  <div className="h-12 w-px bg-white/30"></div>
+                  
+                  <div className="text-center">
+                    <div className="text-4xl font-bold">{scoreRange}</div>
+                    <div className="text-sm opacity-80">Range</div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Description */}
               <motion.div 
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.2, duration: 0.5 }}
-                className="w-20 h-20 mx-auto bg-white/20 rounded-full flex items-center justify-center mb-4"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.5 }}
+                className="bg-white rounded-xl p-6 md:p-8 shadow-card mb-8"
               >
-                {profile.icon}
+                <h2 className="text-2xl font-semibold mb-4">Your EQ Profile</h2>
+                <p className="text-foreground/80 text-lg">{profile.description}</p>
               </motion.div>
               
-              <h1 className="text-3xl md:text-4xl font-bold mb-2">{profile.title}</h1>
-              <p className="text-xl opacity-90 mb-4">{profile.subtitle}</p>
-              
-              <div className="flex justify-center items-center gap-6 mt-6">
-                <div className="text-center">
-                  <div className="text-4xl font-bold">{scoreData.totalScore}</div>
-                  <div className="text-sm opacity-80">Score</div>
-                </div>
-                
-                <div className="h-12 w-px bg-white/30"></div>
-                
-                <div className="text-center">
-                  <div className="text-4xl font-bold">{scorePercentage}%</div>
-                  <div className="text-sm opacity-80">Percentage</div>
-                </div>
-                
-                <div className="h-12 w-px bg-white/30"></div>
-                
-                <div className="text-center">
-                  <div className="text-4xl font-bold">{scoreRange}</div>
-                  <div className="text-sm opacity-80">Range</div>
-                </div>
-              </div>
-            </div>
-            
-            {/* Description */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.5 }}
-              className="bg-white rounded-xl p-6 md:p-8 shadow-card mb-8"
-            >
-              <h2 className="text-2xl font-semibold mb-4">Your EQ Profile</h2>
-              <p className="text-foreground/80 text-lg">{profile.description}</p>
-            </motion.div>
-            
-            {/* Strengths Section */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.5 }}
-              className="bg-white rounded-xl p-6 md:p-8 shadow-card mb-8"
-            >
-              <div className="flex items-center mb-4">
-                <div className="w-10 h-10 rounded-full bg-brand-purple/10 flex items-center justify-center mr-3">
-                  <Sparkles className="h-5 w-5 text-brand-purple" />
-                </div>
-                <h2 className="text-2xl font-semibold">Your Strengths</h2>
-              </div>
-              
-              <p className="text-foreground/80 mb-4">{profile.strengthsIntro}</p>
-              
-              <ul className="space-y-3">
-                {profile.strengths.map((strength, index) => (
-                  <li key={index} className="flex">
-                    <span className="text-brand-purple mr-2">•</span>
-                    <span>{strength}</span>
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
-            
-            {/* Growth Areas Section */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.5 }}
-              className="bg-white rounded-xl p-6 md:p-8 shadow-card mb-8"
-            >
-              <div className="flex items-center mb-4">
-                <div className="w-10 h-10 rounded-full bg-brand-orange/10 flex items-center justify-center mr-3">
-                  <ArrowRight className="h-5 w-5 text-brand-orange" />
-                </div>
-                <h2 className="text-2xl font-semibold">Growth Opportunities</h2>
-              </div>
-              
-              <p className="text-foreground/80 mb-4">{profile.growthIntro}</p>
-              
-              <div className="space-y-4">
-                {profile.growthAreas.map((area, index) => (
-                  <Card key={index} className="p-4 border border-border/40">
-                    <h3 className="font-semibold text-lg mb-1">{area.area}</h3>
-                    <p className="text-foreground/70">
-                      <span className="text-brand-purple font-medium">Try this: </span> 
-                      {area.tip}
-                    </p>
-                  </Card>
-                ))}
-              </div>
-            </motion.div>
-            
-            {/* Resources Section */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6, duration: 0.5 }}
-              className="bg-white rounded-xl p-6 md:p-8 shadow-card mb-8"
-            >
-              <div className="flex items-center mb-6">
-                <div className="w-10 h-10 rounded-full bg-brand-green/10 flex items-center justify-center mr-3">
-                  <BookOpen className="h-5 w-5 text-brand-green" />
-                </div>
-                <h2 className="text-2xl font-semibold">Helpful Resources</h2>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {profile.resources.map((resource, index) => (
-                  <Card key={index} className="p-4 border border-border/40 hover:border-brand-purple/50 hover:shadow-md transition-all">
-                    <div className="mb-3 text-brand-purple">
-                      {resource.icon}
-                    </div>
-                    <h3 className="font-semibold text-lg mb-1">{resource.title}</h3>
-                    <p className="text-sm text-foreground/70">{resource.description}</p>
-                  </Card>
-                ))}
-              </div>
-            </motion.div>
-            
-            {/* Action buttons */}
-            <div className="flex flex-col sm:flex-row justify-center gap-4 mt-8">
-              <Button 
-                onClick={() => navigate('/')}
-                variant="outline"
-                className="flex items-center gap-2"
+              {/* Strengths Section */}
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4, duration: 0.5 }}
+                className="bg-white rounded-xl p-6 md:p-8 shadow-card mb-8"
               >
-                <Home className="h-4 w-4" />
-                Return Home
-              </Button>
+                <div className="flex items-center mb-4">
+                  <div className="w-10 h-10 rounded-full bg-brand-purple/10 flex items-center justify-center mr-3">
+                    <Sparkles className="h-5 w-5 text-brand-purple" />
+                  </div>
+                  <h2 className="text-2xl font-semibold">Your Strengths</h2>
+                </div>
+                
+                <p className="text-foreground/80 mb-4">{profile.strengthsIntro}</p>
+                
+                <ul className="space-y-3">
+                  {profile.strengths.map((strength, index) => (
+                    <li key={index} className="flex">
+                      <span className="text-brand-purple mr-2">•</span>
+                      <span>{strength}</span>
+                    </li>
+                  ))}
+                </ul>
+              </motion.div>
               
-              <Button 
-                onClick={() => navigate('/eq-navigator')}
-                className="bg-brand-purple hover:bg-brand-dark-purple"
+              {/* Growth Areas Section */}
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5, duration: 0.5 }}
+                className="bg-white rounded-xl p-6 md:p-8 shadow-card mb-8"
               >
-                Take Another Assessment
-              </Button>
-            </div>
-
-          </motion.div>
+                <div className="flex items-center mb-4">
+                  <div className="w-10 h-10 rounded-full bg-brand-orange/10 flex items-center justify-center mr-3">
+                    <ArrowRight className="h-5 w-5 text-brand-orange" />
+                  </div>
+                  <h2 className="text-2xl font-semibold">Growth Opportunities</h2>
+                </div>
+                
+                <p className="text-foreground/80 mb-4">{profile.growthIntro}</p>
+                
+                <div className="space-y-4">
+                  {profile.growthAreas.map((area, index) => (
+                    <Card key={index} className="p-4 border border-border/40">
+                      <h3 className="font-semibold text-lg mb-1">{area.area}</h3>
+                      <p className="text-foreground/70">
+                        <span className="text-brand-purple font-medium">Try this: </span> 
+                        {area.tip}
+                      </p>
+                    </Card>
+                  ))}
+                </div>
+              </motion.div>
+              
+              {/* Resources Section */}
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6, duration: 0.5 }}
+                className="bg-white rounded-xl p-6 md:p-8 shadow-card mb-8"
+              >
+                <div className="flex items-center mb-6">
+                  <div className="w-10 h-10 rounded-full bg-brand-green/10 flex items-center justify-center mr-3">
+                    <BookOpen className="h-5 w-5 text-brand-green" />
+                  </div>
+                  <h2 className="text-2xl font-semibold">Helpful Resources</h2>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {profile.resources.map((resource, index) => (
+                    <Card key={index} className="p-4 border border-border/40 hover:border-brand-purple/50 hover:shadow-md transition-all">
+                      <div className="mb-3 text-brand-purple">
+                        {resource.icon}
+                      </div>
+                      <h3 className="font-semibold text-lg mb-1">{resource.title}</h3>
+                      <p className="text-sm text-foreground/70">{resource.description}</p>
+                    </Card>
+                  ))}
+                </div>
+              </motion.div>
+            </motion.div>
+          </div>
+          
+          {/* Action buttons */}
+          <div className="flex flex-col sm:flex-row justify-center gap-4 mt-8">
+            <Button 
+              onClick={() => navigate('/')}
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              <Home className="h-4 w-4" />
+              Return Home
+            </Button>
+            
+            <Button 
+              onClick={() => navigate('/eq-navigator')}
+              className="bg-brand-purple hover:bg-brand-dark-purple"
+            >
+              Take Another Assessment
+            </Button>
+          </div>
         </div>
       </main>
       
@@ -472,4 +520,3 @@ const EQNavigatorResults = () => {
 };
 
 export default EQNavigatorResults;
-

@@ -26,6 +26,13 @@ const Hero = () => {
     };
   }, []);
 
+  const scrollToAssessments = () => {
+    const assessmentSection = document.getElementById('assessment-categories');
+    if (assessmentSection) {
+      assessmentSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <section ref={heroRef} className="relative pt-24 md:pt-32 pb-16 md:pb-24 overflow-hidden">
       {/* Background decoration */}
@@ -54,16 +61,16 @@ const Hero = () => {
             define your career path, and develop critical skills for the future of work.
           </p>
           
-          <div className="animate-on-scroll flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button className="button-primary w-full sm:w-auto text-base group">
-              Start Your Assessment <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-            </Button>
-            <Button variant="outline" className="button-secondary w-full sm:w-auto text-base">
-              Explore Assessments
+          <div className="animate-on-scroll flex justify-center">
+            <Button 
+              onClick={scrollToAssessments} 
+              className="button-primary text-base group"
+            >
+              Explore Assessments <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </Button>
           </div>
           
-          {/* User avatars */}
+          {/* User avatars - removed the user count as requested */}
           <div className="animate-on-scroll mt-12 flex flex-col items-center">
             <div className="flex -space-x-3 mb-3">
               {[1, 2, 3, 4, 5].map((i) => (
@@ -77,7 +84,7 @@ const Hero = () => {
               ))}
             </div>
             <p className="text-sm text-foreground/70 font-medium">
-              <span className="text-brand-purple font-semibold">10,000+</span> users have discovered their path
+              Users have discovered their path
             </p>
           </div>
         </div>

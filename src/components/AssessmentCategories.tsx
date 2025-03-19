@@ -1,118 +1,82 @@
 
-import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { cn } from '@/lib/utils';
+import { ArrowRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 
-interface Category {
-  id: string;
-  name: string;
-  icon: string;
-  color: string;
-  description: string;
-}
-
-const categories: Category[] = [
+const assessmentCategories = [
   {
     id: 'career-vision',
-    name: 'Career Vision',
-    icon: '🚀',
-    color: 'bg-brand-purple/10 text-brand-purple',
-    description: 'Clarify your professional goals and aspirations'
+    title: 'Career Vision Assessment',
+    description: 'Clarify your career aspirations and align them with your values, strengths, and long-term goals.',
+    icon: '🎯',
+    color: 'bg-brand-blue/10',
+    textColor: 'text-brand-blue',
   },
   {
     id: 'scct',
-    name: 'SCCT',
+    title: 'SCCT Assessment',
+    description: 'Based on Social Cognitive Career Theory, explore how your beliefs and experiences shape your career choices.',
     icon: '🧠',
-    color: 'bg-brand-orange/10 text-brand-orange',
-    description: 'Social Cognitive Career Theory assessment'
+    color: 'bg-brand-orange/10', 
+    textColor: 'text-brand-orange',
   },
   {
     id: 'riasec',
-    name: 'RIASEC Model',
-    icon: '🔎',
-    color: 'bg-brand-green/10 text-brand-green',
-    description: 'Identify your interests and matching careers'
+    title: 'RIASEC Model Assessment',
+    description: 'Discover your Holland Code and find career matches based on your interests, abilities, and preferences.',
+    icon: '🧩',
+    color: 'bg-brand-purple/10',
+    textColor: 'text-brand-purple',
   },
   {
     id: 'eq-navigator',
-    name: 'EQ Navigator',
+    title: 'EQ Navigator Assessment',
+    description: 'Measure your emotional intelligence and develop crucial soft skills for personal and professional success.',
     icon: '❤️',
-    color: 'bg-red-400/10 text-red-500',
-    description: 'Evaluate and develop your emotional intelligence'
+    color: 'bg-brand-red/10',
+    textColor: 'text-brand-red',
   },
   {
     id: 'future-pathways',
-    name: 'Future Pathways',
-    icon: '🌟',
-    color: 'bg-brand-blue/10 text-brand-blue',
-    description: 'Explore emerging career opportunities'
+    title: 'Future Pathways Explorer',
+    description: 'Map your interests to futuristic career clusters and discover tech-focused career paths of tomorrow.',
+    icon: '🚀',
+    color: 'bg-brand-green/10',
+    textColor: 'text-brand-green',
   }
 ];
 
 const AssessmentCategories = () => {
-  const sectionRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('animate-fade-in');
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-
-    const elements = sectionRef.current?.querySelectorAll('.animate-on-scroll');
-    elements?.forEach((el) => observer.observe(el));
-
-    return () => {
-      elements?.forEach((el) => observer.unobserve(el));
-    };
-  }, []);
-
   return (
-    <section ref={sectionRef} className="py-16 md:py-24 bg-gray-50">
+    <section id="assessment-categories" className="py-16 md:py-24 bg-background/80">
       <div className="container mx-auto px-4 md:px-6">
-        <div className="text-center mb-10 md:mb-14">
-          <h3 className="animate-on-scroll text-brand-purple font-medium text-base mb-2">Assessment Types</h3>
-          <h2 className="animate-on-scroll text-2xl md:text-3xl mb-3">Explore Our <span className="text-brand-purple">Assessments</span></h2>
-          <p className="animate-on-scroll text-base text-foreground/70 max-w-2xl mx-auto">
-            Discover the perfect assessment to guide your personal and professional development
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold mb-4">Assessment Categories</h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Choose from our scientifically validated assessments designed to help you 
+            discover your strengths and navigate your career journey.
           </p>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-          {categories.map((category, index) => (
-            <Link 
-              key={category.id}
-              to={`/assessment/${category.id}`}
-              className={cn(
-                "animate-on-scroll animate-delay group flex flex-col items-center text-center p-6 md:p-8 rounded-xl card-hover bg-white shadow-card",
-                "border border-border/40 h-full transition-all duration-300"
-              )}
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
-              <div className={cn(
-                "flex items-center justify-center w-16 h-16 rounded-full mb-5", 
-                category.color
-              )}>
-                <span className="text-3xl">{category.icon}</span>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {assessmentCategories.map((category) => (
+            <Card key={category.id} className="relative overflow-hidden border-border/40 hover:border-brand-purple/40 hover:shadow-md transition-all">
+              <div className="p-6">
+                <div className={`w-12 h-12 rounded-full ${category.color} flex items-center justify-center text-2xl mb-4`}>
+                  {category.icon}
+                </div>
+                
+                <h3 className="text-xl font-semibold mb-2">{category.title}</h3>
+                <p className="text-muted-foreground mb-6">{category.description}</p>
+                
+                <Link to={`/assessment/${category.id}`}>
+                  <Button variant="outline" className="group">
+                    Learn More <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
               </div>
-              <h3 className="text-xl font-semibold mb-3 group-hover:text-brand-purple transition-colors">
-                {category.name}
-              </h3>
-              <p className="text-sm md:text-base text-foreground/70 mb-5">
-                {category.description}
-              </p>
-              <div className="mt-auto pt-4">
-                <button className="text-brand-purple border border-brand-purple/30 hover:bg-brand-purple hover:text-white px-6 py-2 rounded-full text-sm font-medium transition-colors">
-                  Start Assessment
-                </button>
-              </div>
-            </Link>
+            </Card>
           ))}
         </div>
       </div>

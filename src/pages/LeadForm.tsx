@@ -15,7 +15,7 @@ const assessmentTitles = {
   'scct': 'SCCT Assessment',
   'riasec': 'RIASEC Model Assessment',
   'eq-navigator': 'EQ Navigator Assessment',
-  'future-pathways': 'Future Pathways Assessment'
+  'future-pathways': 'Future Pathways Explorer'
 };
 
 const LeadForm = () => {
@@ -102,6 +102,8 @@ const LeadForm = () => {
       // Navigate to the correct assessment based on ID
       if (id === 'eq-navigator') {
         navigate('/eq-navigator');
+      } else if (id === 'future-pathways') {
+        navigate('/future-pathways');
       } else {
         // For other assessments, navigate back to the detail page for now
         // In a real app, you would navigate to the specific assessment
