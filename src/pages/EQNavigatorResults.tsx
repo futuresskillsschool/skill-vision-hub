@@ -1,4 +1,3 @@
-
 import { useEffect, useState, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -12,7 +11,6 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { Progress } from '@/components/ui/progress';
 
-// Types for the EQ results
 interface EQResultsProps {
   totalScore: number;
   selectedOptions: string[];
@@ -27,7 +25,6 @@ interface EQResultsProps {
   }>;
 }
 
-// Define the profile types and their descriptions
 interface EQProfile {
   title: string;
   subtitle: string;
@@ -248,16 +245,13 @@ const EQNavigatorResults = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
     
-    // Get the results data from location state
     const state = location.state as EQResultsProps | null;
     
     if (!state || state.totalScore === undefined) {
-      // No results data, navigate back to the assessment
       navigate('/assessment/eq-navigator');
       return;
     }
     
-    // Determine profile based on score
     const { totalScore } = state;
     let selectedProfile: EQProfile;
     let range: string;
@@ -285,7 +279,6 @@ const EQNavigatorResults = () => {
   }, [location, navigate]);
 
   const calculatePercentage = (totalScore: number) => {
-    // Maximum possible score is 40
     return Math.round((totalScore / 40) * 100);
   };
 
@@ -360,12 +353,10 @@ const EQNavigatorResults = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              {/* Header Section */}
               <div className={cn(
                 "rounded-xl p-8 mb-8 text-center relative overflow-hidden",
                 profile.color
               )}>
-                {/* Background decoration */}
                 <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
                 <div className="absolute bottom-0 left-0 w-40 h-40 bg-black/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2"></div>
                 
@@ -382,7 +373,6 @@ const EQNavigatorResults = () => {
                 <p className="text-xl opacity-90 mb-6 relative z-10">{profile.subtitle}</p>
                 
                 <div className="mt-6 relative z-10">
-                  {/* Circular progress indicator */}
                   <div className="w-32 h-32 mx-auto relative mb-6">
                     <svg className="w-full h-full" viewBox="0 0 100 100">
                       <circle 
@@ -431,7 +421,6 @@ const EQNavigatorResults = () => {
                 </div>
               </div>
               
-              {/* Description */}
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -446,7 +435,6 @@ const EQNavigatorResults = () => {
                 </h2>
                 <p className="text-foreground/80 text-lg leading-relaxed">{profile.description}</p>
                 
-                {/* EQ score breakdown */}
                 <div className="mt-6 pt-6 border-t border-gray-100">
                   <h3 className="text-lg font-medium mb-4">Emotional Intelligence Breakdown</h3>
                   
@@ -486,7 +474,6 @@ const EQNavigatorResults = () => {
                 </div>
               </motion.div>
               
-              {/* Strengths Section */}
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -517,7 +504,6 @@ const EQNavigatorResults = () => {
                 </div>
               </motion.div>
               
-              {/* Growth Areas Section */}
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -548,7 +534,6 @@ const EQNavigatorResults = () => {
                 </div>
               </motion.div>
               
-              {/* Resources Section */}
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -583,7 +568,6 @@ const EQNavigatorResults = () => {
             </motion.div>
           </div>
           
-          {/* Action buttons */}
           <div className="flex flex-col sm:flex-row justify-center gap-4 mt-8">
             <Button 
               onClick={() => navigate('/')}

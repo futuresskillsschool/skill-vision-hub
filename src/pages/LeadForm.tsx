@@ -9,6 +9,7 @@ import { ArrowRight } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { supabase } from '@/integrations/supabase/client';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 // Sample assessment data mapping - this would typically come from an API or database
 const assessmentTitles = {
@@ -18,6 +19,28 @@ const assessmentTitles = {
   'eq-navigator': 'EQ Navigator Assessment',
   'future-pathways': 'Future Pathways Explorer'
 };
+
+// Stream options
+const streamOptions = [
+  'Business & Commerce',
+  'Science & Engineering',
+  'Arts & Humanities',
+  'Health & Medicine',
+  'Information Technology',
+  'Education',
+  'Other'
+];
+
+// Interest options
+const interestOptions = [
+  'Career Development',
+  'Personal Growth',
+  'Academic Planning',
+  'Skill Development',
+  'Leadership',
+  'Entrepreneurship',
+  'Other'
+];
 
 const LeadForm = () => {
   const { id } = useParams<{ id: string }>();
@@ -29,8 +52,8 @@ const LeadForm = () => {
     lastName: '',
     email: '',
     phone: '',
-    company: '',
-    role: '',
+    stream: '',
+    interest: '',
     password: '',
     confirmPassword: '',
     agreeToTerms: false
@@ -58,6 +81,22 @@ const LeadForm = () => {
       });
     }
   };
+
+  const handleSelectChange = (name: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    
+    // Clear error when field is updated
+    if (errors[name]) {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
+  };
   
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -74,6 +113,18 @@ const LeadForm = () => {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Email is invalid';
+    }
+    
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'Phone number is required';
+    }
+
+    if (!formData.stream) {
+      newErrors.stream = 'Please select a stream';
+    }
+
+    if (!formData.interest) {
+      newErrors.interest = 'Please select an area of interest';
     }
     
     if (!formData.password) {
@@ -112,6 +163,9 @@ const LeadForm = () => {
           data: {
             first_name: formData.firstName,
             last_name: formData.lastName,
+            phone: formData.phone,
+            stream: formData.stream,
+            interest: formData.interest
           }
         }
       });
@@ -126,8 +180,8 @@ const LeadForm = () => {
             first_name: formData.firstName,
             last_name: formData.lastName,
             phone: formData.phone,
-            company: formData.company,
-            role: formData.role
+            stream: formData.stream,
+            interest: formData.interest
           })
           .eq('id', authData.user.id);
           
@@ -229,6 +283,67 @@ const LeadForm = () => {
                     )}
                   </div>
                   
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Phone Number <span className="text-red-500">*</span></Label>
+                    <Input
+                      id="phone"
+                      name="phone"
+                      type="tel"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      className={errors.phone ? 'border-red-500' : ''}
+                    />
+                    {errors.phone && (
+                      <p className="text-red-500 text-sm">{errors.phone}</p>
+                    )}
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="stream">Stream <span className="text-red-500">*</span></Label>
+                      <Select 
+                        value={formData.stream} 
+                        onValueChange={(value) => handleSelectChange('stream', value)}
+                      >
+                        <SelectTrigger className={errors.stream ? 'border-red-500' : ''}>
+                          <SelectValue placeholder="Select your stream" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {streamOptions.map((option) => (
+                            <SelectItem key={option} value={option}>
+                              {option}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {errors.stream && (
+                        <p className="text-red-500 text-sm">{errors.stream}</p>
+                      )}
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="interest">Area of Interest <span className="text-red-500">*</span></Label>
+                      <Select 
+                        value={formData.interest} 
+                        onValueChange={(value) => handleSelectChange('interest', value)}
+                      >
+                        <SelectTrigger className={errors.interest ? 'border-red-500' : ''}>
+                          <SelectValue placeholder="Select your interest" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {interestOptions.map((option) => (
+                            <SelectItem key={option} value={option}>
+                              {option}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {errors.interest && (
+                        <p className="text-red-500 text-sm">{errors.interest}</p>
+                      )}
+                    </div>
+                  </div>
+                  
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <Label htmlFor="password">Password <span className="text-red-500">*</span></Label>
@@ -258,39 +373,6 @@ const LeadForm = () => {
                       {errors.confirmPassword && (
                         <p className="text-red-500 text-sm">{errors.confirmPassword}</p>
                       )}
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Phone (optional)</Label>
-                    <Input
-                      id="phone"
-                      name="phone"
-                      type="tel"
-                      value={formData.phone}
-                      onChange={handleChange}
-                    />
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="company">Company/Organization (optional)</Label>
-                      <Input
-                        id="company"
-                        name="company"
-                        value={formData.company}
-                        onChange={handleChange}
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="role">Current Role (optional)</Label>
-                      <Input
-                        id="role"
-                        name="role"
-                        value={formData.role}
-                        onChange={handleChange}
-                      />
                     </div>
                   </div>
                   

@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -45,10 +45,6 @@ const Login = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleSignUp = () => {
-    navigate('/future-pathways/lead-form');
   };
 
   return (
@@ -116,7 +112,7 @@ const Login = () => {
               </Button>
               
               <div className="text-center text-sm text-muted-foreground mt-6">
-                <p>Don't have an account? <a href="#" className="text-brand-purple hover:underline" onClick={handleSignUp}>Sign up</a></p>
+                <p>Don't have an account? <Link to="/signup" className="text-brand-purple hover:underline">Sign up</Link></p>
               </div>
             </form>
           </motion.div>

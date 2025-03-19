@@ -14,6 +14,7 @@ import EQNavigatorResults from "./pages/EQNavigatorResults";
 import FuturePathwaysAssessment from "./pages/FuturePathwaysAssessment";
 import FuturePathwaysResults from "./pages/FuturePathwaysResults";
 import Login from "./pages/Login";
+import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
 import { PrivateRoute } from "./components/PrivateRoute";
 
@@ -39,6 +40,7 @@ const App = () => (
               <Route path="/future-pathways" element={<FuturePathwaysAssessment />} />
               <Route path="/future-pathways/results" element={<FuturePathwaysResults />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<SignUp />} />
               <Route path="/dashboard" element={
                 <PrivateRoute>
                   <Dashboard />
