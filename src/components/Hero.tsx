@@ -53,11 +53,11 @@ const Hero = () => {
             Find Your Path And <span className="relative">
               <span className="relative z-10 text-brand-purple">Grow</span>
               <span className="absolute bottom-2 left-0 w-full h-3 bg-brand-light-purple/30 rounded-full -z-0"></span>
-            </span> With Science-Based Assessments
+            </span> With Assessment-Driven Insights
           </h1>
           
           <p className="animate-on-scroll text-lg md:text-xl text-foreground/80 mb-8 mx-auto max-w-2xl">
-            Access scientifically validated assessments that help you discover your strengths, 
+            Access our carefully crafted assessments to discover your strengths, 
             define your career path, and develop critical skills for the future of work.
           </p>
           
@@ -66,26 +66,8 @@ const Hero = () => {
               onClick={scrollToAssessments} 
               className="button-primary text-base group"
             >
-              Explore Assessments <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              Begin Your Journey <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </Button>
-          </div>
-          
-          {/* User avatars - removed the user count as requested */}
-          <div className="animate-on-scroll mt-12 flex flex-col items-center">
-            <div className="flex -space-x-3 mb-3">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-gray-200 overflow-hidden">
-                  <img 
-                    src={`https://randomuser.me/api/portraits/${i % 2 === 0 ? 'women' : 'men'}/${i + 10}.jpg`} 
-                    alt="User" 
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              ))}
-            </div>
-            <p className="text-sm text-foreground/70 font-medium">
-              Users have discovered their path
-            </p>
           </div>
         </div>
       </div>

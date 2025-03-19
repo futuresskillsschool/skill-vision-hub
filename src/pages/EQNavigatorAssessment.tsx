@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import Navbar from '@/components/Navbar';
@@ -8,7 +8,8 @@ import Footer from '@/components/Footer';
 import { Progress } from '@/components/ui/progress';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, ArrowLeft, ArrowRight, Check } from 'lucide-react';
+import { Card } from '@/components/ui/card';
 
 // Define the structure of a question
 interface Question {
@@ -125,12 +126,25 @@ const eqQuestions: Question[] = [
   }
 ];
 
+// Group questions for a multi-question page layout (3 questions per page)
+const groupQuestions = (questions: Question[], perPage: number) => {
+  const groupedQuestions = [];
+  for (let i = 0; i < questions.length; i += perPage) {
+    groupedQuestions.push(questions.slice(i, i + perPage));
+  }
+  return groupedQuestions;
+};
+
 const EQNavigatorAssessment = () => {
   const navigate = useNavigate();
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOptions, setSelectedOptions] = useState<string[]>(Array(eqQuestions.length).fill(''));
   const [showResults, setShowResults] = useState(false);
   const [totalScore, setTotalScore] = useState(0);
+  
+  // Group questions 3 per page
+  const questionsPerPage = 3;
+  const groupedQuestions = groupQuestions(eqQuestions, questionsPerPage);
+  const [currentPageIndex, setCurrentPageIndex] = useState(0);
 
   // Reset to top of page on mount
   useEffect(() => {
@@ -138,17 +152,18 @@ const EQNavigatorAssessment = () => {
   }, []);
 
   // Calculate progress percentage
-  const progressPercentage = ((currentQuestionIndex + 1) / eqQuestions.length) * 100;
+  const progressPercentage = ((currentPageIndex + 1) / groupedQuestions.length) * 100;
 
-  const handleOptionSelect = (optionId: string) => {
+  const handleOptionSelect = (questionIndex: number, optionId: string) => {
     const newSelectedOptions = [...selectedOptions];
-    newSelectedOptions[currentQuestionIndex] = optionId;
+    const globalQuestionIndex = currentPageIndex * questionsPerPage + questionIndex;
+    newSelectedOptions[globalQuestionIndex] = optionId;
     setSelectedOptions(newSelectedOptions);
   };
 
   const handleNext = () => {
-    if (currentQuestionIndex < eqQuestions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
+    if (currentPageIndex < groupedQuestions.length - 1) {
+      setCurrentPageIndex(currentPageIndex + 1);
       window.scrollTo(0, 0);
     } else {
       // Calculate total score
@@ -166,8 +181,8 @@ const EQNavigatorAssessment = () => {
   };
 
   const handlePrevious = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(currentQuestionIndex - 1);
+    if (currentPageIndex > 0) {
+      setCurrentPageIndex(currentPageIndex - 1);
       window.scrollTo(0, 0);
     }
   };
@@ -182,7 +197,17 @@ const EQNavigatorAssessment = () => {
     });
   };
 
-  const currentQuestion = eqQuestions[currentQuestionIndex];
+  // Check if all questions on current page have been answered
+  const isCurrentPageComplete = () => {
+    const currentQuestions = groupedQuestions[currentPageIndex];
+    for (let i = 0; i < currentQuestions.length; i++) {
+      const globalIndex = currentPageIndex * questionsPerPage + i;
+      if (!selectedOptions[globalIndex]) {
+        return false;
+      }
+    }
+    return true;
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -190,56 +215,96 @@ const EQNavigatorAssessment = () => {
       
       <main className="flex-grow pt-24 pb-16">
         <div className="container mx-auto px-4 md:px-6">
-          <div className="max-w-3xl mx-auto">
+          <div className="max-w-4xl mx-auto">
             {!showResults ? (
               <motion.div 
-                key={currentQuestionIndex}
+                key={currentPageIndex}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
                 className="bg-white rounded-xl shadow-card p-6 md:p-8"
               >
-                <div className="mb-6">
-                  <h2 className="text-lg font-medium text-muted-foreground mb-1">Question {currentQuestionIndex + 1} of {eqQuestions.length}</h2>
-                  <Progress value={progressPercentage} className="h-2" />
+                <div className="mb-8">
+                  <div className="flex justify-between items-center mb-2">
+                    <h2 className="text-lg font-medium text-muted-foreground">
+                      Page {currentPageIndex + 1} of {groupedQuestions.length}
+                    </h2>
+                    <span className="text-sm text-muted-foreground font-medium">
+                      {Math.min((currentPageIndex + 1) * questionsPerPage, eqQuestions.length)} of {eqQuestions.length} questions
+                    </span>
+                  </div>
+                  <Progress value={progressPercentage} className="h-2 bg-brand-purple/20" />
                 </div>
                 
-                <h3 className="text-xl md:text-2xl font-semibold mb-6">{currentQuestion.scenario}</h3>
-                
-                <RadioGroup 
-                  value={selectedOptions[currentQuestionIndex]} 
-                  onValueChange={handleOptionSelect}
-                  className="space-y-4"
-                >
-                  {currentQuestion.options.map((option) => (
-                    <div key={option.id} className="flex items-start space-x-2 border border-border/50 rounded-md p-4 hover:border-brand-purple/50 hover:bg-brand-purple/5 transition-colors">
-                      <RadioGroupItem value={option.id} id={`option-${option.id}`} className="mt-1" />
-                      <Label 
-                        htmlFor={`option-${option.id}`} 
-                        className="flex-1 cursor-pointer font-normal text-base"
-                      >
-                        {option.text}
-                      </Label>
-                    </div>
-                  ))}
-                </RadioGroup>
+                <div className="space-y-8">
+                  {groupedQuestions[currentPageIndex].map((question, questionIndex) => {
+                    const globalQuestionIndex = currentPageIndex * questionsPerPage + questionIndex;
+                    return (
+                      <div key={question.id} className="bg-brand-purple/5 rounded-lg p-5 border border-brand-purple/20">
+                        <h3 className="text-lg md:text-xl font-semibold mb-4 flex">
+                          <span className="bg-brand-purple text-white w-8 h-8 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                            {globalQuestionIndex + 1}
+                          </span>
+                          {question.scenario}
+                        </h3>
+                        
+                        <RadioGroup 
+                          value={selectedOptions[globalQuestionIndex]} 
+                          onValueChange={(value) => handleOptionSelect(questionIndex, value)}
+                          className="space-y-3"
+                        >
+                          {question.options.map((option) => (
+                            <div 
+                              key={option.id} 
+                              className={`flex items-start space-x-2 border rounded-md p-3 transition-colors ${
+                                selectedOptions[globalQuestionIndex] === option.id 
+                                  ? 'border-brand-purple bg-brand-purple/10' 
+                                  : 'border-border/50 hover:border-brand-purple/50 hover:bg-brand-purple/5'
+                              }`}
+                            >
+                              <RadioGroupItem 
+                                value={option.id} 
+                                id={`question-${question.id}-option-${option.id}`} 
+                                className="mt-1" 
+                              />
+                              <Label 
+                                htmlFor={`question-${question.id}-option-${option.id}`} 
+                                className="flex-1 cursor-pointer font-normal text-base"
+                              >
+                                {option.text}
+                              </Label>
+                              {selectedOptions[globalQuestionIndex] === option.id && (
+                                <div className="bg-brand-purple/20 rounded-full p-1">
+                                  <Check className="h-4 w-4 text-brand-purple" />
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </RadioGroup>
+                      </div>
+                    );
+                  })}
+                </div>
                 
                 <div className="flex justify-between mt-8">
                   <Button 
                     variant="outline"
                     onClick={handlePrevious}
-                    disabled={currentQuestionIndex === 0}
+                    disabled={currentPageIndex === 0}
+                    className="flex items-center gap-1"
                   >
+                    <ArrowLeft className="h-4 w-4" />
                     Previous
                   </Button>
                   
                   <Button 
                     onClick={handleNext}
-                    disabled={!selectedOptions[currentQuestionIndex]}
-                    className="bg-brand-purple hover:bg-brand-dark-purple"
+                    disabled={!isCurrentPageComplete()}
+                    className="bg-brand-purple hover:bg-brand-dark-purple flex items-center gap-1"
                   >
-                    {currentQuestionIndex === eqQuestions.length - 1 ? "Finish" : "Next"}
+                    {currentPageIndex === groupedQuestions.length - 1 ? "Finish" : "Next"}
+                    <ArrowRight className="h-4 w-4" />
                   </Button>
                 </div>
               </motion.div>

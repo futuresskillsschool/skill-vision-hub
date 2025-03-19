@@ -12,6 +12,8 @@ import EQNavigatorAssessment from "./pages/EQNavigatorAssessment";
 import EQNavigatorResults from "./pages/EQNavigatorResults";
 import FuturePathwaysAssessment from "./pages/FuturePathwaysAssessment";
 import FuturePathwaysResults from "./pages/FuturePathwaysResults";
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
 
 // Add framer-motion for animations
 import { motion, AnimatePresence } from "framer-motion";
@@ -33,6 +35,8 @@ const App = () => (
             <Route path="/eq-navigator/results" element={<EQNavigatorResults />} />
             <Route path="/future-pathways" element={<FuturePathwaysAssessment />} />
             <Route path="/future-pathways/results" element={<FuturePathwaysResults />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/dashboard" element={<Dashboard />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

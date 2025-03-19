@@ -1,13 +1,14 @@
 
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Menu, X, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -28,6 +29,10 @@ const Navbar = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
+  const handleLogin = () => {
+    navigate('/login');
+  };
+
   return (
     <header
       className={cn(
@@ -45,7 +50,13 @@ const Navbar = () => {
           </Link>
 
           <div className="hidden md:block">
-            <Button className="button-primary">Start Assessment</Button>
+            <Button 
+              className="button-primary flex items-center gap-1.5"
+              onClick={handleLogin}
+            >
+              <LogIn className="h-4 w-4" />
+              Login
+            </Button>
           </div>
 
           {/* Mobile Menu Button */}
@@ -68,7 +79,13 @@ const Navbar = () => {
         <div className="md:hidden absolute top-full left-0 right-0 bg-white shadow-md animate-fade-in">
           <div className="container mx-auto px-4 py-4">
             <nav className="flex flex-col space-y-4">
-              <Button className="button-primary w-full mt-2">Start Assessment</Button>
+              <Button 
+                className="button-primary w-full mt-2 flex items-center justify-center gap-1.5"
+                onClick={handleLogin}
+              >
+                <LogIn className="h-4 w-4" />
+                Login
+              </Button>
             </nav>
           </div>
         </div>

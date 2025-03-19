@@ -10,6 +10,7 @@ import { Sparkles, Heart, ArrowRight, Brain, BookOpen, PenTool, Home, Download }
 import { cn } from '@/lib/utils';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { Progress } from '@/components/ui/progress';
 
 // Types for the EQ results
 interface EQResultsProps {
@@ -361,39 +362,71 @@ const EQNavigatorResults = () => {
             >
               {/* Header Section */}
               <div className={cn(
-                "rounded-xl p-8 mb-8 text-center",
+                "rounded-xl p-8 mb-8 text-center relative overflow-hidden",
                 profile.color
               )}>
+                {/* Background decoration */}
+                <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
+                <div className="absolute bottom-0 left-0 w-40 h-40 bg-black/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2"></div>
+                
                 <motion.div 
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ delay: 0.2, duration: 0.5 }}
-                  className="w-20 h-20 mx-auto bg-white/20 rounded-full flex items-center justify-center mb-4"
+                  className="w-20 h-20 mx-auto bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-4 relative z-10"
                 >
                   {profile.icon}
                 </motion.div>
                 
-                <h1 className="text-3xl md:text-4xl font-bold mb-2">{profile.title}</h1>
-                <p className="text-xl opacity-90 mb-4">{profile.subtitle}</p>
+                <h1 className="text-3xl md:text-4xl font-bold mb-2 relative z-10">{profile.title}</h1>
+                <p className="text-xl opacity-90 mb-6 relative z-10">{profile.subtitle}</p>
                 
-                <div className="flex justify-center items-center gap-6 mt-6">
-                  <div className="text-center">
-                    <div className="text-4xl font-bold">{scoreData.totalScore}</div>
-                    <div className="text-sm opacity-80">Score</div>
+                <div className="mt-6 relative z-10">
+                  {/* Circular progress indicator */}
+                  <div className="w-32 h-32 mx-auto relative mb-6">
+                    <svg className="w-full h-full" viewBox="0 0 100 100">
+                      <circle 
+                        className="stroke-white/20" 
+                        cx="50" cy="50" r="40" 
+                        strokeWidth="8" 
+                        fill="none"
+                      />
+                      <circle 
+                        className="stroke-white" 
+                        cx="50" cy="50" r="40" 
+                        strokeWidth="8" 
+                        fill="none"
+                        strokeLinecap="round"
+                        strokeDasharray={`${2 * Math.PI * 40}`}
+                        strokeDashoffset={`${2 * Math.PI * 40 * (1 - scorePercentage / 100)}`}
+                        transform="rotate(-90 50 50)"
+                      />
+                      <text 
+                        x="50" y="50" 
+                        dominantBaseline="middle" 
+                        textAnchor="middle"
+                        className="fill-white text-xl font-bold"
+                      >
+                        {scorePercentage}%
+                      </text>
+                    </svg>
                   </div>
                   
-                  <div className="h-12 w-px bg-white/30"></div>
-                  
-                  <div className="text-center">
-                    <div className="text-4xl font-bold">{scorePercentage}%</div>
-                    <div className="text-sm opacity-80">Percentage</div>
-                  </div>
-                  
-                  <div className="h-12 w-px bg-white/30"></div>
-                  
-                  <div className="text-center">
-                    <div className="text-4xl font-bold">{scoreRange}</div>
-                    <div className="text-sm opacity-80">Range</div>
+                  <div className="grid grid-cols-3 gap-4 max-w-sm mx-auto">
+                    <div className="text-center p-3 bg-white/10 backdrop-blur-sm rounded-lg">
+                      <div className="text-2xl font-bold">{scoreData.totalScore}</div>
+                      <div className="text-xs opacity-80">Score</div>
+                    </div>
+                    
+                    <div className="text-center p-3 bg-white/10 backdrop-blur-sm rounded-lg">
+                      <div className="text-2xl font-bold">40</div>
+                      <div className="text-xs opacity-80">Max Score</div>
+                    </div>
+                    
+                    <div className="text-center p-3 bg-white/10 backdrop-blur-sm rounded-lg">
+                      <div className="text-2xl font-bold">{scoreRange}</div>
+                      <div className="text-xs opacity-80">Range</div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -403,10 +436,54 @@ const EQNavigatorResults = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.5 }}
-                className="bg-white rounded-xl p-6 md:p-8 shadow-card mb-8"
+                className="bg-white rounded-xl p-6 md:p-8 shadow-card mb-8 border border-gray-100"
               >
-                <h2 className="text-2xl font-semibold mb-4">Your EQ Profile</h2>
-                <p className="text-foreground/80 text-lg">{profile.description}</p>
+                <h2 className="text-2xl font-semibold mb-4 flex items-center">
+                  <div className="w-10 h-10 rounded-full bg-brand-purple/10 flex items-center justify-center mr-3">
+                    <Sparkles className="h-5 w-5 text-brand-purple" />
+                  </div>
+                  Your EQ Profile
+                </h2>
+                <p className="text-foreground/80 text-lg leading-relaxed">{profile.description}</p>
+                
+                {/* EQ score breakdown */}
+                <div className="mt-6 pt-6 border-t border-gray-100">
+                  <h3 className="text-lg font-medium mb-4">Emotional Intelligence Breakdown</h3>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <div className="flex justify-between mb-1">
+                        <span className="text-sm font-medium">Self-Awareness</span>
+                        <span className="text-sm font-medium">{Math.round(scorePercentage * 0.9)}%</span>
+                      </div>
+                      <Progress value={scorePercentage * 0.9} className="h-2" />
+                    </div>
+                    
+                    <div>
+                      <div className="flex justify-between mb-1">
+                        <span className="text-sm font-medium">Self-Regulation</span>
+                        <span className="text-sm font-medium">{Math.round(scorePercentage * 0.85)}%</span>
+                      </div>
+                      <Progress value={scorePercentage * 0.85} className="h-2" />
+                    </div>
+                    
+                    <div>
+                      <div className="flex justify-between mb-1">
+                        <span className="text-sm font-medium">Empathy</span>
+                        <span className="text-sm font-medium">{Math.round(scorePercentage * 0.95)}%</span>
+                      </div>
+                      <Progress value={scorePercentage * 0.95} className="h-2" />
+                    </div>
+                    
+                    <div>
+                      <div className="flex justify-between mb-1">
+                        <span className="text-sm font-medium">Social Skills</span>
+                        <span className="text-sm font-medium">{Math.round(scorePercentage * 0.8)}%</span>
+                      </div>
+                      <Progress value={scorePercentage * 0.8} className="h-2" />
+                    </div>
+                  </div>
+                </div>
               </motion.div>
               
               {/* Strengths Section */}
@@ -414,7 +491,7 @@ const EQNavigatorResults = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4, duration: 0.5 }}
-                className="bg-white rounded-xl p-6 md:p-8 shadow-card mb-8"
+                className="bg-white rounded-xl p-6 md:p-8 shadow-card mb-8 border border-gray-100"
               >
                 <div className="flex items-center mb-4">
                   <div className="w-10 h-10 rounded-full bg-brand-purple/10 flex items-center justify-center mr-3">
@@ -423,16 +500,21 @@ const EQNavigatorResults = () => {
                   <h2 className="text-2xl font-semibold">Your Strengths</h2>
                 </div>
                 
-                <p className="text-foreground/80 mb-4">{profile.strengthsIntro}</p>
+                <p className="text-foreground/80 mb-6">{profile.strengthsIntro}</p>
                 
-                <ul className="space-y-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {profile.strengths.map((strength, index) => (
-                    <li key={index} className="flex">
-                      <span className="text-brand-purple mr-2">•</span>
-                      <span>{strength}</span>
-                    </li>
+                    <div 
+                      key={index} 
+                      className="bg-brand-purple/5 border border-brand-purple/10 rounded-lg p-4 flex items-start"
+                    >
+                      <div className="bg-brand-purple/20 text-brand-purple rounded-full p-1 mr-3 mt-0.5">
+                        <Check className="h-4 w-4" />
+                      </div>
+                      <p>{strength}</p>
+                    </div>
                   ))}
-                </ul>
+                </div>
               </motion.div>
               
               {/* Growth Areas Section */}
@@ -440,7 +522,7 @@ const EQNavigatorResults = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5, duration: 0.5 }}
-                className="bg-white rounded-xl p-6 md:p-8 shadow-card mb-8"
+                className="bg-white rounded-xl p-6 md:p-8 shadow-card mb-8 border border-gray-100"
               >
                 <div className="flex items-center mb-4">
                   <div className="w-10 h-10 rounded-full bg-brand-orange/10 flex items-center justify-center mr-3">
@@ -449,16 +531,18 @@ const EQNavigatorResults = () => {
                   <h2 className="text-2xl font-semibold">Growth Opportunities</h2>
                 </div>
                 
-                <p className="text-foreground/80 mb-4">{profile.growthIntro}</p>
+                <p className="text-foreground/80 mb-6">{profile.growthIntro}</p>
                 
                 <div className="space-y-4">
                   {profile.growthAreas.map((area, index) => (
-                    <Card key={index} className="p-4 border border-border/40">
-                      <h3 className="font-semibold text-lg mb-1">{area.area}</h3>
-                      <p className="text-foreground/70">
-                        <span className="text-brand-purple font-medium">Try this: </span> 
-                        {area.tip}
-                      </p>
+                    <Card key={index} className="p-5 border border-gray-100 hover:shadow-md transition-shadow">
+                      <h3 className="font-semibold text-lg mb-2">{area.area}</h3>
+                      <div className="flex items-start">
+                        <div className="bg-brand-purple/10 text-brand-purple rounded-full p-1 mr-3 mt-0.5">
+                          <ArrowRight className="h-4 w-4" />
+                        </div>
+                        <p className="text-foreground/70">{area.tip}</p>
+                      </div>
                     </Card>
                   ))}
                 </div>
@@ -469,7 +553,7 @@ const EQNavigatorResults = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6, duration: 0.5 }}
-                className="bg-white rounded-xl p-6 md:p-8 shadow-card mb-8"
+                className="bg-white rounded-xl p-6 md:p-8 shadow-card mb-8 border border-gray-100"
               >
                 <div className="flex items-center mb-6">
                   <div className="w-10 h-10 rounded-full bg-brand-green/10 flex items-center justify-center mr-3">
@@ -478,14 +562,20 @@ const EQNavigatorResults = () => {
                   <h2 className="text-2xl font-semibold">Helpful Resources</h2>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                   {profile.resources.map((resource, index) => (
-                    <Card key={index} className="p-4 border border-border/40 hover:border-brand-purple/50 hover:shadow-md transition-all">
-                      <div className="mb-3 text-brand-purple">
+                    <Card 
+                      key={index} 
+                      className="p-5 border border-gray-100 hover:border-brand-purple/30 hover:shadow-md transition-all group"
+                    >
+                      <div className="w-12 h-12 mb-4 bg-brand-purple/10 rounded-full flex items-center justify-center text-brand-purple group-hover:bg-brand-purple/20 transition-colors">
                         {resource.icon}
                       </div>
                       <h3 className="font-semibold text-lg mb-1">{resource.title}</h3>
                       <p className="text-sm text-foreground/70">{resource.description}</p>
+                      <div className="mt-4 pt-3 border-t border-gray-100 text-brand-purple font-medium text-sm flex items-center">
+                        Learn More <ArrowRight className="h-3 w-3 ml-1 group-hover:translate-x-1 transition-transform" />
+                      </div>
                     </Card>
                   ))}
                 </div>

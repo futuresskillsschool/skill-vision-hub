@@ -6,10 +6,11 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Rocket, Download, ArrowRight, Brain, BookOpen, PenTool, Home, Code, Palette, BarChart3, Briefcase, Heart } from 'lucide-react';
+import { Rocket, Download, ArrowRight, Brain, BookOpen, PenTool, Home, Code, Palette, BarChart3, Briefcase, Heart, Check, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { Progress } from '@/components/ui/progress';
 
 // Types for the pathway results
 interface PathwayResultsProps {
@@ -25,6 +26,7 @@ interface CareerCluster {
   description: string;
   icon: React.ReactNode;
   color: string;
+  bgGradient: string;
   careers: Array<{
     title: string;
     description: string;
@@ -39,6 +41,7 @@ const careerClusters: Record<string, CareerCluster> = {
     description: "You are fascinated by how things work and love to create and fix them! You are likely drawn to building new technologies, software, and even robots. In the future, the world needs people like you to design and build the amazing tech we'll all use. This path is perfect if you enjoy problem-solving, coding, engineering, and bringing your innovative ideas to life.",
     icon: <Code className="h-8 w-8" />,
     color: 'bg-brand-purple text-white',
+    bgGradient: 'bg-gradient-to-br from-brand-purple to-brand-dark-purple',
     careers: [
       {
         title: 'AI Solutions Architect',
@@ -65,6 +68,7 @@ const careerClusters: Record<string, CareerCluster> = {
     description: "You have a creative soul and love expressing yourself through art, stories, music, videos, or games! You are likely interested in creating digital content and experiences that entertain and engage people. In the future, digital worlds and online experiences will be even more important, and we need talented creators to build them. This path is for you if you love art, design, storytelling, games, and using technology to create magic.",
     icon: <Palette className="h-8 w-8" />,
     color: 'bg-brand-blue text-white',
+    bgGradient: 'bg-gradient-to-br from-brand-blue to-blue-700',
     careers: [
       {
         title: 'Metaverse Architect',
@@ -91,6 +95,7 @@ const careerClusters: Record<string, CareerCluster> = {
     description: "You are naturally curious about numbers, patterns, and solving puzzles! You like to analyze information and find hidden meanings within data. In the future, data will be everywhere, and we need skilled people to make sense of it all. This path is for you if you are logical, detail-oriented, enjoy problem-solving, and want to use data to make smart decisions and predictions.",
     icon: <BarChart3 className="h-8 w-8" />,
     color: 'bg-brand-orange text-white',
+    bgGradient: 'bg-gradient-to-br from-brand-orange to-amber-600',
     careers: [
       {
         title: 'AI Ethicist',
@@ -117,6 +122,7 @@ const careerClusters: Record<string, CareerCluster> = {
     description: "You are a natural leader with big ideas and a drive to make things happen! You are likely interested in starting your own projects or businesses and leading teams. In the future, we need innovative leaders to guide the development and use of technology for good. This path is for you if you are ambitious, creative, enjoy taking initiative, and want to build something impactful.",
     icon: <Briefcase className="h-8 w-8" />,
     color: 'bg-brand-green text-white',
+    bgGradient: 'bg-gradient-to-br from-brand-green to-emerald-700',
     careers: [
       {
         title: 'Innovation Manager',
@@ -143,6 +149,7 @@ const careerClusters: Record<string, CareerCluster> = {
     description: "You are caring and want to use your skills to help people and make a positive impact on the world! You believe technology can be a powerful tool for solving real-world problems. In the future, we need people who can combine technology with compassion to create solutions for healthcare, education, the environment, and social issues. This path is for you if you are empathetic, enjoy problem-solving, and want to use your tech skills to make a difference.",
     icon: <Heart className="h-8 w-8" />,
     color: 'bg-red-500 text-white',
+    bgGradient: 'bg-gradient-to-br from-red-500 to-red-700',
     careers: [
       {
         title: 'Telehealth Specialist',
@@ -168,6 +175,8 @@ const FuturePathwaysResults = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [topClusters, setTopClusters] = useState<CareerCluster[]>([]);
+  const [clusterScores, setClusterScores] = useState<Record<string, number>>({});
+  const [maxScore, setMaxScore] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const reportRef = useRef<HTMLDivElement>(null);
   
@@ -185,12 +194,20 @@ const FuturePathwaysResults = () => {
     
     // Find top 2 clusters
     const { clusterScores } = state;
+    setClusterScores(clusterScores);
+    
     const sortedClusters = Object.entries(clusterScores)
-      .sort((a, b) => b[1] - a[1])
+      .sort((a, b) => b[1] - a[1]);
+    
+    // Find max score for normalizing
+    const highestScore = sortedClusters[0][1];
+    setMaxScore(highestScore);
+    
+    const topTwoClusters = sortedClusters
       .slice(0, 2)
       .map(([id]) => careerClusters[id]);
     
-    setTopClusters(sortedClusters);
+    setTopClusters(topTwoClusters);
     setIsLoading(false);
   }, [location, navigate]);
 
@@ -225,6 +242,11 @@ const FuturePathwaysResults = () => {
     } catch (error) {
       console.error('Error generating PDF:', error);
     }
+  };
+
+  const calculatePercentage = (score: number) => {
+    if (maxScore === 0) return 0;
+    return Math.round((score / maxScore) * 100);
   };
 
   if (isLoading || topClusters.length === 0) {
@@ -263,102 +285,248 @@ const FuturePathwaysResults = () => {
               transition={{ duration: 0.5 }}
             >
               {/* Header */}
-              <div className="text-center mb-10">
-                <div className="w-20 h-20 mx-auto bg-brand-green/10 rounded-full flex items-center justify-center mb-4">
-                  <Rocket className="h-10 w-10 text-brand-green" />
+              <div className="text-center mb-10 relative">
+                {/* Background decoration */}
+                <div className="absolute top-0 right-0 w-40 h-40 bg-brand-green/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 -z-10"></div>
+                
+                <div className="w-24 h-24 mx-auto bg-gradient-to-br from-brand-green to-emerald-700 rounded-2xl rotate-3 flex items-center justify-center mb-6">
+                  <Rocket className="h-12 w-12 text-white" />
                 </div>
-                <h1 className="text-3xl md:text-4xl font-bold mb-2">Your Future Pathways</h1>
-                <p className="text-muted-foreground text-lg">
-                  Based on your responses, these career paths align with your interests and strengths.
+                <h1 className="text-3xl md:text-4xl font-bold mb-3">Your Future Pathways</h1>
+                <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+                  Based on your responses, these career paths align with your interests and strengths. 
+                  Explore the possibilities that await in the future of work.
                 </p>
+              </div>
+              
+              {/* Career Clusters Comparison */}
+              <div className="mb-10 bg-gray-50 rounded-xl p-6 border border-gray-100">
+                <h2 className="text-xl font-semibold mb-4">Your Career Cluster Affinities</h2>
+                
+                <div className="space-y-4">
+                  {Object.entries(clusterScores)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([clusterId, score]) => {
+                      const cluster = careerClusters[clusterId];
+                      const percentage = calculatePercentage(score);
+                      return (
+                        <div key={clusterId} className="space-y-1">
+                          <div className="flex justify-between items-center">
+                            <div className="flex items-center">
+                              <div className={`w-6 h-6 rounded-full ${cluster.color} flex items-center justify-center mr-2`}>
+                                {cluster.icon}
+                              </div>
+                              <span className="font-medium">{cluster.title}</span>
+                            </div>
+                            <span className="text-sm font-semibold">{percentage}%</span>
+                          </div>
+                          <Progress 
+                            value={percentage} 
+                            className={cn("h-2", 
+                              clusterId === 'tech-innovator' ? 'bg-brand-purple/20' : 
+                              clusterId === 'digital-creator' ? 'bg-brand-blue/20' :
+                              clusterId === 'data-analyst' ? 'bg-brand-orange/20' :
+                              clusterId === 'entrepreneur' ? 'bg-brand-green/20' :
+                              'bg-red-200'
+                            )} 
+                          />
+                        </div>
+                      );
+                    })
+                  }
+                </div>
               </div>
               
               {/* Primary Career Cluster */}
               <div className={cn(
-                "rounded-xl p-8 mb-8",
-                topClusters[0].color
+                "rounded-xl p-8 mb-8 relative overflow-hidden",
+                topClusters[0].bgGradient
               )}>
-                <h2 className="text-2xl font-bold mb-2">Primary Career Path</h2>
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-                    {topClusters[0].icon}
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold">{topClusters[0].title}</h3>
-                    <p className="text-white/90">{topClusters[0].subtitle}</p>
-                  </div>
-                </div>
+                {/* Background decorations */}
+                <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-xl -translate-y-1/2 translate-x-1/4"></div>
+                <div className="absolute bottom-0 left-0 w-40 h-40 bg-black/10 rounded-full blur-xl translate-y-1/2 -translate-x-1/4"></div>
                 
-                <div className="bg-white/10 rounded-lg p-4 mb-6">
-                  <p className="text-white/95">{topClusters[0].description}</p>
-                </div>
-                
-                <h4 className="text-lg font-semibold mb-3">Future Career Possibilities:</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {topClusters[0].careers.map((career, index) => (
-                    <div key={index} className="bg-white/20 rounded-lg p-4">
-                      <h5 className="font-semibold">{career.title}</h5>
-                      <p className="text-sm text-white/90">{career.description}</p>
+                <div className="relative z-10">
+                  <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
+                    <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                      <span className="text-white">1</span>
                     </div>
-                  ))}
+                    Primary Career Path
+                  </h2>
+                  
+                  <div className="flex flex-col md:flex-row items-center gap-5 mb-6">
+                    <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+                      {topClusters[0].icon}
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-semibold">{topClusters[0].title}</h3>
+                      <p className="text-white/90">{topClusters[0].subtitle}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white/10 backdrop-blur-sm rounded-lg p-5 mb-6">
+                    <p className="text-white/95 leading-relaxed">{topClusters[0].description}</p>
+                  </div>
+                  
+                  <h4 className="text-lg font-semibold mb-3">Future Career Possibilities:</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {topClusters[0].careers.map((career, index) => (
+                      <div key={index} className="bg-white/20 backdrop-blur-sm rounded-lg p-5 hover:bg-white/30 transition-colors group">
+                        <div className="flex items-center">
+                          <div className="bg-white/20 rounded-full w-8 h-8 flex items-center justify-center mr-3">
+                            <span className="font-semibold">{index + 1}</span>
+                          </div>
+                          <h5 className="font-semibold text-lg">{career.title}</h5>
+                        </div>
+                        <p className="mt-2 text-white/90">{career.description}</p>
+                        <div className="mt-3 pt-2 border-t border-white/20 text-sm flex items-center justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+                          <span className="mr-1">Learn more</span>
+                          <ExternalLink className="h-3 w-3" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div className="mt-6 pt-6 border-t border-white/20 text-white/90">
+                    <h5 className="font-semibold mb-2">Why this path matches you:</h5>
+                    <p>
+                      Based on your responses, you show a strong affinity for {topClusters[0].title.toLowerCase()} 
+                      activities and interests. This path aligns with your natural curiosity and problem-solving approach.
+                    </p>
+                  </div>
                 </div>
               </div>
               
               {/* Secondary Career Cluster (if available) */}
               {topClusters.length > 1 && (
                 <div className={cn(
-                  "rounded-xl p-8 mb-8",
-                  topClusters[1].color
+                  "rounded-xl p-8 mb-8 relative overflow-hidden",
+                  topClusters[1].bgGradient
                 )}>
-                  <h2 className="text-2xl font-bold mb-2">Secondary Career Path</h2>
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-                      {topClusters[1].icon}
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-semibold">{topClusters[1].title}</h3>
-                      <p className="text-white/90">{topClusters[1].subtitle}</p>
-                    </div>
-                  </div>
+                  {/* Background decorations */}
+                  <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-xl -translate-y-1/2 translate-x-1/4"></div>
+                  <div className="absolute bottom-0 left-0 w-40 h-40 bg-black/10 rounded-full blur-xl translate-y-1/2 -translate-x-1/4"></div>
                   
-                  <div className="bg-white/10 rounded-lg p-4 mb-6">
-                    <p className="text-white/95">{topClusters[1].description}</p>
-                  </div>
-                  
-                  <h4 className="text-lg font-semibold mb-3">Future Career Possibilities:</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {topClusters[1].careers.map((career, index) => (
-                      <div key={index} className="bg-white/20 rounded-lg p-4">
-                        <h5 className="font-semibold">{career.title}</h5>
-                        <p className="text-sm text-white/90">{career.description}</p>
+                  <div className="relative z-10">
+                    <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
+                      <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                        <span className="text-white">2</span>
                       </div>
-                    ))}
+                      Secondary Career Path
+                    </h2>
+                    
+                    <div className="flex flex-col md:flex-row items-center gap-5 mb-6">
+                      <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+                        {topClusters[1].icon}
+                      </div>
+                      <div>
+                        <h3 className="text-2xl font-semibold">{topClusters[1].title}</h3>
+                        <p className="text-white/90">{topClusters[1].subtitle}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-5 mb-6">
+                      <p className="text-white/95 leading-relaxed">{topClusters[1].description}</p>
+                    </div>
+                    
+                    <h4 className="text-lg font-semibold mb-3">Future Career Possibilities:</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {topClusters[1].careers.map((career, index) => (
+                        <div key={index} className="bg-white/20 backdrop-blur-sm rounded-lg p-5 hover:bg-white/30 transition-colors group">
+                          <div className="flex items-center">
+                            <div className="bg-white/20 rounded-full w-8 h-8 flex items-center justify-center mr-3">
+                              <span className="font-semibold">{index + 1}</span>
+                            </div>
+                            <h5 className="font-semibold text-lg">{career.title}</h5>
+                          </div>
+                          <p className="mt-2 text-white/90">{career.description}</p>
+                          <div className="mt-3 pt-2 border-t border-white/20 text-sm flex items-center justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+                            <span className="mr-1">Learn more</span>
+                            <ExternalLink className="h-3 w-3" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <div className="mt-6 pt-6 border-t border-white/20 text-white/90">
+                      <h5 className="font-semibold mb-2">You might also consider:</h5>
+                      <p>
+                        Your responses also indicate strengths that align well with a {topClusters[1].title.toLowerCase()} 
+                        path. This could be an excellent complementary field or alternative to explore.
+                      </p>
+                    </div>
                   </div>
                 </div>
               )}
               
+              {/* Interdisciplinary Opportunities */}
+              <div className="bg-gray-50 rounded-xl p-6 border border-gray-100 mb-8">
+                <h3 className="text-xl font-semibold mb-4 flex items-center">
+                  <div className="w-8 h-8 bg-gradient-to-br from-brand-purple to-brand-blue rounded-full flex items-center justify-center mr-3 text-white">
+                    <Check className="h-4 w-4" />
+                  </div>
+                  Interdisciplinary Opportunities
+                </h3>
+                
+                <p className="mb-4 text-muted-foreground">
+                  The most innovative career paths often combine skills from multiple areas. Consider how your top interests might work together:
+                </p>
+                
+                {topClusters.length > 1 && (
+                  <Card className="p-5 border-t-4 border-t-gradient-purple-blue mb-4">
+                    <h4 className="font-semibold text-lg mb-2">
+                      {topClusters[0].title} + {topClusters[1].title}
+                    </h4>
+                    <p className="text-muted-foreground">
+                      Combining these paths could lead to unique opportunities such as 
+                      creating technology solutions that address specific industry challenges or 
+                      designing innovative systems that draw on both your technical and creative skills.
+                    </p>
+                  </Card>
+                )}
+                
+                <div className="bg-white p-4 rounded-lg border border-gray-100">
+                  <h4 className="font-semibold flex items-center mb-2">
+                    <ArrowRight className="h-4 w-4 text-brand-green mr-2" />
+                    Pro Tip:
+                  </h4>
+                  <p className="text-sm text-muted-foreground">
+                    In today's rapidly changing work environment, professionals with diverse skill sets who can bridge multiple domains 
+                    are especially valuable. Consider building a unique combination of skills that sets you apart.
+                  </p>
+                </div>
+              </div>
+              
               {/* Conclusion */}
-              <div className="bg-gray-50 rounded-xl p-6 border border-gray-100">
+              <div className="bg-gradient-to-br from-brand-green/10 to-brand-blue/10 rounded-xl p-6 border border-brand-green/20">
                 <h3 className="text-xl font-semibold mb-4">Next Steps on Your Journey</h3>
                 <p className="mb-4">
                   This is just a starting point! Explore these career paths further. Talk to people in these fields, 
                   research online, and discover your own unique path to a bright future!
                 </p>
-                <ul className="space-y-2">
+                <ul className="space-y-3">
                   <li className="flex items-start">
-                    <ArrowRight className="h-5 w-5 text-brand-green mr-2 mt-0.5 flex-shrink-0" />
+                    <div className="bg-white p-1 rounded-full mr-2 mt-0.5">
+                      <ArrowRight className="h-4 w-4 text-brand-green" />
+                    </div>
                     <span>Research educational pathways that can help you develop skills in these areas</span>
                   </li>
                   <li className="flex items-start">
-                    <ArrowRight className="h-5 w-5 text-brand-green mr-2 mt-0.5 flex-shrink-0" />
+                    <div className="bg-white p-1 rounded-full mr-2 mt-0.5">
+                      <ArrowRight className="h-4 w-4 text-brand-green" />
+                    </div>
                     <span>Look for online courses, workshops, or clubs where you can explore these interests</span>
                   </li>
                   <li className="flex items-start">
-                    <ArrowRight className="h-5 w-5 text-brand-green mr-2 mt-0.5 flex-shrink-0" />
+                    <div className="bg-white p-1 rounded-full mr-2 mt-0.5">
+                      <ArrowRight className="h-4 w-4 text-brand-green" />
+                    </div>
                     <span>Connect with professionals in these fields through career fairs or social media</span>
                   </li>
                   <li className="flex items-start">
-                    <ArrowRight className="h-5 w-5 text-brand-green mr-2 mt-0.5 flex-shrink-0" />
+                    <div className="bg-white p-1 rounded-full mr-2 mt-0.5">
+                      <ArrowRight className="h-4 w-4 text-brand-green" />
+                    </div>
                     <span>Consider internships, volunteer opportunities, or projects to gain hands-on experience</span>
                   </li>
                 </ul>
