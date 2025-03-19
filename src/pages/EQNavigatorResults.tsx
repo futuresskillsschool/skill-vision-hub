@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Sparkles, Heart, ArrowRight, Brain, BookOpen, PenTool, Home, Download } from 'lucide-react';
+import { Sparkles, Heart, ArrowRight, Brain, BookOpen, PenTool, Home, Download, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
