@@ -1,13 +1,14 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { toast } from '@/components/ui/use-toast';
+import { useToast } from '@/components/ui/use-toast';
 import { ArrowRight } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { supabase } from '@/integrations/supabase/client';
 
 // Sample assessment data mapping - this would typically come from an API or database
 const assessmentTitles = {
@@ -21,6 +22,7 @@ const assessmentTitles = {
 const LeadForm = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { toast } = useToast();
   
   const [formData, setFormData] = useState({
     firstName: '',
@@ -29,6 +31,8 @@ const LeadForm = () => {
     phone: '',
     company: '',
     role: '',
+    password: '',
+    confirmPassword: '',
     agreeToTerms: false
   });
   
@@ -72,6 +76,16 @@ const LeadForm = () => {
       newErrors.email = 'Email is invalid';
     }
     
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
+    }
+    
+    if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
+    }
+    
     if (!formData.agreeToTerms) {
       newErrors.agreeToTerms = 'You must agree to the terms';
     }
@@ -80,7 +94,7 @@ const LeadForm = () => {
     return Object.keys(newErrors).length === 0;
   };
   
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!validateForm()) {
@@ -89,13 +103,41 @@ const LeadForm = () => {
     
     setIsSubmitting(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      console.log('Form data submitted:', formData);
-      setIsSubmitting(false);
+    try {
+      // Register the user with Supabase
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          data: {
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+          }
+        }
+      });
+      
+      if (authError) throw authError;
+      
+      // Update the profile with additional information
+      if (authData.user) {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .update({
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+            phone: formData.phone,
+            company: formData.company,
+            role: formData.role
+          })
+          .eq('id', authData.user.id);
+          
+        if (profileError) {
+          console.error('Error updating profile:', profileError);
+        }
+      }
       
       toast({
-        title: "Information Saved",
+        title: "Account created",
         description: "Your information has been saved successfully. Starting your assessment now.",
       });
       
@@ -106,10 +148,17 @@ const LeadForm = () => {
         navigate('/future-pathways');
       } else {
         // For other assessments, navigate back to the detail page for now
-        // In a real app, you would navigate to the specific assessment
         navigate(`/assessment/${id}`);
       }
-    }, 1500);
+    } catch (error: any) {
+      toast({
+        title: "Registration failed",
+        description: error.message || "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   
   return (
@@ -178,6 +227,38 @@ const LeadForm = () => {
                     {errors.email && (
                       <p className="text-red-500 text-sm">{errors.email}</p>
                     )}
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="password">Password <span className="text-red-500">*</span></Label>
+                      <Input
+                        id="password"
+                        name="password"
+                        type="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        className={errors.password ? 'border-red-500' : ''}
+                      />
+                      {errors.password && (
+                        <p className="text-red-500 text-sm">{errors.password}</p>
+                      )}
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="confirmPassword">Confirm Password <span className="text-red-500">*</span></Label>
+                      <Input
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        type="password"
+                        value={formData.confirmPassword}
+                        onChange={handleChange}
+                        className={errors.confirmPassword ? 'border-red-500' : ''}
+                      />
+                      {errors.confirmPassword && (
+                        <p className="text-red-500 text-sm">{errors.confirmPassword}</p>
+                      )}
+                    </div>
                   </div>
                   
                   <div className="space-y-2">

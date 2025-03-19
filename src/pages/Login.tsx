@@ -9,6 +9,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useToast } from '@/hooks/use-toast';
 import { LogIn, User, KeyRound } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -17,23 +18,37 @@ const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Simulate login delay
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
       
-      // For now, we're just implementing a simple mock login
-      // In a real app, you would check against a backend or service like Supabase/Firebase
+      if (error) throw error;
+      
       toast({
         title: "Login successful",
         description: "Welcome back to Future Skills School!",
       });
       
       navigate('/dashboard');
-    }, 1500);
+    } catch (error: any) {
+      toast({
+        title: "Login failed",
+        description: error.message || "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSignUp = () => {
+    navigate('/future-pathways/lead-form');
   };
 
   return (
@@ -101,7 +116,7 @@ const Login = () => {
               </Button>
               
               <div className="text-center text-sm text-muted-foreground mt-6">
-                <p>Don't have an account? <a href="#" className="text-brand-purple hover:underline" onClick={() => navigate('/assessment/future-pathways/lead-form')}>Sign up</a></p>
+                <p>Don't have an account? <a href="#" className="text-brand-purple hover:underline" onClick={handleSignUp}>Sign up</a></p>
               </div>
             </form>
           </motion.div>

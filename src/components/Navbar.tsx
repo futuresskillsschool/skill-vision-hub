@@ -1,14 +1,16 @@
 
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, X, LogIn } from 'lucide-react';
+import { Menu, X, LogIn, LogOut, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const { user, signOut } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -33,6 +35,15 @@ const Navbar = () => {
     navigate('/login');
   };
 
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/');
+  };
+
+  const handleDashboard = () => {
+    navigate('/dashboard');
+  };
+
   return (
     <header
       className={cn(
@@ -49,14 +60,34 @@ const Navbar = () => {
             <span className="font-display font-bold text-xl">Future Skills School</span>
           </Link>
 
-          <div className="hidden md:block">
-            <Button 
-              className="button-primary flex items-center gap-1.5"
-              onClick={handleLogin}
-            >
-              <LogIn className="h-4 w-4" />
-              Login
-            </Button>
+          <div className="hidden md:flex gap-4">
+            {user ? (
+              <>
+                <Button 
+                  variant="outline"
+                  className="flex items-center gap-1.5"
+                  onClick={handleDashboard}
+                >
+                  <User className="h-4 w-4" />
+                  Dashboard
+                </Button>
+                <Button 
+                  className="button-primary flex items-center gap-1.5"
+                  onClick={handleLogout}
+                >
+                  <LogOut className="h-4 w-4" />
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <Button 
+                className="button-primary flex items-center gap-1.5"
+                onClick={handleLogin}
+              >
+                <LogIn className="h-4 w-4" />
+                Login
+              </Button>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -79,13 +110,33 @@ const Navbar = () => {
         <div className="md:hidden absolute top-full left-0 right-0 bg-white shadow-md animate-fade-in">
           <div className="container mx-auto px-4 py-4">
             <nav className="flex flex-col space-y-4">
-              <Button 
-                className="button-primary w-full mt-2 flex items-center justify-center gap-1.5"
-                onClick={handleLogin}
-              >
-                <LogIn className="h-4 w-4" />
-                Login
-              </Button>
+              {user ? (
+                <>
+                  <Button 
+                    variant="outline"
+                    className="w-full flex items-center justify-center gap-1.5"
+                    onClick={handleDashboard}
+                  >
+                    <User className="h-4 w-4" />
+                    Dashboard
+                  </Button>
+                  <Button 
+                    className="button-primary w-full flex items-center justify-center gap-1.5"
+                    onClick={handleLogout}
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Logout
+                  </Button>
+                </>
+              ) : (
+                <Button 
+                  className="button-primary w-full mt-2 flex items-center justify-center gap-1.5"
+                  onClick={handleLogin}
+                >
+                  <LogIn className="h-4 w-4" />
+                  Login
+                </Button>
+              )}
             </nav>
           </div>
         </div>
