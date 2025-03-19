@@ -10,6 +10,8 @@ type AuthContextType = {
   isLoading: boolean;
   signOut: () => Promise<void>;
   storeAssessmentResult: (assessmentType: string, resultData: any) => Promise<void>;
+  getUserProfile: () => Promise<any>;
+  updateUserProfile: (profileData: any) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -106,12 +108,64 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const getUserProfile = async () => {
+    if (!user) return null;
+
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      return null;
+    }
+  };
+
+  const updateUserProfile = async (profileData: any) => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "You need to be logged in to update your profile.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update(profileData)
+        .eq('id', user.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Profile updated",
+        description: "Your profile has been updated successfully.",
+      });
+    } catch (error: any) {
+      console.error('Error updating user profile:', error);
+      toast({
+        title: "Error updating profile",
+        description: error.message || "There was a problem updating your profile.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const value = {
     user,
     session,
     isLoading,
     signOut,
     storeAssessmentResult,
+    getUserProfile,
+    updateUserProfile,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -10,6 +10,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Sparkles, ArrowLeft, ArrowRight, Check } from 'lucide-react';
 import { Card } from '@/components/ui/card';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/components/ui/use-toast';
 
 // Define the structure of a question
 interface Question {
@@ -137,6 +139,8 @@ const groupQuestions = (questions: Question[], perPage: number) => {
 
 const EQNavigatorAssessment = () => {
   const navigate = useNavigate();
+  const { user, storeAssessmentResult } = useAuth();
+  const { toast } = useToast();
   const [selectedOptions, setSelectedOptions] = useState<string[]>(Array(eqQuestions.length).fill(''));
   const [showResults, setShowResults] = useState(false);
   const [totalScore, setTotalScore] = useState(0);
@@ -177,6 +181,30 @@ const EQNavigatorAssessment = () => {
       });
       setTotalScore(score);
       setShowResults(true);
+      
+      // Save results to Supabase if the user is logged in
+      if (user) {
+        const resultData = {
+          totalScore: score,
+          answers: selectedOptions.map((optionId, index) => {
+            const question = eqQuestions[index];
+            const option = question.options.find(opt => opt.id === optionId);
+            return {
+              questionId: question.id,
+              question: question.scenario,
+              answer: option?.text,
+              score: option?.score
+            };
+          })
+        };
+        
+        storeAssessmentResult('eq-navigator', resultData);
+      } else {
+        toast({
+          title: "Not logged in",
+          description: "Sign in to save your results for future reference.",
+        });
+      }
     }
   };
 
