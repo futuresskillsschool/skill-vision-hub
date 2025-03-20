@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -197,9 +196,11 @@ const LeadForm = () => {
       
       // Navigate to the correct assessment based on ID
       if (id === 'eq-navigator') {
-        navigate('/eq-navigator');
+        navigate('/assessment/eq-navigator');
       } else if (id === 'future-pathways') {
-        navigate('/future-pathways');
+        navigate('/assessment/future-pathways');
+      } else if (id === 'riasec') {
+        navigate('/assessment/riasec');
       } else {
         // For other assessments, navigate back to the detail page for now
         navigate(`/assessment/${id}`);
