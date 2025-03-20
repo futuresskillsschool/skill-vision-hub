@@ -64,7 +64,7 @@ const RIASECResults = () => {
   
   const getPrimaryTypes = () => {
     const scores = Object.entries(riasecScores);
-    scores.sort((a, b) => b[1] - a[1]);
+    scores.sort((a, b) => Number(b[1]) - Number(a[1]));
     return scores.slice(0, 3).map(item => item[0]);
   };
   
