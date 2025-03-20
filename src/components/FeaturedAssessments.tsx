@@ -28,7 +28,7 @@ const assessments: Assessment[] = [
     featured: true
   },
   {
-    id: 'riasec-model',
+    id: 'riasec',
     title: 'RIASEC Model Assessment',
     description: 'Discover your primary interest areas and matching career options based on the proven Holland Code framework.',
     image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c',
@@ -50,7 +50,7 @@ const assessments: Assessment[] = [
     title: 'Future Pathways Assessment',
     description: 'Explore emerging career opportunities and identify the skills you need to thrive in the future of work.',
     image: 'https://images.unsplash.com/photo-1543269865-cbf427effbad',
-    time: '30 min',
+    time: '25 min', // Updated from 30 min
     users: '2.1k',
     rating: 4.6
   },

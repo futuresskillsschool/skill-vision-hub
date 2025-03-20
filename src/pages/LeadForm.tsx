@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -11,7 +10,6 @@ import Footer from '@/components/Footer';
 import { supabase } from '@/integrations/supabase/client';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-// Sample assessment data mapping - this would typically come from an API or database
 const assessmentTitles = {
   'career-vision': 'Career Vision Assessment',
   'scct': 'SCCT Assessment',
@@ -20,7 +18,6 @@ const assessmentTitles = {
   'future-pathways': 'Future Pathways Explorer'
 };
 
-// Stream options
 const streamOptions = [
   'Business & Commerce',
   'Science & Engineering',
@@ -31,7 +28,6 @@ const streamOptions = [
   'Other'
 ];
 
-// Interest options
 const interestOptions = [
   'Career Development',
   'Personal Growth',
@@ -72,7 +68,6 @@ const LeadForm = () => {
       [name]: type === 'checkbox' ? checked : value
     }));
     
-    // Clear error when field is updated
     if (errors[name]) {
       setErrors(prev => {
         const newErrors = { ...prev };
@@ -88,7 +83,6 @@ const LeadForm = () => {
       [name]: value
     }));
     
-    // Clear error when field is updated
     if (errors[name]) {
       setErrors(prev => {
         const newErrors = { ...prev };
@@ -155,7 +149,6 @@ const LeadForm = () => {
     setIsSubmitting(true);
     
     try {
-      // Register the user with Supabase
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
@@ -172,7 +165,6 @@ const LeadForm = () => {
       
       if (authError) throw authError;
       
-      // Update the profile with additional information
       if (authData.user) {
         const { error: profileError } = await supabase
           .from('profiles')
@@ -195,13 +187,13 @@ const LeadForm = () => {
         description: "Your information has been saved successfully. Starting your assessment now.",
       });
       
-      // Navigate to the correct assessment based on ID
       if (id === 'eq-navigator') {
         navigate('/eq-navigator');
       } else if (id === 'future-pathways') {
         navigate('/future-pathways');
+      } else if (id === 'riasec' || id === 'riasec-model') {
+        navigate('/riasec');
       } else {
-        // For other assessments, navigate back to the detail page for now
         navigate(`/assessment/${id}`);
       }
     } catch (error: any) {
