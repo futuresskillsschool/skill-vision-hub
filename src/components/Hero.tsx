@@ -66,7 +66,7 @@ const Hero = () => {
               onClick={scrollToAssessments} 
               className="button-primary text-base group"
             >
-              Explore Assessments <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              Begin Your Journey <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </Button>
           </div>
         </div>
