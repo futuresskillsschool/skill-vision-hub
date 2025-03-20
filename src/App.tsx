@@ -13,6 +13,8 @@ import EQNavigatorAssessment from "./pages/EQNavigatorAssessment";
 import EQNavigatorResults from "./pages/EQNavigatorResults";
 import FuturePathwaysAssessment from "./pages/FuturePathwaysAssessment";
 import FuturePathwaysResults from "./pages/FuturePathwaysResults";
+import RIASECAssessment from "./pages/RIASECAssessment";
+import RIASECResults from "./pages/RIASECResults";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
@@ -39,6 +41,8 @@ const App = () => (
               <Route path="/eq-navigator/results" element={<EQNavigatorResults />} />
               <Route path="/future-pathways" element={<FuturePathwaysAssessment />} />
               <Route path="/future-pathways/results" element={<FuturePathwaysResults />} />
+              <Route path="/riasec" element={<RIASECAssessment />} />
+              <Route path="/riasec-results" element={<RIASECResults />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<SignUp />} />
               <Route path="/dashboard" element={

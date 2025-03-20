@@ -17,7 +17,7 @@ const Footer = () => {
               <span className="font-display font-bold text-xl">Future Skills School</span>
             </Link>
             <p className="text-foreground/70 text-sm mb-6">
-              Unlock your potential with science-based assessments designed to help you discover your strengths and navigate your career path with confidence.
+              Empowering the next generation through personalized, science-based assessments that illuminate strengths, reveal potential career paths, and provide actionable insights for meaningful growth.
             </p>
             <div className="flex space-x-4">
               <a href="#" className="w-8 h-8 rounded-full bg-brand-purple/10 hover:bg-brand-purple/20 flex items-center justify-center transition-colors" aria-label="Twitter">

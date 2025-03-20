@@ -38,7 +38,6 @@ export type Database = {
       }
       profiles: {
         Row: {
-          company: string | null
           created_at: string | null
           email: string | null
           first_name: string | null
@@ -46,12 +45,10 @@ export type Database = {
           interest: string | null
           last_name: string | null
           phone: string | null
-          role: string | null
           stream: string | null
           updated_at: string | null
         }
         Insert: {
-          company?: string | null
           created_at?: string | null
           email?: string | null
           first_name?: string | null
@@ -59,12 +56,10 @@ export type Database = {
           interest?: string | null
           last_name?: string | null
           phone?: string | null
-          role?: string | null
           stream?: string | null
           updated_at?: string | null
         }
         Update: {
-          company?: string | null
           created_at?: string | null
           email?: string | null
           first_name?: string | null
@@ -72,7 +67,6 @@ export type Database = {
           interest?: string | null
           last_name?: string | null
           phone?: string | null
-          role?: string | null
           stream?: string | null
           updated_at?: string | null
         }
