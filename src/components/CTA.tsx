@@ -59,26 +59,8 @@ const CTA = () => {
           
           <div className="animate-on-scroll flex justify-center">
             <Button className="bg-white text-brand-purple hover:bg-white/90 px-8 py-6 rounded-full text-base font-semibold shadow-lg group">
-              Begin Your Journey <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              Explore Assessments <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </Button>
-          </div>
-
-          {/* User avatars */}
-          <div className="animate-on-scroll mt-12 flex flex-col items-center">
-            <div className="flex -space-x-3 mb-3">
-              {[6, 7, 8, 9, 10].map((i) => (
-                <div key={i} className="w-10 h-10 rounded-full border-2 border-brand-purple bg-gray-200 overflow-hidden">
-                  <img 
-                    src={`https://randomuser.me/api/portraits/${i % 2 === 0 ? 'women' : 'men'}/${i + 10}.jpg`} 
-                    alt="User" 
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              ))}
-            </div>
-            <p className="text-sm text-white/80 font-medium">
-              <span className="text-white font-semibold">Join 10,000+</span> users who have found their path
-            </p>
           </div>
         </div>
       </div>
