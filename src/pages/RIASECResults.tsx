@@ -88,7 +88,7 @@ const riasecTypes = {
   S: {
     name: 'Social',
     title: 'The Helper',
-    description: 'You enjoy working with people, helping others, and making a positive difference. You're good at communicating and supporting others.',
+    description: 'You enjoy working with people, helping others, and making a positive difference. You are good at communicating and supporting others.',
     careers: [
       'Teacher',
       'Counselor',
@@ -138,7 +138,7 @@ const riasecTypes = {
   C: {
     name: 'Conventional',
     title: 'The Organizer',
-    description: 'You like organization, structure, and clear directions. You're good with details, numbers, and systems that keep things running smoothly.',
+    description: 'You like organization, structure, and clear directions. You are good with details, numbers, and systems that keep things running smoothly.',
     careers: [
       'Accountant',
       'Administrative Assistant',
