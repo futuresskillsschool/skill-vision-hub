@@ -5,7 +5,7 @@ import Login from './pages/Login';
 import SignUp from './pages/SignUp';
 import Dashboard from './pages/Dashboard';
 import NotFound from './pages/NotFound';
-import PrivateRoute from './components/PrivateRoute';
+import { PrivateRoute } from './components/PrivateRoute';
 import LeadForm from './pages/LeadForm';
 import AssessmentDetail from './pages/AssessmentDetail';
 import EQNavigatorAssessment from './pages/EQNavigatorAssessment';
