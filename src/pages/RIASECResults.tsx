@@ -152,7 +152,7 @@ const RIASECResults = () => {
                               style={{ width: `${(Number(score) / 12) * 100}%` }}
                             ></div>
                           </div>
-                          <span className="ml-3 text-sm">{score}</span>
+                          <span className="ml-3 text-sm">{String(score)}</span>
                         </div>
                       </div>
                     ))}
