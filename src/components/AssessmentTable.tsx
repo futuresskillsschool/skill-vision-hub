@@ -34,6 +34,8 @@ const createAssessmentResultsTable = async () => {
         primary_result TEXT,
         result_data JSONB NOT NULL,
         completed_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
         UNIQUE(user_id, assessment_type)
       );
       
