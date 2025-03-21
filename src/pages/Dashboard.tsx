@@ -70,18 +70,21 @@ const Dashboard = () => {
     return assessmentTypes[type] || type.charAt(0).toUpperCase() + type.slice(1).replace(/-/g, ' ') + ' Assessment';
   };
 
+  // Fix the assessment type stats calculation to prevent unlimited counting
   const getAssessmentTypeStats = () => {
-    const typeCount: Record<string, number> = {};
+    // Count unique assessment types instead of all assessments
+    const uniqueTypes = new Set<string>();
     
     assessments.forEach(assessment => {
-      const type = assessment.assessment_type;
-      typeCount[type] = (typeCount[type] || 0) + 1;
+      uniqueTypes.add(assessment.assessment_type);
     });
     
-    return typeCount;
+    // Return the number of unique assessment types completed
+    return uniqueTypes.size;
   };
 
-  const typeStats = getAssessmentTypeStats();
+  // Calculate how many unique assessment types the user has completed
+  const completedAssessmentTypes = getAssessmentTypeStats();
   const totalAvailableAssessments = 5; // Total assessments available in the system
 
   return (
@@ -112,9 +115,9 @@ const Dashboard = () => {
                   <div className="w-10 h-10 bg-brand-orange/20 rounded-full flex items-center justify-center">
                     <BarChart3 className="h-5 w-5 text-brand-orange" />
                   </div>
-                  <h3 className="font-semibold">Assessments Available</h3>
+                  <h3 className="font-semibold">Assessment Types</h3>
                 </div>
-                <p className="text-3xl font-bold">{totalAvailableAssessments}</p>
+                <p className="text-3xl font-bold">{completedAssessmentTypes} of {totalAvailableAssessments}</p>
               </Card>
               
               <Card className="p-6 bg-brand-green/10 border-brand-green/20">
