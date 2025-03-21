@@ -6,209 +6,169 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/components/ui/use-toast';
 
 // Define RIASEC question type
 type RIASECQuestion = {
   id: number;
   question: string;
-  type: 'R' | 'I' | 'A' | 'S' | 'E' | 'C';
+  options: {
+    value: string;
+    label: string;
+    type: 'R' | 'I' | 'A' | 'S' | 'E' | 'C';
+  }[];
 };
 
 // Define all questions for the assessment
 const riasecQuestions: RIASECQuestion[] = [
-  // Realistic (R)
   {
     id: 1,
-    question: "I enjoy spending my free time building things with LEGOs, model kits, or other materials.",
-    type: 'R'
+    question: "Which of these would you rather do on the weekend?",
+    options: [
+      { value: 'a', label: 'Build something with LEGOs or help fix something around the house.', type: 'R' },
+      { value: 'b', label: 'Play a puzzle video game or read a book about science.', type: 'I' },
+      { value: 'c', label: 'Draw a picture or listen to your favorite music.', type: 'A' },
+      { value: 'd', label: 'Play a game with your friends or help someone with their homework.', type: 'S' },
+      { value: 'e', label: 'Plan a fun activity for your friends to do together.', type: 'E' },
+      { value: 'f', label: 'Make a list of your favorite things or organize your room.', type: 'C' },
+    ],
   },
   {
     id: 2,
-    question: "If something at home breaks, I usually try to fix it myself before asking for help.",
-    type: 'R'
+    question: "In school, which of these classes do you like best?",
+    options: [
+      { value: 'a', label: 'Shop, gym, or anything where you can build or move.', type: 'R' },
+      { value: 'b', label: 'Science or math.', type: 'I' },
+      { value: 'c', label: 'Art or music.', type: 'A' },
+      { value: 'd', label: 'Social studies or any class where you work with others.', type: 'S' },
+      { value: 'e', label: 'Clubs where you can lead or organize things.', type: 'E' },
+      { value: 'f', label: 'Classes where things are organized and there are clear rules.', type: 'C' },
+    ],
   },
   {
     id: 3,
-    question: "I find subjects like Woodworking, Metal Shop, or Auto Mechanics interesting (if available).",
-    type: 'R'
+    question: "If you had a question about something, would you rather...?",
+    options: [
+      { value: 'a', label: 'Try to figure it out by trying different things.', type: 'R' },
+      { value: 'b', label: 'Look it up in a book or online to find the answer.', type: 'I' },
+      { value: 'c', label: 'Think about it in a creative or imaginative way.', type: 'A' },
+      { value: 'd', label: 'Ask a friend or teacher what they think.', type: 'S' },
+      { value: 'e', label: 'Try to convince others of your idea about it.', type: 'E' },
+      { value: 'f', label: 'Make a list of possible answers and check them one by one.', type: 'C' },
+    ],
   },
   {
     id: 4,
-    question: "I like being physically active through sports, dance, or outdoor activities like hiking or cycling.",
-    type: 'R'
+    question: "Which of these would you find more interesting to learn about?",
+    options: [
+      { value: 'a', label: 'How machines work.', type: 'R' },
+      { value: 'b', label: 'How the human body works.', type: 'I' },
+      { value: 'c', label: 'How to draw or play an instrument.', type: 'A' },
+      { value: 'd', label: 'Why people act the way they do.', type: 'S' },
+      { value: 'e', label: 'How to start your own business.', type: 'E' },
+      { value: 'f', label: 'How computers organize information.', type: 'C' },
+    ],
   },
   {
     id: 5,
-    question: "I'm the kind of person who prefers to learn by doing rather than just reading or listening.",
-    type: 'R'
+    question: "If you were doing a project for school, would you rather...?",
+    options: [
+      { value: 'a', label: 'Make something with your hands.', type: 'R' },
+      { value: 'b', label: 'Do research and write a report.', type: 'I' },
+      { value: 'c', label: 'Draw a picture, write a story, or make a video.', type: 'A' },
+      { value: 'd', label: 'Work with a group and share ideas.', type: 'S' },
+      { value: 'e', label: 'Be in charge of the project and tell everyone what to do.', type: 'E' },
+      { value: 'f', label: 'Make sure everything is neat and organized for the project.', type: 'C' },
+    ],
   },
   {
     id: 6,
-    question: "I would enjoy a hobby or future job that involves working with tools, machines, or technology in a hands-on way.",
-    type: 'R'
+    question: "Which of these sounds like the most fun after school activity?",
+    options: [
+      { value: 'a', label: 'Joining a club where you build things.', type: 'R' },
+      { value: 'b', label: 'Being part of a science or math club.', type: 'I' },
+      { value: 'c', label: 'Taking an art, music, or drama class.', type: 'A' },
+      { value: 'd', label: 'Volunteering to help others.', type: 'S' },
+      { value: 'e', label: 'Starting your own club or organizing events.', type: 'E' },
+      { value: 'f', label: 'Helping the school office with organizing things.', type: 'C' },
+    ],
   },
-  // Investigative (I)
   {
     id: 7,
-    question: "I get really interested in understanding how things work, like how a computer or an engine functions.",
-    type: 'I'
+    question: "When your friend is feeling sad, what do you usually do?",
+    options: [
+      { value: 'a', label: 'Try to help them fix the problem if you can.', type: 'R' },
+      { value: 'b', label: 'Try to understand why they are sad.', type: 'I' },
+      { value: 'c', label: 'Try to cheer them up with something creative or fun.', type: 'A' },
+      { value: 'd', label: 'Talk to them and listen to how they feel.', type: 'S' },
+      { value: 'e', label: 'Try to find a solution or get help from someone else.', type: 'E' },
+      { value: 'f', label: 'Make sure they know you are there for them consistently.', type: 'C' },
+    ],
   },
   {
     id: 8,
-    question: "I enjoy solving logic puzzles, riddles, or playing strategy games.",
-    type: 'I'
+    question: "In a group, what do you usually enjoy doing most?",
+    options: [
+      { value: 'a', label: 'Working together to build or create something.', type: 'R' },
+      { value: 'b', label: 'Discussing ideas and learning from each other.', type: 'I' },
+      { value: 'c', label: 'Coming up with creative ideas and having fun.', type: 'A' },
+      { value: 'd', label: 'Making sure everyone feels included and happy.', type: 'S' },
+      { value: 'e', label: 'Taking charge and helping the group decide what to do.', type: 'E' },
+      { value: 'f', label: 'Making sure everything is organized and runs smoothly.', type: 'C' },
+    ],
   },
   {
     id: 9,
-    question: "I find science classes like Biology, Chemistry, or Physics fascinating and like to ask \"why?\"",
-    type: 'I'
+    question: "If you were organizing a class party, which job would you want?",
+    options: [
+      { value: 'a', label: 'Setting up the decorations and games.', type: 'R' },
+      { value: 'b', label: 'Finding out what kind of food and drinks people like.', type: 'I' },
+      { value: 'c', label: 'Making the invitations and decorations look cool.', type: 'A' },
+      { value: 'd', label: 'Talking to everyone and getting them excited about the party.', type: 'S' },
+      { value: 'e', label: 'Being in charge of planning the whole party.', type: 'E' },
+      { value: 'f', label: 'Keeping track of who is coming and what supplies are needed.', type: 'C' },
+    ],
   },
   {
     id: 10,
-    question: "I enjoy doing research online or in books to learn more about topics that interest me.",
-    type: 'I'
+    question: "If you wanted to start a small project with friends, what would you do first?",
+    options: [
+      { value: 'a', label: 'Think about what you need to build or make.', type: 'R' },
+      { value: 'b', label: 'Research what kind of project would be interesting.', type: 'I' },
+      { value: 'c', label: 'Come up with a creative idea for the project.', type: 'A' },
+      { value: 'd', label: 'Talk to your friends and see if they want to join.', type: 'S' },
+      { value: 'e', label: 'Try to get everyone excited about your idea and plan it out.', type: 'E' },
+      { value: 'f', label: 'Make a list of all the steps you need to take.', type: 'C' },
+    ],
   },
   {
     id: 11,
-    question: "When faced with a problem, I usually try to analyze it from different angles before trying a solution.",
-    type: 'I'
+    question: "Which of these describes you best?",
+    options: [
+      { value: 'a', label: 'I like to work with my hands.', type: 'R' },
+      { value: 'b', label: 'I like to figure things out.', type: 'I' },
+      { value: 'c', label: 'I like to create new things.', type: 'A' },
+      { value: 'd', label: 'I like to help people.', type: 'S' },
+      { value: 'e', label: 'I like to be in charge.', type: 'E' },
+      { value: 'f', label: 'I like things to be organized.', type: 'C' },
+    ],
   },
   {
     id: 12,
-    question: "I would enjoy a future job that involves investigating problems, conducting experiments, or analyzing data.",
-    type: 'I'
+    question: "When you finish a task, what's most important to you?",
+    options: [
+      { value: 'a', label: 'That you made something real or useful.', type: 'R' },
+      { value: 'b', label: 'That you learned something new or solved a problem.', type: 'I' },
+      { value: 'c', label: 'That you made something that looks or sounds good.', type: 'A' },
+      { value: 'd', label: 'That you helped someone or made them happy.', type: 'S' },
+      { value: 'e', label: 'That you got it done and maybe even led the way.', type: 'E' },
+      { value: 'f', label: 'That you followed all the instructions and did it correctly.', type: 'C' },
+    ],
   },
-  // Artistic (A)
-  {
-    id: 13,
-    question: "I enjoy expressing myself through creative activities like drawing, painting, photography, or making videos.",
-    type: 'A'
-  },
-  {
-    id: 14,
-    question: "I like listening to music, going to concerts, or even trying to write my own songs or musical pieces.",
-    type: 'A'
-  },
-  {
-    id: 15,
-    question: "I enjoy reading fiction, writing stories or poems, or participating in drama or theater.",
-    type: 'A'
-  },
-  {
-    id: 16,
-    question: "I have a good sense of style and enjoy putting together outfits or decorating my space.",
-    type: 'A'
-  },
-  {
-    id: 17,
-    question: "I appreciate art in different forms, whether it's visual art, music, dance, or film.",
-    type: 'A'
-  },
-  {
-    id: 18,
-    question: "I would enjoy a future job where I can use my imagination and creativity, like in graphic design, fashion, or music.",
-    type: 'A'
-  },
-  // Social (S)
-  {
-    id: 19,
-    question: "My friends often come to me when they have problems because I'm a good listener.",
-    type: 'S'
-  },
-  {
-    id: 20,
-    question: "I enjoy working on projects with others and feel like I contribute well to a team.",
-    type: 'S'
-  },
-  {
-    id: 21,
-    question: "I often find myself helping classmates who are struggling with their schoolwork.",
-    type: 'S'
-  },
-  {
-    id: 22,
-    question: "I care about making a positive impact on my community or the world.",
-    type: 'S'
-  },
-  {
-    id: 23,
-    question: "I enjoy explaining things to others and helping them understand new concepts.",
-    type: 'S'
-  },
-  {
-    id: 24,
-    question: "I would enjoy a future job where I can work closely with people, help them, or teach them.",
-    type: 'S'
-  },
-  // Enterprising (E)
-  {
-    id: 25,
-    question: "I often come up with ideas for new projects or ways to improve things.",
-    type: 'E'
-  },
-  {
-    id: 26,
-    question: "I enjoy trying to convince my friends or family to try something new or do things my way.",
-    type: 'E'
-  },
-  {
-    id: 27,
-    question: "I've thought about starting my own club, event, or even a small business.",
-    type: 'E'
-  },
-  {
-    id: 28,
-    question: "I like to take the lead in group projects and make sure things get done.",
-    type: 'E'
-  },
-  {
-    id: 29,
-    question: "I'm usually motivated to achieve goals and like to see results.",
-    type: 'E'
-  },
-  {
-    id: 30,
-    question: "I would enjoy a future job where I can lead a team, manage projects, or sell ideas or products.",
-    type: 'E'
-  },
-  // Conventional (C)
-  {
-    id: 31,
-    question: "I prefer having a clear plan and knowing what to expect.",
-    type: 'C'
-  },
-  {
-    id: 32,
-    question: "I pay close attention to details and like to make sure things are done correctly.",
-    type: 'C'
-  },
-  {
-    id: 33,
-    question: "I find it satisfying to organize my belongings, notes, or digital files.",
-    type: 'C'
-  },
-  {
-    id: 34,
-    question: "I'm good at following instructions and sticking to rules.",
-    type: 'C'
-  },
-  {
-    id: 35,
-    question: "I like working with numbers, charts, or spreadsheets.",
-    type: 'C'
-  },
-  {
-    id: 36,
-    question: "I would enjoy a future job that involves organizing information, managing data, or following established procedures.",
-    type: 'C'
-  }
 ];
 
 type Answer = {
   questionId: number;
-  answer: 'agree' | 'neutral' | 'disagree';
+  answer: string;
   type: 'R' | 'I' | 'A' | 'S' | 'E' | 'C';
 };
 
@@ -216,13 +176,12 @@ const RIASECAssessment = () => {
   const navigate = useNavigate();
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [currentProgress, setCurrentProgress] = useState(0);
-  const { toast } = useToast();
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  const handleAnswerSelect = (questionId: number, answer: 'agree' | 'neutral' | 'disagree', type: 'R' | 'I' | 'A' | 'S' | 'E' | 'C') => {
+  const handleAnswerSelect = (questionId: number, answer: string, type: 'R' | 'I' | 'A' | 'S' | 'E' | 'C') => {
     const newAnswers = [...answers];
     const existingAnswerIndex = newAnswers.findIndex(a => a.questionId === questionId);
     
@@ -239,79 +198,19 @@ const RIASECAssessment = () => {
     setCurrentProgress((answeredCount / riasecQuestions.length) * 100);
   };
 
-  const calculateScore = (type: 'R' | 'I' | 'A' | 'S' | 'E' | 'C'): number => {
-    return answers
-      .filter(a => a.type === type)
-      .reduce((score, answer) => {
-        if (answer.answer === 'agree') return score + 2;
-        if (answer.answer === 'neutral') return score + 1;
-        return score;
-      }, 0);
-  };
-
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     // Calculate RIASEC scores
     const scores = {
-      R: calculateScore('R'),
-      I: calculateScore('I'),
-      A: calculateScore('A'),
-      S: calculateScore('S'),
-      E: calculateScore('E'),
-      C: calculateScore('C'),
+      R: answers.filter(a => a.type === 'R').length,
+      I: answers.filter(a => a.type === 'I').length,
+      A: answers.filter(a => a.type === 'A').length,
+      S: answers.filter(a => a.type === 'S').length,
+      E: answers.filter(a => a.type === 'E').length,
+      C: answers.filter(a => a.type === 'C').length,
     };
     
-    // Get top types
-    const sortedTypes = Object.entries(scores)
-      .sort(([, scoreA], [, scoreB]) => scoreB - scoreA)
-      .map(([type]) => type as keyof typeof scores);
-    
-    const primaryType = sortedTypes[0];
-    const secondaryType = sortedTypes[1];
-    const tertiaryType = sortedTypes[2];
-    
-    const primaryResult = `${primaryType}${secondaryType}${tertiaryType}`;
-    
-    // If user is logged in, save results to database
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (user) {
-      try {
-        await supabase.from('assessment_results').insert({
-          user_id: user.id,
-          assessment_type: 'RIASEC',
-          result_data: {
-            scores,
-            primary_result: primaryResult,
-            answers: answers.map(a => ({ 
-              questionId: a.questionId, 
-              answer: a.answer, 
-              type: a.type 
-            }))
-          }
-        });
-        
-        toast({
-          title: "Assessment completed!",
-          description: "Your results have been saved.",
-        });
-      } catch (error) {
-        console.error('Error saving results:', error);
-        toast({
-          title: "Error saving results",
-          description: "There was a problem saving your results. Please try again.",
-          variant: "destructive"
-        });
-      }
-    }
-    
     // Navigate to results page with scores
-    navigate('/riasec-results', { 
-      state: { 
-        scores, 
-        primaryResult,
-        detailedAnswers: answers
-      } 
-    });
+    navigate('/riasec-results', { state: { scores } });
   };
 
   const isQuestionAnswered = (questionId: number) => {
@@ -319,11 +218,6 @@ const RIASECAssessment = () => {
   };
 
   const allQuestionsAnswered = answers.length === riasecQuestions.length;
-  const answerLabels = {
-    'agree': 'Agree',
-    'neutral': 'Neutral',
-    'disagree': 'Disagree'
-  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -343,7 +237,7 @@ const RIASECAssessment = () => {
             <h1 className="text-3xl md:text-4xl font-bold mb-2">RIASEC Model Assessment</h1>
             <p className="text-foreground/70 max-w-3xl">
               Discover your Holland Code and find career matches based on your interests, abilities, and preferences.
-              This assessment contains {riasecQuestions.length} questions and will help you understand your personality type according to the RIASEC model.
+              This assessment will help you understand your personality type according to the RIASEC model.
             </p>
           </div>
           
@@ -358,7 +252,7 @@ const RIASECAssessment = () => {
           <div className="max-w-3xl mx-auto">
             <div className="mb-6 p-4 bg-brand-purple/5 border border-brand-purple/10 rounded-lg">
               <h2 className="font-semibold text-brand-purple mb-2">Instructions:</h2>
-              <p>For each statement, indicate whether you agree, are neutral, or disagree with how well it describes you.</p>
+              <p>For each question, choose the answer that sounds most like you or what you would enjoy doing the most.</p>
             </div>
             
             {/* Questions */}
@@ -376,27 +270,28 @@ const RIASECAssessment = () => {
                     className="space-y-4"
                     value={answers.find(a => a.questionId === question.id)?.answer || ""}
                     onValueChange={(value) => {
-                      if (value === 'agree' || value === 'neutral' || value === 'disagree') {
-                        handleAnswerSelect(question.id, value, question.type);
+                      const selectedOption = question.options.find(opt => opt.value === value);
+                      if (selectedOption) {
+                        handleAnswerSelect(question.id, value, selectedOption.type);
                       }
                     }}
                   >
-                    {['agree', 'neutral', 'disagree'].map((option) => (
+                    {question.options.map((option) => (
                       <label
-                        key={option}
+                        key={option.value}
                         className={`flex items-start p-4 rounded-lg cursor-pointer transition-all ${
-                          answers.find(a => a.questionId === question.id)?.answer === option
+                          answers.find(a => a.questionId === question.id)?.answer === option.value
                             ? 'bg-brand-purple/10 border border-brand-purple/30'
                             : 'bg-gray-50 border border-gray-100 hover:bg-gray-100'
                         }`}
                       >
                         <RadioGroupItem 
-                          value={option} 
-                          id={`q${question.id}-${option}`} 
+                          value={option.value} 
+                          id={`q${question.id}-${option.value}`} 
                           className="mt-1 mr-3"
                         />
                         <div>
-                          <span className="font-medium">{answerLabels[option as keyof typeof answerLabels]}</span>
+                          <span className="font-medium">{option.label}</span>
                         </div>
                       </label>
                     ))}
