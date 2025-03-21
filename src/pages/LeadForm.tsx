@@ -9,6 +9,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { supabase } from '@/integrations/supabase/client';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useAuth } from '@/contexts/AuthContext';
 
 const assessmentTitles = {
   'career-vision': 'Career Vision Assessment',
@@ -42,6 +43,7 @@ const LeadForm = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
   
   const [formData, setFormData] = useState({
     firstName: '',
@@ -59,6 +61,20 @@ const LeadForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const assessmentTitle = id ? assessmentTitles[id as keyof typeof assessmentTitles] : 'Assessment';
+  
+  useEffect(() => {
+    if (user) {
+      if (id === 'eq-navigator') {
+        navigate('/eq-navigator');
+      } else if (id === 'future-pathways') {
+        navigate('/future-pathways');
+      } else if (id === 'riasec' || id === 'riasec-model') {
+        navigate('/riasec');
+      } else {
+        navigate(`/assessment/${id}`);
+      }
+    }
+  }, [user, id, navigate]);
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -206,6 +222,10 @@ const LeadForm = () => {
       setIsSubmitting(false);
     }
   };
+  
+  if (user) {
+    return null;
+  }
   
   return (
     <div className="min-h-screen flex flex-col">

@@ -84,20 +84,51 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     try {
-      const { error } = await supabase
+      // First, check if this user already has this exact assessment type
+      const { data: existingResults, error: fetchError } = await supabase
         .from('assessment_results')
-        .insert({
-          user_id: user.id,
-          assessment_type: assessmentType,
-          result_data: resultData
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('assessment_type', assessmentType)
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (fetchError) throw fetchError;
+
+      // If the user already has at least one result of this assessment type
+      if (existingResults && existingResults.length > 0) {
+        // Update the most recent result instead of creating a new one
+        const { error: updateError } = await supabase
+          .from('assessment_results')
+          .update({
+            result_data: resultData,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', existingResults[0].id);
+
+        if (updateError) throw updateError;
+
+        toast({
+          title: "Results updated",
+          description: "Your assessment results have been updated successfully.",
         });
+      } else {
+        // This is the first time the user is taking this assessment, create a new record
+        const { error: insertError } = await supabase
+          .from('assessment_results')
+          .insert({
+            user_id: user.id,
+            assessment_type: assessmentType,
+            result_data: resultData
+          });
 
-      if (error) throw error;
+        if (insertError) throw insertError;
 
-      toast({
-        title: "Results saved",
-        description: "Your assessment results have been saved successfully.",
-      });
+        toast({
+          title: "Results saved",
+          description: "Your assessment results have been saved successfully.",
+        });
+      }
     } catch (error: any) {
       console.error('Error storing assessment result:', error);
       toast({
