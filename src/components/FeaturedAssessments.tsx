@@ -14,6 +14,7 @@ interface Assessment {
   users: string;
   rating: number;
   featured?: boolean;
+  questionCount: number;
 }
 
 const assessments: Assessment[] = [
@@ -25,7 +26,8 @@ const assessments: Assessment[] = [
     time: '15 min',
     users: '5.2k',
     rating: 4.8,
-    featured: true
+    featured: true,
+    questionCount: 15
   },
   {
     id: 'riasec',
@@ -34,7 +36,8 @@ const assessments: Assessment[] = [
     image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c',
     time: '20 min',
     users: '8.7k',
-    rating: 4.9
+    rating: 4.9,
+    questionCount: 36
   },
   {
     id: 'eq-navigator',
@@ -43,16 +46,18 @@ const assessments: Assessment[] = [
     image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f',
     time: '25 min',
     users: '3.4k',
-    rating: 4.7
+    rating: 4.7,
+    questionCount: 25
   },
   {
     id: 'future-pathways',
     title: 'Future Pathways Assessment',
     description: 'Explore emerging career opportunities and identify the skills you need to thrive in the future of work.',
     image: 'https://images.unsplash.com/photo-1543269865-cbf427effbad',
-    time: '25 min', // Updated from 30 min
+    time: '25 min', 
     users: '2.1k',
-    rating: 4.6
+    rating: 4.6,
+    questionCount: 20
   },
   {
     id: 'scct-assessment',
@@ -61,7 +66,8 @@ const assessments: Assessment[] = [
     image: 'https://images.unsplash.com/photo-1622675363311-3e1904dc1885',
     time: '25 min',
     users: '1.8k',
-    rating: 4.5
+    rating: 4.5,
+    questionCount: 30
   }
 ];
 
@@ -146,7 +152,9 @@ const FeaturedAssessments = () => {
                   <span>{featuredAssessment.rating}</span>
                 </div>
               </div>
-              <Button className="button-primary w-full md:w-auto">Start Assessment</Button>
+              <Button className="button-primary w-full md:w-auto">
+                Start Assessment ({featuredAssessment.questionCount} questions)
+              </Button>
             </div>
           </Link>
         </div>
@@ -191,7 +199,7 @@ const FeaturedAssessments = () => {
                   </div>
                 </div>
                 <Button variant="outline" className="w-full text-brand-purple border-brand-purple/30 hover:bg-brand-purple/5 hover:border-brand-purple">
-                  Take Assessment
+                  Take Assessment ({assessment.questionCount} questions)
                 </Button>
               </div>
             </Link>

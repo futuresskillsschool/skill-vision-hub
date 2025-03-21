@@ -1,5 +1,5 @@
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Download, Star } from 'lucide-react';
@@ -7,24 +7,34 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/components/ui/use-toast';
 
 // Define RIASEC types and descriptions
 const riasecTypes = {
   R: {
     name: 'Realistic',
     title: 'The Doer',
-    description: 'You enjoy working with your hands, tools, machines, or animals. You like activities that are practical and hands-on.',
+    description: 'You enjoy working with your hands, tools, machines, or animals. You prefer activities that are practical, physical, and hands-on.',
+    schoolSubjects: [
+      'Woodworking',
+      'Metal Shop',
+      'Auto Shop',
+      'Physical Education',
+      'Computer Hardware',
+      'Agriculture'
+    ],
     careers: [
-      'Mechanic',
       'Engineer',
-      'Construction Worker',
+      'Mechanic',
+      'Carpenter',
       'Electrician',
       'Chef',
-      'Carpenter',
-      'Landscaper',
-      'Athlete',
-      'Farmer',
-      'Technician'
+      'Athletic Trainer',
+      'Computer Technician',
+      'Farmer/Rancher',
+      'Military Service',
+      'Construction Worker'
     ],
     color: 'bg-blue-500',
     skills: [
@@ -38,18 +48,26 @@ const riasecTypes = {
   I: {
     name: 'Investigative',
     title: 'The Thinker',
-    description: 'You like to explore, investigate, and understand things. You enjoy solving complex problems and thinking deeply.',
+    description: 'You enjoy exploring, investigating, and understanding things. You like to solve complex problems and think deeply about subjects.',
+    schoolSubjects: [
+      'Science',
+      'Math',
+      'Computer Science',
+      'Psychology',
+      'Research Projects',
+      'Debate'
+    ],
     careers: [
       'Scientist',
-      'Researcher',
       'Doctor',
-      'Professor',
-      'Analyst',
-      'Mathematician',
       'Computer Programmer',
-      'Archaeologist',
-      'Biologist',
-      'Engineer'
+      'Veterinarian',
+      'Researcher',
+      'Engineer',
+      'Economist',
+      'Data Analyst',
+      'Psychologist',
+      'Detective'
     ],
     color: 'bg-purple-500',
     skills: [
@@ -63,7 +81,15 @@ const riasecTypes = {
   A: {
     name: 'Artistic',
     title: 'The Creator',
-    description: 'You value self-expression, creativity, and imagination. You like work that allows you to create unique things or express ideas.',
+    description: 'You value self-expression, creativity, and imagination. You enjoy work that allows you to create unique things or express ideas.',
+    schoolSubjects: [
+      'Art',
+      'Music',
+      'Drama/Theater',
+      'Creative Writing',
+      'Film/Video',
+      'Dance'
+    ],
     careers: [
       'Artist',
       'Musician',
@@ -72,9 +98,9 @@ const riasecTypes = {
       'Actor',
       'Photographer',
       'Interior Designer',
-      'Fashion Designer',
       'Animator',
-      'Architect'
+      'Architect',
+      'Fashion Designer'
     ],
     color: 'bg-red-500',
     skills: [
@@ -89,6 +115,14 @@ const riasecTypes = {
     name: 'Social',
     title: 'The Helper',
     description: 'You enjoy working with people, helping others, and making a positive difference. You are good at communicating and supporting others.',
+    schoolSubjects: [
+      'Psychology',
+      'Social Studies',
+      'Health',
+      'Language Arts',
+      'Education',
+      'Community Service'
+    ],
     careers: [
       'Teacher',
       'Counselor',
@@ -96,10 +130,10 @@ const riasecTypes = {
       'Social Worker',
       'Therapist',
       'Coach',
+      'Healthcare Provider',
+      'Community Organizer',
       'Human Resources',
-      'Customer Service',
-      'Community Worker',
-      'Healthcare Provider'
+      'Child Care Worker'
     ],
     color: 'bg-yellow-500',
     skills: [
@@ -114,6 +148,14 @@ const riasecTypes = {
     name: 'Enterprising',
     title: 'The Persuader',
     description: 'You like to lead, influence, and persuade others. You enjoy taking risks, starting projects, and convincing people of your ideas.',
+    schoolSubjects: [
+      'Student Government',
+      'Debate',
+      'Business Classes',
+      'Marketing',
+      'Public Speaking',
+      'Economics'
+    ],
     careers: [
       'Business Owner',
       'Manager',
@@ -139,6 +181,14 @@ const riasecTypes = {
     name: 'Conventional',
     title: 'The Organizer',
     description: 'You like organization, structure, and clear directions. You are good with details, numbers, and systems that keep things running smoothly.',
+    schoolSubjects: [
+      'Accounting',
+      'Business Math',
+      'Computer Applications',
+      'Filing/Records',
+      'Data Management',
+      'Office Assistant'
+    ],
     careers: [
       'Accountant',
       'Administrative Assistant',
@@ -148,8 +198,8 @@ const riasecTypes = {
       'Data Entry',
       'Financial Analyst',
       'Tax Preparer',
-      'Secretary',
-      'Logistics Coordinator'
+      'Logistics Coordinator',
+      'Medical Records Technician'
     ],
     color: 'bg-green-500',
     skills: [
@@ -175,9 +225,14 @@ const RIASECResults = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const resultsRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
   
   // Get scores from location state or set default values
   const scores: RIASECScores = location.state?.scores || { R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 };
+  const primaryResult = location.state?.primaryResult || '';
+  const detailedAnswers = location.state?.detailedAnswers || [];
+  
+  const [loading, setLoading] = useState(false);
   
   useEffect(() => {
     if (!location.state) {
@@ -186,7 +241,35 @@ const RIASECResults = () => {
     }
     
     window.scrollTo(0, 0);
-  }, [location.state, navigate]);
+    
+    // Store results in database if user is logged in
+    const saveResults = async () => {
+      if (!primaryResult || !scores) return;
+      
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        try {
+          setLoading(true);
+          await supabase.from('assessment_results').insert({
+            user_id: user.id,
+            assessment_type: 'RIASEC',
+            result_data: {
+              scores,
+              primary_result: primaryResult,
+              answers: detailedAnswers
+            }
+          });
+        } catch (error) {
+          console.error('Error saving results:', error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+    
+    saveResults();
+  }, [location.state, navigate, primaryResult, scores, detailedAnswers]);
   
   // Get the top 3 personality types
   const sortedTypes = Object.entries(scores)
@@ -197,21 +280,30 @@ const RIASECResults = () => {
   const secondaryType = sortedTypes[1];
   const tertiaryType = sortedTypes[2];
   
-  const totalQuestions = Object.values(scores).reduce((a, b) => a + b, 0);
+  const totalPoints = Object.values(scores).reduce((a, b) => a + b, 0);
+  const maxPossiblePoints = 12 * 2; // 12 questions per type, max 2 points each
   
   const getPercentage = (score: number) => {
-    return Math.round((score / totalQuestions) * 100);
+    return Math.round((score / maxPossiblePoints) * 100);
   };
   
   const downloadResults = async () => {
     if (!resultsRef.current) return;
     
     try {
+      toast({
+        title: "Generating PDF",
+        description: "Please wait while we prepare your results...",
+      });
+      
+      const scale = 2;
       const canvas = await html2canvas(resultsRef.current, {
-        scale: 2,
+        scale: scale,
         logging: false,
         useCORS: true,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        windowWidth: resultsRef.current.scrollWidth * scale,
+        windowHeight: resultsRef.current.scrollHeight * scale
       });
       
       const imgData = canvas.toDataURL('image/png');
@@ -225,9 +317,35 @@ const RIASECResults = () => {
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       
       pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      
+      // If the content is longer than a single page, add additional pages
+      if (imgHeight > 297) {
+        let pageHeight = 297;
+        let heightLeft = imgHeight;
+        let position = -pageHeight;
+        
+        while (heightLeft > 0) {
+          position = position - pageHeight;
+          heightLeft = heightLeft - pageHeight;
+          
+          pdf.addPage();
+          pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        }
+      }
+      
       pdf.save('RIASEC-Assessment-Results.pdf');
+      
+      toast({
+        title: "PDF Downloaded",
+        description: "Your assessment results have been saved successfully.",
+      });
     } catch (error) {
       console.error('Error generating PDF:', error);
+      toast({
+        title: "Error",
+        description: "There was a problem generating your PDF. Please try again.",
+        variant: "destructive"
+      });
     }
   };
   
@@ -259,6 +377,7 @@ const RIASECResults = () => {
             <Button 
               className="flex items-center bg-brand-purple text-white hover:bg-brand-purple/90 mt-4 md:mt-0"
               onClick={downloadResults}
+              disabled={loading}
             >
               <Download className="mr-2 h-4 w-4" /> Download Results
             </Button>
@@ -279,7 +398,7 @@ const RIASECResults = () => {
                 <div className="mt-4 md:mt-0 flex items-center">
                   <div className="flex items-center bg-brand-purple/20 px-3 py-1 rounded-full text-sm font-medium text-brand-purple">
                     <Star className="h-4 w-4 mr-1 fill-brand-purple" />
-                    {totalQuestions} Questions Analyzed
+                    {Object.keys(riasecQuestions || {}).length} Questions Analyzed
                   </div>
                 </div>
               </div>
@@ -338,7 +457,7 @@ const RIASECResults = () => {
                     <div key={type}>
                       <div className="flex justify-between mb-1">
                         <span className="font-medium">{riasecTypes[type as keyof typeof riasecTypes].name}</span>
-                        <span>{score}/{totalQuestions} ({getPercentage(score)}%)</span>
+                        <span>{score}/{maxPossiblePoints} ({getPercentage(score)}%)</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2.5">
                         <div 
@@ -348,6 +467,50 @@ const RIASECResults = () => {
                       </div>
                     </div>
                   ))}
+                </div>
+              </div>
+              
+              {/* School Subjects */}
+              <div className="mb-8">
+                <h3 className="text-xl font-semibold mb-4">Recommended School Subjects</h3>
+                <p className="mb-4">Based on your Holland Code ({primaryType}{secondaryType}{tertiaryType}), these school subjects might align with your interests:</p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div>
+                    <h4 className="font-medium mb-2 flex items-center">
+                      <span className={`w-4 h-4 rounded-full mr-2 ${riasecTypes[primaryType].color}`}></span>
+                      {riasecTypes[primaryType].name} Subjects
+                    </h4>
+                    <ul className="list-disc pl-5 space-y-1">
+                      {riasecTypes[primaryType].schoolSubjects.slice(0, 5).map((subject, index) => (
+                        <li key={index}>{subject}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  
+                  <div>
+                    <h4 className="font-medium mb-2 flex items-center">
+                      <span className={`w-4 h-4 rounded-full mr-2 ${riasecTypes[secondaryType].color}`}></span>
+                      {riasecTypes[secondaryType].name} Subjects
+                    </h4>
+                    <ul className="list-disc pl-5 space-y-1">
+                      {riasecTypes[secondaryType].schoolSubjects.slice(0, 5).map((subject, index) => (
+                        <li key={index}>{subject}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  
+                  <div>
+                    <h4 className="font-medium mb-2 flex items-center">
+                      <span className={`w-4 h-4 rounded-full mr-2 ${riasecTypes[tertiaryType].color}`}></span>
+                      {riasecTypes[tertiaryType].name} Subjects
+                    </h4>
+                    <ul className="list-disc pl-5 space-y-1">
+                      {riasecTypes[tertiaryType].schoolSubjects.slice(0, 5).map((subject, index) => (
+                        <li key={index}>{subject}</li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
               </div>
               
