@@ -3,6 +3,18 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Skeleton } from '@/components/ui/skeleton';
 
+// Define the structure for our assessment_results table
+interface AssessmentResult {
+  id: string;
+  user_id: string;
+  assessment_type: string;
+  primary_result?: string | null;
+  result_data: Record<string, any>;
+  completed_at?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+}
+
 const createAssessmentResultsTable = async () => {
   // Check if the assessment_results table exists
   const { data, error } = await supabase
