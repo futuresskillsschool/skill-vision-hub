@@ -239,17 +239,20 @@ const RIASECResults = () => {
       if (user && location.state) {
         // Store assessment results
         try {
+          // Get top 3 types for primary result
+          const primaryResult = Object.entries(scores)
+            .sort(([, scoreA], [, scoreB]) => scoreB - scoreA)
+            .map(([type]) => riasecTypes[type as keyof typeof riasecTypes].name)
+            .slice(0, 3)
+            .join(', ');
+          
           const { error } = await supabase
             .from('assessment_results')
             .upsert({
               user_id: user.id,
               assessment_type: 'riasec',
-              results: scores,
-              primary_result: Object.entries(scores)
-                .sort(([, scoreA], [, scoreB]) => scoreB - scoreA)
-                .map(([type]) => riasecTypes[type as keyof typeof riasecTypes].name)
-                .slice(0, 3)
-                .join(', '),
+              result_data: scores,
+              primary_result: primaryResult,
               completed_at: new Date().toISOString()
             }, {
               onConflict: 'user_id,assessment_type'

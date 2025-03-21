@@ -20,7 +20,7 @@ const createAssessmentResultsTable = async () => {
         user_id UUID REFERENCES auth.users NOT NULL,
         assessment_type TEXT NOT NULL,
         primary_result TEXT,
-        results JSONB,
+        result_data JSONB NOT NULL,
         completed_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
         UNIQUE(user_id, assessment_type)
       );

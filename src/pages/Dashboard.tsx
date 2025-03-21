@@ -20,15 +20,18 @@ import {
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { Skeleton } from '@/components/ui/skeleton';
+import { toast } from "@/components/ui/use-toast";
 
-// Define assessment result type
+// Define assessment result type that matches our database schema
 type AssessmentResult = {
   id: string;
   user_id: string;
   assessment_type: string;
-  primary_result: string;
-  results: Record<string, number>;
-  completed_at: string;
+  primary_result?: string;
+  result_data: Record<string, any>;
+  completed_at?: string;
+  created_at?: string;
+  updated_at?: string;
 };
 
 // Assessment type config for display purposes
@@ -99,9 +102,17 @@ const Dashboard = () => {
         
         if (error) throw error;
         
-        setAssessmentResults(data || []);
+        // Transform the data to match our AssessmentResult type if needed
+        if (data) {
+          setAssessmentResults(data as AssessmentResult[]);
+        }
       } catch (error) {
         console.error('Error fetching user data:', error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to load dashboard data. Please try again.",
+        });
       } finally {
         setLoading(false);
       }
@@ -114,8 +125,15 @@ const Dashboard = () => {
     return (score / maxScore) * 100;
   };
   
-  const getTotalScore = (results: Record<string, number>): number => {
-    return Object.values(results).reduce((sum, score) => sum + score, 0);
+  const getTotalScore = (resultData: Record<string, any>): number => {
+    // Check if resultData contains a scores object (for RIASEC)
+    if (resultData && typeof resultData === 'object') {
+      // Sum up values if they are numbers
+      return Object.values(resultData).reduce((sum, value) => {
+        return sum + (typeof value === 'number' ? value : 0);
+      }, 0);
+    }
+    return 0;
   };
   
   const getLatestAssessment = () => {
@@ -123,7 +141,8 @@ const Dashboard = () => {
     return assessmentResults[0];
   };
   
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return 'Unknown date';
     const date = new Date(dateString);
     return date.toLocaleDateString();
   };
@@ -212,7 +231,7 @@ const Dashboard = () => {
                     <div className="space-y-4">
                       {assessmentResults.map((assessment) => {
                         const config = assessmentConfig[assessment.assessment_type as keyof typeof assessmentConfig];
-                        const totalScore = getTotalScore(assessment.results);
+                        const totalScore = getTotalScore(assessment.result_data);
                         
                         return (
                           <motion.div
@@ -230,15 +249,17 @@ const Dashboard = () => {
                                   <div>
                                     <h3 className="font-semibold">{config?.name || assessment.assessment_type}</h3>
                                     <p className="text-sm text-muted-foreground">
-                                      Completed on {formatDate(assessment.completed_at)}
+                                      Completed on {formatDate(assessment.completed_at || assessment.created_at)}
                                     </p>
-                                    <div className="mt-1">
-                                      <span className={cn("text-sm font-medium px-2 py-0.5 rounded-full", 
-                                        `bg-${config?.color.split('-')[1]}/10 text-${config?.color.split('-')[1]}`
-                                      )}>
-                                        {assessment.primary_result}
-                                      </span>
-                                    </div>
+                                    {assessment.primary_result && (
+                                      <div className="mt-1">
+                                        <span className={cn("text-sm font-medium px-2 py-0.5 rounded-full", 
+                                          `bg-${config?.color?.split('-')[1]}/10 text-${config?.color?.split('-')[1]}`
+                                        )}>
+                                          {assessment.primary_result}
+                                        </span>
+                                      </div>
+                                    )}
                                   </div>
                                 </div>
                                 
@@ -252,7 +273,7 @@ const Dashboard = () => {
                                   <Progress 
                                     value={getProgressValue(totalScore, config?.maxScore || 100)} 
                                     className={cn("h-2", 
-                                      `bg-${config?.color.split('-')[1]}/20`
+                                      `bg-${config?.color?.split('-')[1]}/20`
                                     )} 
                                   />
                                 </div>

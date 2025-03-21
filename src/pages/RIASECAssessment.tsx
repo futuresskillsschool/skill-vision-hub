@@ -531,17 +531,20 @@ const RIASECAssessment = () => {
     
     if (user) {
       try {
+        // Get top 3 types for primary result
+        const primaryResult = Object.entries(scores)
+          .sort(([, scoreA], [, scoreB]) => scoreB - scoreA)
+          .map(([type]) => type)
+          .slice(0, 3)
+          .join('');
+        
         await supabase
           .from('assessment_results')
           .upsert({
             user_id: user.id,
             assessment_type: 'riasec',
-            results: scores,
-            primary_result: Object.entries(scores)
-              .sort(([, scoreA], [, scoreB]) => scoreB - scoreA)
-              .map(([type]) => type)
-              .slice(0, 3)
-              .join(''),
+            result_data: scores,
+            primary_result: primaryResult,
             completed_at: new Date().toISOString()
           }, {
             onConflict: 'user_id,assessment_type'
