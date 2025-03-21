@@ -15,232 +15,88 @@ type RIASECQuestion = {
   options: string[];
 };
 
-// Define the new set of 36 questions for students aged 13-17
+// Define the set of 12 questions (2 per category)
 const riasecQuestions: RIASECQuestion[] = [
   // Realistic (R) questions
   {
     id: 1,
-    question: "I enjoy spending my free time building things with LEGOs, model kits, or other materials.",
+    question: "I enjoy building things with my hands.",
     type: 'R',
     options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
   },
   {
     id: 2,
-    question: "If something at home breaks, I usually try to fix it myself before asking for help.",
-    type: 'R',
-    options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-  },
-  {
-    id: 3,
-    question: "I find subjects like Woodworking, Metal Shop, or Auto Mechanics interesting (if available).",
-    type: 'R',
-    options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-  },
-  {
-    id: 4,
-    question: "I like being physically active through sports, dance, or outdoor activities like hiking or cycling.",
-    type: 'R',
-    options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-  },
-  {
-    id: 5,
-    question: "I'm the kind of person who prefers to learn by doing rather than just reading or listening.",
-    type: 'R',
-    options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-  },
-  {
-    id: 6,
-    question: "I would enjoy a hobby or future job that involves working with tools, machines, or technology in a hands-on way.",
+    question: "I like working with tools, machines, or technology.",
     type: 'R',
     options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
   },
   
   // Investigative (I) questions
   {
-    id: 7,
-    question: "I get really interested in understanding how things work, like how a computer or an engine functions.",
+    id: 3,
+    question: "I enjoy solving complex problems and puzzles.",
     type: 'I',
     options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
   },
   {
-    id: 8,
-    question: "I enjoy solving logic puzzles, riddles, or playing strategy games.",
-    type: 'I',
-    options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-  },
-  {
-    id: 9,
-    question: "I find science classes like Biology, Chemistry, or Physics fascinating and like to ask \"why?\"",
-    type: 'I',
-    options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-  },
-  {
-    id: 10,
-    question: "I enjoy doing research online or in books to learn more about topics that interest me.",
-    type: 'I',
-    options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-  },
-  {
-    id: 11,
-    question: "When faced with a problem, I usually try to analyze it from different angles before trying a solution.",
-    type: 'I',
-    options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-  },
-  {
-    id: 12,
-    question: "I would enjoy a future job that involves investigating problems, conducting experiments, or analyzing data.",
+    id: 4,
+    question: "I'm curious about how things work and why things happen.",
     type: 'I',
     options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
   },
   
   // Artistic (A) questions
   {
-    id: 13,
-    question: "I enjoy expressing myself through creative activities like drawing, painting, photography, or making videos.",
+    id: 5,
+    question: "I enjoy creative activities like art, music, or writing.",
     type: 'A',
     options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
   },
   {
-    id: 14,
-    question: "I like listening to music, going to concerts, or even trying to write my own songs or musical pieces.",
-    type: 'A',
-    options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-  },
-  {
-    id: 15,
-    question: "I enjoy reading fiction, writing stories or poems, or participating in drama or theater.",
-    type: 'A',
-    options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-  },
-  {
-    id: 16,
-    question: "I have a good sense of style and enjoy putting together outfits or decorating my space.",
-    type: 'A',
-    options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-  },
-  {
-    id: 17,
-    question: "I appreciate art in different forms, whether it's visual art, music, dance, or film.",
-    type: 'A',
-    options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-  },
-  {
-    id: 18,
-    question: "I would enjoy a future job where I can use my imagination and creativity, like in graphic design, fashion, or music.",
+    id: 6,
+    question: "I prefer tasks that allow me to express myself.",
     type: 'A',
     options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
   },
   
   // Social (S) questions
   {
-    id: 19,
-    question: "My friends often come to me when they have problems because I'm a good listener.",
+    id: 7,
+    question: "I enjoy helping others and working with people.",
     type: 'S',
     options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
   },
   {
-    id: 20,
-    question: "I enjoy working on projects with others and feel like I contribute well to a team.",
-    type: 'S',
-    options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-  },
-  {
-    id: 21,
-    question: "I often find myself helping classmates who are struggling with their schoolwork.",
-    type: 'S',
-    options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-  },
-  {
-    id: 22,
-    question: "I care about making a positive impact on my community or the world.",
-    type: 'S',
-    options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-  },
-  {
-    id: 23,
-    question: "I enjoy explaining things to others and helping them understand new concepts.",
-    type: 'S',
-    options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-  },
-  {
-    id: 24,
-    question: "I would enjoy a future job where I can work closely with people, help them, or teach them.",
+    id: 8,
+    question: "I'm good at explaining things to others.",
     type: 'S',
     options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
   },
   
   // Enterprising (E) questions
   {
-    id: 25,
-    question: "I often come up with ideas for new projects or ways to improve things.",
+    id: 9,
+    question: "I like to take charge and lead others.",
     type: 'E',
     options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
   },
   {
-    id: 26,
-    question: "I enjoy trying to convince my friends or family to try something new or do things my way.",
-    type: 'E',
-    options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-  },
-  {
-    id: 27,
-    question: "I've thought about starting my own club, event, or even a small business.",
-    type: 'E',
-    options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-  },
-  {
-    id: 28,
-    question: "I like to take the lead in group projects and make sure things get done.",
-    type: 'E',
-    options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-  },
-  {
-    id: 29,
-    question: "I'm usually motivated to achieve goals and like to see results.",
-    type: 'E',
-    options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-  },
-  {
-    id: 30,
-    question: "I would enjoy a future job where I can lead a team, manage projects, or sell ideas or products.",
+    id: 10,
+    question: "I enjoy persuading others and selling ideas or products.",
     type: 'E',
     options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
   },
   
   // Conventional (C) questions
   {
-    id: 31,
-    question: "I prefer having a clear plan and knowing what to expect.",
+    id: 11,
+    question: "I like following clear procedures and rules.",
     type: 'C',
     options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
   },
   {
-    id: 32,
-    question: "I pay close attention to details and like to make sure things are done correctly.",
-    type: 'C',
-    options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-  },
-  {
-    id: 33,
-    question: "I find it satisfying to organize my belongings, notes, or digital files.",
-    type: 'C',
-    options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-  },
-  {
-    id: 34,
-    question: "I'm good at following instructions and sticking to rules.",
-    type: 'C',
-    options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-  },
-  {
-    id: 35,
-    question: "I like working with numbers, charts, or spreadsheets.",
-    type: 'C',
-    options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-  },
-  {
-    id: 36,
-    question: "I would enjoy a future job that involves organizing information, managing data, or following established procedures.",
+    id: 12,
+    question: "I enjoy organizing information and working with data.",
     type: 'C',
     options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
   }
@@ -324,7 +180,7 @@ const RIASECAssessment = () => {
             <h1 className="text-3xl md:text-4xl font-bold mb-2">RIASEC Model Assessment</h1>
             <p className="text-foreground/70 max-w-3xl">
               Discover your Holland Code and find career matches based on your interests, abilities, and preferences.
-              This assessment contains 36 questions and will help you understand your personality type according to the RIASEC model.
+              This assessment contains 12 questions and will help you understand your personality type according to the RIASEC model.
             </p>
           </div>
           

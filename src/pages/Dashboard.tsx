@@ -150,7 +150,7 @@ const Dashboard = () => {
                   <p className="text-muted-foreground">Loading your assessments...</p>
                 </div>
               ) : (
-                <AssessmentTable />
+                <AssessmentTable assessments={assessments} />
               )}
             </section>
           </div>

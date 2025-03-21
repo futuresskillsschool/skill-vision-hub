@@ -1,13 +1,11 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { ChevronRight, Download } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
-import { supabase } from '@/integrations/supabase/client';
 import { motion } from 'framer-motion';
 
 export interface AssessmentResult {
@@ -51,40 +49,12 @@ const ASSESSMENT_TYPES: Record<string, { name: string, color: string, icon: JSX.
   }
 };
 
-const AssessmentTable = () => {
-  const [assessments, setAssessments] = useState<AssessmentResult[]>([]);
-  const [loading, setLoading] = useState(true);
-  const { user } = useAuth();
+interface AssessmentTableProps {
+  assessments: AssessmentResult[];
+}
+
+const AssessmentTable = ({ assessments }: AssessmentTableProps) => {
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchAssessments = async () => {
-      if (!user) return;
-
-      try {
-        setLoading(true);
-        const { data, error } = await supabase
-          .from('assessment_results')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false });
-
-        if (error) {
-          throw error;
-        }
-
-        if (data) {
-          setAssessments(data as AssessmentResult[]);
-        }
-      } catch (error) {
-        console.error('Error fetching assessment results:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAssessments();
-  }, [user]);
 
   const getAssessmentDetails = (type: string) => {
     return ASSESSMENT_TYPES[type] || {
@@ -102,14 +72,6 @@ const AssessmentTable = () => {
   const getPrimaryResult = (result: AssessmentResult) => {
     return result.result_data?.primary_result || 'Completed';
   };
-
-  if (loading) {
-    return (
-      <div className="text-center py-8">
-        <p className="text-muted-foreground">Loading your assessments...</p>
-      </div>
-    );
-  }
 
   if (assessments.length === 0) {
     return (
