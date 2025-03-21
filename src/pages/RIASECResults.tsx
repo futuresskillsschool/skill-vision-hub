@@ -1,12 +1,14 @@
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Download, Star } from 'lucide-react';
+import { toast } from "@/components/ui/use-toast";
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { supabase } from '@/integrations/supabase/client';
 
 // Define RIASEC types and descriptions
 const riasecTypes = {
@@ -33,6 +35,13 @@ const riasecTypes = {
       'Physical coordination',
       'Problem-solving with real objects',
       'Building and repairing'
+    ],
+    subjects: [
+      'Woodworking',
+      'Auto/Shop Class',
+      'Physical Education',
+      'Engineering',
+      'Computer Hardware'
     ]
   },
   I: {
@@ -58,6 +67,13 @@ const riasecTypes = {
       'Analysis',
       'Problem-solving',
       'Investigating and questioning'
+    ],
+    subjects: [
+      'Science',
+      'Mathematics',
+      'Computer Science',
+      'Research Projects',
+      'Engineering'
     ]
   },
   A: {
@@ -83,6 +99,13 @@ const riasecTypes = {
       'Self-expression',
       'Artistic ability',
       'Innovation and originality'
+    ],
+    subjects: [
+      'Art',
+      'Music',
+      'Drama/Theater',
+      'Creative Writing',
+      'Graphic Design'
     ]
   },
   S: {
@@ -108,6 +131,13 @@ const riasecTypes = {
       'Helping others',
       'Teaching',
       'Cooperation and teamwork'
+    ],
+    subjects: [
+      'Psychology',
+      'Sociology',
+      'Health Sciences',
+      'Education',
+      'Community Service'
     ]
   },
   E: {
@@ -133,6 +163,13 @@ const riasecTypes = {
       'Selling and influencing',
       'Public speaking',
       'Decision-making'
+    ],
+    subjects: [
+      'Business Studies',
+      'Debate Club',
+      'Student Government',
+      'Economics',
+      'Marketing'
     ]
   },
   C: {
@@ -158,6 +195,13 @@ const riasecTypes = {
       'Following procedures',
       'Data management',
       'Reliability and thoroughness'
+    ],
+    subjects: [
+      'Accounting',
+      'Business Math',
+      'Computer Applications',
+      'Filing/Record Keeping',
+      'Statistics'
     ]
   }
 };
@@ -175,6 +219,7 @@ const RIASECResults = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const resultsRef = useRef<HTMLDivElement>(null);
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   
   // Get scores from location state or set default values
   const scores: RIASECScores = location.state?.scores || { R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 };
@@ -182,11 +227,43 @@ const RIASECResults = () => {
   useEffect(() => {
     if (!location.state) {
       // If no scores are provided, redirect to the assessment
-      navigate('/assessment/riasec');
+      navigate('/riasec');
     }
     
     window.scrollTo(0, 0);
-  }, [location.state, navigate]);
+    
+    // Save results to database if user is logged in
+    const saveResults = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user && location.state) {
+        // Store assessment results
+        try {
+          const { error } = await supabase
+            .from('assessment_results')
+            .upsert({
+              user_id: user.id,
+              assessment_type: 'riasec',
+              results: scores,
+              primary_result: Object.entries(scores)
+                .sort(([, scoreA], [, scoreB]) => scoreB - scoreA)
+                .map(([type]) => riasecTypes[type as keyof typeof riasecTypes].name)
+                .slice(0, 3)
+                .join(', '),
+              completed_at: new Date().toISOString()
+            }, {
+              onConflict: 'user_id,assessment_type'
+            });
+            
+          if (error) throw error;
+        } catch (error) {
+          console.error('Error saving assessment results:', error);
+        }
+      }
+    };
+    
+    saveResults();
+  }, [location.state, navigate, scores]);
   
   // Get the top 3 personality types
   const sortedTypes = Object.entries(scores)
@@ -207,13 +284,29 @@ const RIASECResults = () => {
     if (!resultsRef.current) return;
     
     try {
-      const canvas = await html2canvas(resultsRef.current, {
-        scale: 2,
-        logging: false,
-        useCORS: true,
-        backgroundColor: '#ffffff'
+      setIsGeneratingPDF(true);
+      toast({
+        title: "Generating PDF",
+        description: "Please wait while we generate your results...",
       });
       
+      // Wait for any animations to complete
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Capture the results container with improved settings
+      const canvas = await html2canvas(resultsRef.current, {
+        scale: 2, // Higher scale for better quality
+        logging: false,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        allowTaint: true,
+        scrollX: 0,
+        scrollY: -window.scrollY,
+        windowWidth: document.documentElement.offsetWidth,
+        windowHeight: document.documentElement.offsetHeight
+      });
+      
+      // Create PDF with proper dimensions
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF({
         orientation: 'portrait',
@@ -221,13 +314,40 @@ const RIASECResults = () => {
         format: 'a4'
       });
       
-      const imgWidth = 210;
+      const imgWidth = 210; // A4 width in mm
+      const pageHeight = 295; // A4 height in mm
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       
-      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      let heightLeft = imgHeight;
+      let position = 0;
+      
+      // Add image to first page
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+      
+      // Add new pages if the content exceeds one page
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+      
       pdf.save('RIASEC-Assessment-Results.pdf');
+      
+      toast({
+        title: "PDF Generated Successfully",
+        description: "Your results have been downloaded.",
+      });
     } catch (error) {
       console.error('Error generating PDF:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "There was a problem generating your PDF. Please try again.",
+      });
+    } finally {
+      setIsGeneratingPDF(false);
     }
   };
   
@@ -259,8 +379,10 @@ const RIASECResults = () => {
             <Button 
               className="flex items-center bg-brand-purple text-white hover:bg-brand-purple/90 mt-4 md:mt-0"
               onClick={downloadResults}
+              disabled={isGeneratingPDF}
             >
-              <Download className="mr-2 h-4 w-4" /> Download Results
+              <Download className="mr-2 h-4 w-4" /> 
+              {isGeneratingPDF ? "Generating PDF..." : "Download Results"}
             </Button>
           </div>
           
@@ -303,6 +425,13 @@ const RIASECResults = () => {
                       <li key={index}>{skill}</li>
                     ))}
                   </ul>
+                  
+                  <h4 className="font-medium mb-2">School subjects that might interest you:</h4>
+                  <ul className="list-disc pl-5 mb-4 space-y-1">
+                    {riasecTypes[primaryType].subjects.map((subject, index) => (
+                      <li key={index}>{subject}</li>
+                    ))}
+                  </ul>
                 </div>
               </div>
               
@@ -315,6 +444,12 @@ const RIASECResults = () => {
                   </h3>
                   <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
                     <p className="mb-3 text-sm">{riasecTypes[secondaryType].description}</p>
+                    <h4 className="font-medium mb-2 text-sm">Subjects you might enjoy:</h4>
+                    <ul className="list-disc pl-5 space-y-1 text-sm">
+                      {riasecTypes[secondaryType].subjects.slice(0, 3).map((subject, index) => (
+                        <li key={index}>{subject}</li>
+                      ))}
+                    </ul>
                   </div>
                 </div>
                 
@@ -325,6 +460,12 @@ const RIASECResults = () => {
                   </h3>
                   <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
                     <p className="mb-3 text-sm">{riasecTypes[tertiaryType].description}</p>
+                    <h4 className="font-medium mb-2 text-sm">Subjects you might enjoy:</h4>
+                    <ul className="list-disc pl-5 space-y-1 text-sm">
+                      {riasecTypes[tertiaryType].subjects.slice(0, 3).map((subject, index) => (
+                        <li key={index}>{subject}</li>
+                      ))}
+                    </ul>
                   </div>
                 </div>
               </div>
