@@ -1,5 +1,5 @@
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Download, Star } from 'lucide-react';
@@ -7,6 +7,8 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 // Define RIASEC types and descriptions
 const riasecTypes = {
@@ -175,6 +177,8 @@ const RIASECResults = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const resultsRef = useRef<HTMLDivElement>(null);
+  const { user, storeAssessmentResult } = useAuth();
+  const [isDownloading, setIsDownloading] = useState(false);
   
   // Get scores from location state or set default values
   const scores: RIASECScores = location.state?.scores || { R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 };
@@ -183,10 +187,37 @@ const RIASECResults = () => {
     if (!location.state) {
       // If no scores are provided, redirect to the assessment
       navigate('/assessment/riasec');
+      return;
     }
     
     window.scrollTo(0, 0);
-  }, [location.state, navigate]);
+    
+    // Store the assessment result in the database if user is logged in
+    const saveResult = async () => {
+      if (user) {
+        // Get the top 3 personality types
+        const sortedTypes = Object.entries(scores)
+          .sort(([, scoreA], [, scoreB]) => scoreB - scoreA)
+          .map(([type]) => type as keyof typeof riasecTypes);
+        
+        const primaryType = sortedTypes[0];
+        const secondaryType = sortedTypes[1];
+        const tertiaryType = sortedTypes[2];
+        
+        // Create a result object
+        const resultData = {
+          scores,
+          code: `${primaryType}${secondaryType}${tertiaryType}`,
+          primary_result: `${riasecTypes[primaryType].name} (${riasecTypes[primaryType].title})`,
+          date: new Date().toISOString()
+        };
+        
+        await storeAssessmentResult('riasec', resultData);
+      }
+    };
+    
+    saveResult();
+  }, [location.state, navigate, scores, user, storeAssessmentResult]);
   
   // Get the top 3 personality types
   const sortedTypes = Object.entries(scores)
@@ -207,12 +238,32 @@ const RIASECResults = () => {
     if (!resultsRef.current) return;
     
     try {
+      setIsDownloading(true);
+      
+      // Add a temporary class to optimize for PDF capture
+      resultsRef.current.classList.add('pdf-capture-mode');
+      
+      // Ensure all content is visible before capturing
+      const originalHeight = resultsRef.current.style.maxHeight;
+      resultsRef.current.style.maxHeight = 'none';
+      
       const canvas = await html2canvas(resultsRef.current, {
         scale: 2,
         logging: false,
         useCORS: true,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        onclone: (clonedDoc) => {
+          // Make any adjustments to the cloned document before capture
+          const clonedContent = clonedDoc.querySelector('#results-content');
+          if (clonedContent) {
+            clonedContent.classList.add('pdf-capture-mode');
+          }
+        }
       });
+      
+      // Reset styles
+      resultsRef.current.classList.remove('pdf-capture-mode');
+      resultsRef.current.style.maxHeight = originalHeight;
       
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF({
@@ -228,6 +279,8 @@ const RIASECResults = () => {
       pdf.save('RIASEC-Assessment-Results.pdf');
     } catch (error) {
       console.error('Error generating PDF:', error);
+    } finally {
+      setIsDownloading(false);
     }
   };
   
@@ -259,14 +312,16 @@ const RIASECResults = () => {
             <Button 
               className="flex items-center bg-brand-purple text-white hover:bg-brand-purple/90 mt-4 md:mt-0"
               onClick={downloadResults}
+              disabled={isDownloading}
             >
-              <Download className="mr-2 h-4 w-4" /> Download Results
+              <Download className="mr-2 h-4 w-4" /> {isDownloading ? 'Generating PDF...' : 'Download Results'}
             </Button>
           </div>
           
           {/* Results container - this will be captured for PDF */}
           <div 
             ref={resultsRef}
+            id="results-content"
             className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm max-w-4xl mx-auto animate-fade-in"
           >
             {/* Header */}
