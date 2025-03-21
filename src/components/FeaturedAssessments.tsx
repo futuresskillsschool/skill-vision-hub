@@ -14,7 +14,6 @@ interface Assessment {
   users: string;
   rating: number;
   featured?: boolean;
-  questions?: number;
 }
 
 const assessments: Assessment[] = [
@@ -26,8 +25,7 @@ const assessments: Assessment[] = [
     time: '15 min',
     users: '5.2k',
     rating: 4.8,
-    featured: true,
-    questions: 15
+    featured: true
   },
   {
     id: 'riasec',
@@ -36,8 +34,7 @@ const assessments: Assessment[] = [
     image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c',
     time: '20 min',
     users: '8.7k',
-    rating: 4.9,
-    questions: 36
+    rating: 4.9
   },
   {
     id: 'eq-navigator',
@@ -46,18 +43,16 @@ const assessments: Assessment[] = [
     image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f',
     time: '25 min',
     users: '3.4k',
-    rating: 4.7,
-    questions: 20
+    rating: 4.7
   },
   {
     id: 'future-pathways',
     title: 'Future Pathways Assessment',
     description: 'Explore emerging career opportunities and identify the skills you need to thrive in the future of work.',
     image: 'https://images.unsplash.com/photo-1543269865-cbf427effbad',
-    time: '25 min',
+    time: '25 min', // Updated from 30 min
     users: '2.1k',
-    rating: 4.6,
-    questions: 25
+    rating: 4.6
   },
   {
     id: 'scct-assessment',
@@ -66,8 +61,7 @@ const assessments: Assessment[] = [
     image: 'https://images.unsplash.com/photo-1622675363311-3e1904dc1885',
     time: '25 min',
     users: '1.8k',
-    rating: 4.5,
-    questions: 18
+    rating: 4.5
   }
 ];
 
@@ -152,11 +146,6 @@ const FeaturedAssessments = () => {
                   <span>{featuredAssessment.rating}</span>
                 </div>
               </div>
-              <div className="flex justify-between mb-6">
-                <span className="text-sm text-foreground/70">
-                  {featuredAssessment.questions} questions
-                </span>
-              </div>
               <Button className="button-primary w-full md:w-auto">Start Assessment</Button>
             </div>
           </Link>
@@ -187,7 +176,7 @@ const FeaturedAssessments = () => {
                 <p className="text-foreground/70 text-sm mb-4 line-clamp-2 flex-grow">
                   {assessment.description}
                 </p>
-                <div className="flex items-center justify-between text-xs text-foreground/60 mb-2">
+                <div className="flex items-center justify-between text-xs text-foreground/60 mb-4">
                   <div className="flex items-center">
                     <Clock className="h-3 w-3 mr-1" />
                     <span>{assessment.time}</span>
@@ -200,11 +189,6 @@ const FeaturedAssessments = () => {
                     <Star className="h-3 w-3 mr-1 text-yellow-400 fill-yellow-400" />
                     <span>{assessment.rating}</span>
                   </div>
-                </div>
-                <div className="mb-4">
-                  <span className="text-xs text-foreground/70">
-                    {assessment.questions} questions
-                  </span>
                 </div>
                 <Button variant="outline" className="w-full text-brand-purple border-brand-purple/30 hover:bg-brand-purple/5 hover:border-brand-purple">
                   Take Assessment
