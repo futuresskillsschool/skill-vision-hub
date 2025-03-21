@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
@@ -74,6 +73,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const storeAssessmentResult = async (assessmentType: string, resultData: any) => {
+    // TEMPORARILY DISABLED - returning early without doing anything
+    console.log('Assessment result storage temporarily disabled');
+    return;
+    
+    /* Original implementation - commented out 
     if (!user) {
       toast({
         title: "Authentication required",
@@ -137,6 +141,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         variant: "destructive",
       });
     }
+    */
   };
 
   const getUserProfile = async () => {
