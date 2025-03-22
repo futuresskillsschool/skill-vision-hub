@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -191,36 +190,7 @@ const RIASECResults = () => {
     }
     
     window.scrollTo(0, 0);
-    
-    // Store the assessment result in the database if user is logged in
-    // TEMPORARILY DISABLED
-    /*
-    const saveResult = async () => {
-      if (user) {
-        // Get the top 3 personality types
-        const sortedTypes = Object.entries(scores)
-          .sort(([, scoreA], [, scoreB]) => scoreB - scoreA)
-          .map(([type]) => type as keyof typeof riasecTypes);
-        
-        const primaryType = sortedTypes[0];
-        const secondaryType = sortedTypes[1];
-        const tertiaryType = sortedTypes[2];
-        
-        // Create a result object
-        const resultData = {
-          scores,
-          code: `${primaryType}${secondaryType}${tertiaryType}`,
-          primary_result: `${riasecTypes[primaryType].name} (${riasecTypes[primaryType].title})`,
-          date: new Date().toISOString()
-        };
-        
-        await storeAssessmentResult('riasec', resultData);
-      }
-    };
-    
-    saveResult();
-    */
-  }, [location.state, navigate, scores, user]);
+  }, [location.state, navigate]);
   
   // Get the top 3 personality types
   const sortedTypes = Object.entries(scores)
@@ -243,35 +213,39 @@ const RIASECResults = () => {
     try {
       setIsDownloading(true);
       
-      // Create a clone of the results content for PDF capture
+      // Create a clone of the results content that will be used for the PDF
       const contentToCapture = resultsRef.current.cloneNode(true) as HTMLElement;
       
-      // Apply specific styling for capture
+      // Set up styles for the clone
       contentToCapture.style.width = '800px';
+      contentToCapture.style.backgroundColor = '#ffffff';
       contentToCapture.style.padding = '40px';
       contentToCapture.style.position = 'absolute';
       contentToCapture.style.left = '-9999px';
       contentToCapture.style.top = '-9999px';
-      contentToCapture.style.backgroundColor = '#ffffff';
       document.body.appendChild(contentToCapture);
       
-      // Force all expanded content to be visible
-      Array.from(contentToCapture.querySelectorAll('*')).forEach(el => {
-        const element = el as HTMLElement;
+      // Ensure all content is visible for the PDF
+      const expandElements = (element: HTMLElement) => {
         element.style.height = 'auto';
         element.style.maxHeight = 'none';
         element.style.overflow = 'visible';
         element.style.display = element.style.display === 'none' ? 'none' : 'block';
-      });
+        
+        // For all child elements
+        Array.from(element.children).forEach(child => {
+          expandElements(child as HTMLElement);
+        });
+      };
       
-      // Create canvas with better quality settings
+      expandElements(contentToCapture);
+      
+      // Generate high-quality canvas
       const canvas = await html2canvas(contentToCapture, {
-        scale: 2,
+        scale: 2, // Higher scale for better quality
         logging: false,
         useCORS: true,
         backgroundColor: '#ffffff',
-        windowWidth: 1200,
-        windowHeight: 1600,
         allowTaint: true,
         onclone: (clonedDoc) => {
           const clonedElement = clonedDoc.body.querySelector('[id="results-content"]') as HTMLElement;
@@ -284,28 +258,75 @@ const RIASECResults = () => {
         }
       });
       
-      // Remove temporary element
+      // Remove the temporary element from DOM
       document.body.removeChild(contentToCapture);
       
-      // Generate PDF with better quality
+      // Create PDF with appropriate size and quality
       const imgData = canvas.toDataURL('image/png', 1.0);
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
-        format: 'a4'
+        format: 'a4',
+        compress: false
       });
       
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
+      
+      // Calculate dimensions to fit the PDF page properly
       const imgWidth = canvas.width;
       const imgHeight = canvas.height;
-      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight) * 0.9;
       
-      // Center the image on the page
-      const imgX = (pdfWidth - imgWidth * ratio) / 2;
-      const imgY = (pdfHeight - imgHeight * ratio) / 2;
+      // Calculate ratio to fit width while preserving aspect ratio
+      const ratio = pdfWidth / imgWidth * 0.95; // 95% of page width
       
-      pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
+      // Calculate how many pages we need
+      const pageHeight = pdfHeight - 20; // Leave 10mm margins at top and bottom
+      const totalPdfHeight = imgHeight * ratio;
+      const pageCount = Math.ceil(totalPdfHeight / pageHeight);
+      
+      // Add each section of the image to a new page
+      let heightLeft = totalPdfHeight;
+      let position = 0;
+      let currentPage = 0;
+      
+      while (heightLeft > 0) {
+        // If we're not on the first page, add a new page
+        if (currentPage > 0) {
+          pdf.addPage();
+        }
+        
+        // Calculate what portion of the image to add to this page
+        const currentPageHeight = Math.min(heightLeft, pageHeight);
+        const srcY = position / ratio;
+        const srcHeight = currentPageHeight / ratio;
+        
+        // Add this portion of the image to the current page
+        pdf.addImage(
+          imgData, 
+          'PNG', 
+          10, // 10mm margin from left
+          10, // 10mm margin from top
+          pdfWidth - 20, // width with 10mm margins on each side
+          currentPageHeight,
+          null,
+          null,
+          null,
+          {
+            sourceX: 0,
+            sourceY: srcY,
+            sourceWidth: imgWidth,
+            sourceHeight: srcHeight
+          }
+        );
+        
+        // Update variables for next iteration
+        heightLeft -= currentPageHeight;
+        position += currentPageHeight;
+        currentPage++;
+      }
+      
+      // Save PDF
       pdf.save('RIASEC-Assessment-Results.pdf');
     } catch (error) {
       console.error('Error generating PDF:', error);

@@ -1,4 +1,3 @@
-
 import { useEffect, useState, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -12,13 +11,11 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { Progress } from '@/components/ui/progress';
 
-// Types for the pathway results
 interface PathwayResultsProps {
   clusterScores: Record<string, number>;
   selectedOptions: number[];
 }
 
-// Define the profile types and their descriptions
 interface CareerCluster {
   id: string;
   title: string;
@@ -183,23 +180,19 @@ const FuturePathwaysResults = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
     
-    // Get the results data from location state
     const state = location.state as PathwayResultsProps | null;
     
     if (!state || !state.clusterScores) {
-      // No results data, navigate back to the assessment
       navigate('/assessment/future-pathways');
       return;
     }
     
-    // Find top 2 clusters
     const { clusterScores } = state;
     setClusterScores(clusterScores);
     
     const sortedClusters = Object.entries(clusterScores)
       .sort((a, b) => b[1] - a[1]);
     
-    // Find max score for normalizing
     const highestScore = sortedClusters[0][1];
     setMaxScore(highestScore);
     
@@ -215,30 +208,108 @@ const FuturePathwaysResults = () => {
     if (!reportRef.current) return;
     
     try {
-      const canvas = await html2canvas(reportRef.current, {
+      const contentToCapture = reportRef.current.cloneNode(true) as HTMLElement;
+      
+      contentToCapture.style.width = '800px';
+      contentToCapture.style.backgroundColor = '#ffffff';
+      contentToCapture.style.padding = '40px';
+      contentToCapture.style.position = 'absolute';
+      contentToCapture.style.left = '-9999px';
+      contentToCapture.style.top = '-9999px';
+      document.body.appendChild(contentToCapture);
+      
+      const expandElements = (element: HTMLElement) => {
+        element.style.height = 'auto';
+        element.style.maxHeight = 'none';
+        element.style.overflow = 'visible';
+        element.style.display = element.style.display === 'none' ? 'none' : 'block';
+        
+        const svgs = element.querySelectorAll('svg');
+        svgs.forEach(svg => {
+          svg.setAttribute('width', svg.getBoundingClientRect().width.toString());
+          svg.setAttribute('height', svg.getBoundingClientRect().height.toString());
+        });
+        
+        const gradientElements = element.querySelectorAll('[class*="bg-gradient"]');
+        gradientElements.forEach(el => {
+          (el as HTMLElement).style.opacity = '1';
+          (el as HTMLElement).style.display = 'block';
+        });
+        
+        Array.from(element.children).forEach(child => {
+          expandElements(child as HTMLElement);
+        });
+      };
+      
+      expandElements(contentToCapture);
+      
+      const canvas = await html2canvas(contentToCapture, {
         scale: 2,
         logging: false,
         useCORS: true,
+        backgroundColor: '#ffffff',
         allowTaint: true
       });
       
-      const imgData = canvas.toDataURL('image/png');
+      document.body.removeChild(contentToCapture);
+      
+      const imgData = canvas.toDataURL('image/png', 1.0);
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
-        format: 'a4'
+        format: 'a4',
+        compress: false
       });
       
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
+      
       const imgWidth = canvas.width;
       const imgHeight = canvas.height;
-      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-      const imgX = (pdfWidth - imgWidth * ratio) / 2;
-      const imgY = 30;
       
-      pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
-      pdf.save('future-pathways-results.pdf');
+      const ratio = pdfWidth / imgWidth * 0.95;
+      
+      const pageHeight = pdfHeight - 20;
+      const totalPdfHeight = imgHeight * ratio;
+      const pageCount = Math.ceil(totalPdfHeight / pageHeight);
+      
+      let heightLeft = totalPdfHeight;
+      let position = 0;
+      let currentPage = 0;
+      
+      while (heightLeft > 0) {
+        if (currentPage > 0) {
+          pdf.addPage();
+        }
+        
+        const currentPageHeight = Math.min(heightLeft, pageHeight);
+        const srcY = position / ratio;
+        const srcHeight = currentPageHeight / ratio;
+        
+        pdf.addImage(
+          imgData, 
+          'PNG', 
+          10,
+          10,
+          pdfWidth - 20,
+          currentPageHeight,
+          null,
+          null,
+          null,
+          {
+            sourceX: 0,
+            sourceY: srcY,
+            sourceWidth: imgWidth,
+            sourceHeight: srcHeight
+          }
+        );
+        
+        heightLeft -= currentPageHeight;
+        position += currentPageHeight;
+        currentPage++;
+      }
+      
+      pdf.save('Future-Pathways-Results.pdf');
     } catch (error) {
       console.error('Error generating PDF:', error);
     }
@@ -284,9 +355,7 @@ const FuturePathwaysResults = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              {/* Header */}
               <div className="text-center mb-10 relative">
-                {/* Background decoration */}
                 <div className="absolute top-0 right-0 w-40 h-40 bg-brand-green/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 -z-10"></div>
                 
                 <div className="w-24 h-24 mx-auto bg-gradient-to-br from-brand-green to-emerald-700 rounded-2xl rotate-3 flex items-center justify-center mb-6">
@@ -299,7 +368,6 @@ const FuturePathwaysResults = () => {
                 </p>
               </div>
               
-              {/* Career Clusters Comparison */}
               <div className="mb-10 bg-gray-50 rounded-xl p-6 border border-gray-100">
                 <h2 className="text-xl font-semibold mb-4">Your Career Cluster Affinities</h2>
                 
@@ -337,12 +405,10 @@ const FuturePathwaysResults = () => {
                 </div>
               </div>
               
-              {/* Primary Career Cluster */}
               <div className={cn(
                 "rounded-xl p-8 mb-8 relative overflow-hidden",
                 topClusters[0].bgGradient
               )}>
-                {/* Background decorations */}
                 <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-xl -translate-y-1/2 translate-x-1/4"></div>
                 <div className="absolute bottom-0 left-0 w-40 h-40 bg-black/10 rounded-full blur-xl translate-y-1/2 -translate-x-1/4"></div>
                 
@@ -397,13 +463,11 @@ const FuturePathwaysResults = () => {
                 </div>
               </div>
               
-              {/* Secondary Career Cluster (if available) */}
               {topClusters.length > 1 && (
                 <div className={cn(
                   "rounded-xl p-8 mb-8 relative overflow-hidden",
                   topClusters[1].bgGradient
                 )}>
-                  {/* Background decorations */}
                   <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-xl -translate-y-1/2 translate-x-1/4"></div>
                   <div className="absolute bottom-0 left-0 w-40 h-40 bg-black/10 rounded-full blur-xl translate-y-1/2 -translate-x-1/4"></div>
                   
@@ -459,7 +523,6 @@ const FuturePathwaysResults = () => {
                 </div>
               )}
               
-              {/* Interdisciplinary Opportunities */}
               <div className="bg-gray-50 rounded-xl p-6 border border-gray-100 mb-8">
                 <h3 className="text-xl font-semibold mb-4 flex items-center">
                   <div className="w-8 h-8 bg-gradient-to-br from-brand-purple to-brand-blue rounded-full flex items-center justify-center mr-3 text-white">
@@ -497,7 +560,6 @@ const FuturePathwaysResults = () => {
                 </div>
               </div>
               
-              {/* Conclusion */}
               <div className="bg-gradient-to-br from-brand-green/10 to-brand-blue/10 rounded-xl p-6 border border-brand-green/20">
                 <h3 className="text-xl font-semibold mb-4">Next Steps on Your Journey</h3>
                 <p className="mb-4">
@@ -534,7 +596,6 @@ const FuturePathwaysResults = () => {
             </motion.div>
           </div>
           
-          {/* Action buttons */}
           <div className="flex flex-col sm:flex-row justify-center gap-4 mt-8">
             <Button 
               onClick={() => navigate('/')}

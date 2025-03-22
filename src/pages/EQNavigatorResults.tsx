@@ -1,4 +1,3 @@
-
 import { useEffect, useState, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -287,69 +286,97 @@ const EQNavigatorResults = () => {
     if (!reportRef.current) return;
     
     try {
-      // Create a clone of the results content for PDF capture
       const contentToCapture = reportRef.current.cloneNode(true) as HTMLElement;
       
-      // Apply specific styling for capture
       contentToCapture.style.width = '800px';
+      contentToCapture.style.backgroundColor = '#ffffff';
       contentToCapture.style.padding = '40px';
       contentToCapture.style.position = 'absolute';
       contentToCapture.style.left = '-9999px';
       contentToCapture.style.top = '-9999px';
-      contentToCapture.style.backgroundColor = '#ffffff';
       document.body.appendChild(contentToCapture);
       
-      // Force all expanded content to be visible
-      Array.from(contentToCapture.querySelectorAll('*')).forEach(el => {
-        const element = el as HTMLElement;
+      const expandElements = (element: HTMLElement) => {
         element.style.height = 'auto';
         element.style.maxHeight = 'none';
         element.style.overflow = 'visible';
         element.style.display = element.style.display === 'none' ? 'none' : 'block';
-      });
+        
+        const svgs = element.querySelectorAll('svg');
+        svgs.forEach(svg => {
+          svg.setAttribute('width', svg.getBoundingClientRect().width.toString());
+          svg.setAttribute('height', svg.getBoundingClientRect().height.toString());
+        });
+        
+        Array.from(element.children).forEach(child => {
+          expandElements(child as HTMLElement);
+        });
+      };
       
-      // Create canvas with better quality settings
+      expandElements(contentToCapture);
+      
       const canvas = await html2canvas(contentToCapture, {
         scale: 2,
         logging: false,
         useCORS: true,
         backgroundColor: '#ffffff',
-        windowWidth: 1200,
-        windowHeight: 1600,
-        allowTaint: true,
-        onclone: (clonedDoc) => {
-          const clonedElement = clonedDoc.body.querySelector('[ref="reportRef"]') as HTMLElement;
-          if (clonedElement) {
-            clonedElement.style.width = '800px';
-            clonedElement.style.boxShadow = 'none';
-            clonedElement.style.margin = '0';
-            clonedElement.style.maxWidth = 'none';
-          }
-        }
+        allowTaint: true
       });
       
-      // Remove temporary element
       document.body.removeChild(contentToCapture);
       
-      // Generate PDF with better quality
       const imgData = canvas.toDataURL('image/png', 1.0);
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
-        format: 'a4'
+        format: 'a4',
+        compress: false
       });
       
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
+      
       const imgWidth = canvas.width;
       const imgHeight = canvas.height;
-      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight) * 0.9;
       
-      // Center the image on the page
-      const imgX = (pdfWidth - imgWidth * ratio) / 2;
-      const imgY = 20; // A bit of margin from the top
+      const ratio = pdfWidth / imgWidth * 0.95;
       
-      pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
+      let heightLeft = totalPdfHeight;
+      let position = 0;
+      let currentPage = 0;
+      
+      while (heightLeft > 0) {
+        if (currentPage > 0) {
+          pdf.addPage();
+        }
+        
+        const currentPageHeight = Math.min(heightLeft, pageHeight);
+        const srcY = position / ratio;
+        const srcHeight = currentPageHeight / ratio;
+        
+        pdf.addImage(
+          imgData, 
+          'PNG', 
+          10,
+          10,
+          pdfWidth - 20,
+          currentPageHeight,
+          null,
+          null,
+          null,
+          {
+            sourceX: 0,
+            sourceY: srcY,
+            sourceWidth: imgWidth,
+            sourceHeight: srcHeight
+          }
+        );
+        
+        heightLeft -= currentPageHeight;
+        position += currentPageHeight;
+        currentPage++;
+      }
+      
       pdf.save('EQ-Navigator-Results.pdf');
     } catch (error) {
       console.error('Error generating PDF:', error);
