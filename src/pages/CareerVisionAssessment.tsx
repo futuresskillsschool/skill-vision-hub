@@ -304,7 +304,7 @@ const careerClusters = {
   "helper": "Tech-Enabled Helper & Problem Solver"
 };
 
-// Group questions by pages
+// Group questions by pages - updated to include more questions per page
 const groupQuestions = <T extends { id: number }>(questions: T[], perPage: number) => {
   const groupedQuestions = [];
   for (let i = 0; i < questions.length; i += perPage) {
@@ -325,21 +325,21 @@ const CareerVisionAssessment = () => {
   const [riasecAnswers, setRiasecAnswers] = useState<number[]>(Array(riasecQuestions.length).fill(0));
   const [riasecPage, setRiasecPage] = useState(0);
   const [riasecComplete, setRiasecComplete] = useState(false);
-  const riasecQuestionsPerPage = 3;
+  const riasecQuestionsPerPage = 6; // Increased from 3 to 6
   const groupedRiasecQuestions = groupQuestions(riasecQuestions, riasecQuestionsPerPage);
   
   // Future Pathways state
   const [pathwaysAnswers, setPathwaysAnswers] = useState<number[]>(Array(pathwaysQuestions.length).fill(0));
   const [pathwaysPage, setPathwaysPage] = useState(0);
   const [pathwaysComplete, setPathwaysComplete] = useState(false);
-  const pathwaysQuestionsPerPage = 3;
+  const pathwaysQuestionsPerPage = 5; // Increased from 3 to 5
   const groupedPathwaysQuestions = groupQuestions(pathwaysQuestions, pathwaysQuestionsPerPage);
   
   // EQ Navigator state
   const [eqAnswers, setEqAnswers] = useState<string[]>(Array(eqQuestions.length).fill(''));
   const [eqPage, setEqPage] = useState(0);
   const [eqComplete, setEqComplete] = useState(false);
-  const eqQuestionsPerPage = 2;
+  const eqQuestionsPerPage = 5; // Increased from 2 to 5
   const groupedEqQuestions = groupQuestions(eqQuestions, eqQuestionsPerPage);
   
   // Overall assessment completion
@@ -642,13 +642,13 @@ const CareerVisionAssessment = () => {
                         <Progress value={riasecProgress} className="h-2 bg-brand-blue/20" />
                       </div>
                       
-                      <div className="space-y-8">
+                      <div className="space-y-6">
                         {groupedRiasecQuestions[riasecPage].map((question, questionIndex) => {
                           const globalQuestionIndex = riasecPage * riasecQuestionsPerPage + questionIndex;
                           return (
                             <div key={question.id} className="bg-brand-blue/5 rounded-lg p-5 border border-brand-blue/20">
                               <h3 className="text-lg md:text-xl font-semibold mb-4 flex items-start">
-                                <span className="bg-brand-blue text-white w-8 h-8 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                                <span className="bg-brand-blue text-white w-8 h-8 rounded-full flex items-center justify-center mr-3 flex-shrink-0 shadow-md">
                                   {globalQuestionIndex + 1}
                                 </span>
                                 {question.question}
@@ -706,7 +706,7 @@ const CareerVisionAssessment = () => {
                         <Button 
                           onClick={handleRiasecNext}
                           disabled={!isRiasecPageComplete()}
-                          className="bg-brand-blue hover:bg-brand-blue/90 flex items-center gap-1"
+                          className="bg-brand-purple hover:bg-brand-purple/90 text-white flex items-center gap-1 shadow-md"
                         >
                           {riasecPage === groupedRiasecQuestions.length - 1 ? "Next Section" : "Next"}
                           <ArrowRight className="h-4 w-4" />
@@ -727,13 +727,13 @@ const CareerVisionAssessment = () => {
                         <Progress value={pathwaysProgress} className="h-2 bg-brand-green/20" />
                       </div>
                       
-                      <div className="space-y-8">
+                      <div className="space-y-6">
                         {groupedPathwaysQuestions[pathwaysPage].map((question, questionIndex) => {
                           const globalQuestionIndex = pathwaysPage * pathwaysQuestionsPerPage + questionIndex;
                           return (
                             <div key={question.id} className="bg-brand-green/5 rounded-lg p-5 border border-brand-green/20">
                               <h3 className="text-lg md:text-xl font-semibold mb-4 flex items-start">
-                                <span className="bg-brand-green text-white w-8 h-8 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                                <span className="bg-brand-green text-white w-8 h-8 rounded-full flex items-center justify-center mr-3 flex-shrink-0 shadow-md">
                                   {globalQuestionIndex + 1}
                                 </span>
                                 {question.question}
@@ -790,129 +790,4 @@ const CareerVisionAssessment = () => {
                         <Button 
                           onClick={handlePathwaysNext}
                           disabled={!isPathwaysPageComplete()}
-                          className="bg-brand-green hover:bg-brand-green/90 flex items-center gap-1"
-                        >
-                          {pathwaysPage === groupedPathwaysQuestions.length - 1 ? "Next Section" : "Next"}
-                          <ArrowRight className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TabsContent>
-                    
-                    <TabsContent value="eq" className="mt-0">
-                      <div className="mb-6">
-                        <div className="flex justify-between items-center mb-2">
-                          <h2 className="text-lg font-medium text-brand-red">
-                            EQ Navigator
-                          </h2>
-                          <span className="text-sm text-muted-foreground font-medium">
-                            Page {eqPage + 1} of {groupedEqQuestions.length}
-                          </span>
-                        </div>
-                        <Progress value={eqProgress} className="h-2 bg-brand-red/20" />
-                      </div>
-                      
-                      <div className="space-y-8">
-                        {groupedEqQuestions[eqPage].map((question, questionIndex) => {
-                          const globalQuestionIndex = eqPage * eqQuestionsPerPage + questionIndex;
-                          return (
-                            <div key={question.id} className="bg-brand-red/5 rounded-lg p-5 border border-brand-red/20">
-                              <h3 className="text-lg md:text-xl font-semibold mb-4 flex items-start">
-                                <span className="bg-brand-red text-white w-8 h-8 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
-                                  {globalQuestionIndex + 1}
-                                </span>
-                                <span>{question.scenario}</span>
-                              </h3>
-                              
-                              <RadioGroup 
-                                value={eqAnswers[globalQuestionIndex]} 
-                                onValueChange={(value) => handleEqAnswer(questionIndex, value)}
-                                className="space-y-3"
-                              >
-                                {question.options.map((option) => (
-                                  <div 
-                                    key={option.id} 
-                                    className={`flex items-start space-x-2 border rounded-md p-3 transition-colors ${
-                                      eqAnswers[globalQuestionIndex] === option.id 
-                                        ? 'border-brand-red bg-brand-red/10' 
-                                        : 'border-border/50 hover:border-brand-red/50 hover:bg-brand-red/5'
-                                    }`}
-                                  >
-                                    <RadioGroupItem 
-                                      value={option.id} 
-                                      id={`eq-question-${question.id}-option-${option.id}`} 
-                                      className="mt-1" 
-                                    />
-                                    <Label 
-                                      htmlFor={`eq-question-${question.id}-option-${option.id}`} 
-                                      className="flex-1 cursor-pointer font-normal text-base"
-                                    >
-                                      {option.text}
-                                    </Label>
-                                    {eqAnswers[globalQuestionIndex] === option.id && (
-                                      <div className="bg-brand-red/20 rounded-full p-1">
-                                        <Check className="h-4 w-4 text-brand-red" />
-                                      </div>
-                                    )}
-                                  </div>
-                                ))}
-                              </RadioGroup>
-                            </div>
-                          );
-                        })}
-                      </div>
-                      
-                      <div className="flex justify-between mt-8">
-                        <Button 
-                          variant="outline"
-                          onClick={handleEqPrevious}
-                          className="flex items-center gap-1"
-                        >
-                          <ArrowLeft className="h-4 w-4" />
-                          Previous
-                        </Button>
-                        
-                        <Button 
-                          onClick={handleEqNext}
-                          disabled={!isEqPageComplete()}
-                          className="bg-brand-red hover:bg-brand-red/90 flex items-center gap-1"
-                        >
-                          {eqPage === groupedEqQuestions.length - 1 ? "Finish" : "Next"}
-                          <ArrowRight className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TabsContent>
-                  </Tabs>
-                </div>
-              </motion.div>
-            ) : (
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-xl shadow-card p-6 md:p-8 text-center"
-              >
-                <div className="w-20 h-20 mx-auto bg-brand-purple/10 rounded-full flex items-center justify-center mb-6">
-                  <Sparkles className="h-10 w-10 text-brand-purple" />
-                </div>
-                
-                <h2 className="text-2xl md:text-3xl font-semibold mb-3">Assessment Complete!</h2>
-                <p className="text-muted-foreground mb-8">Thank you for completing the Career Vision assessment. Your results are ready!</p>
-                
-                <Button 
-                  onClick={() => navigate('/assessment/career-vision/results')}
-                  size="lg"
-                  className="bg-brand-purple hover:bg-brand-purple/90"
-                >
-                  View Your Results
-                </Button>
-              </motion.div>
-            )}
-          </div>
-        </div>
-      </main>
-      
-      <Footer />
-    </div>
-  );
-};
-
-export default CareerVisionAssessment;
+                          className="bg-brand-purple
