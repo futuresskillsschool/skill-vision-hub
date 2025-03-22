@@ -20,6 +20,10 @@ import SCCTResults from "./pages/SCCTResults";
 import CareerVisionAssessment from "./pages/CareerVisionAssessment";
 import CareerVisionResults from "./pages/CareerVisionResults";
 import CareerVisionLanding from "./pages/CareerVisionLanding";
+import EQNavigatorLanding from "./pages/EQNavigatorLanding";
+import FuturePathwaysLanding from "./pages/FuturePathwaysLanding";
+import RIASECLanding from "./pages/RIASECLanding";
+import SCCTLanding from "./pages/SCCTLanding";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
@@ -45,13 +49,17 @@ const App = () => (
               <Route path="/assessment/career-vision" element={<CareerVisionLanding />} />
               <Route path="/assessment/career-vision/take" element={<CareerVisionAssessment />} />
               <Route path="/assessment/career-vision/results" element={<CareerVisionResults />} />
-              <Route path="/eq-navigator" element={<EQNavigatorAssessment />} />
+              <Route path="/eq-navigator" element={<EQNavigatorLanding />} />
+              <Route path="/eq-navigator/take" element={<EQNavigatorAssessment />} />
               <Route path="/eq-navigator/results" element={<EQNavigatorResults />} />
-              <Route path="/future-pathways" element={<FuturePathwaysAssessment />} />
+              <Route path="/future-pathways" element={<FuturePathwaysLanding />} />
+              <Route path="/future-pathways/take" element={<FuturePathwaysAssessment />} />
               <Route path="/future-pathways/results" element={<FuturePathwaysResults />} />
-              <Route path="/riasec" element={<RIASECAssessment />} />
-              <Route path="/riasec-results" element={<RIASECResults />} />
-              <Route path="/scct" element={<SCCTAssessment />} />
+              <Route path="/riasec" element={<RIASECLanding />} />
+              <Route path="/riasec/take" element={<RIASECAssessment />} />
+              <Route path="/riasec/results" element={<RIASECResults />} />
+              <Route path="/scct" element={<SCCTLanding />} />
+              <Route path="/scct/take" element={<SCCTAssessment />} />
               <Route path="/scct/results" element={<SCCTResults />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<SignUp />} />
