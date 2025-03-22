@@ -1,7 +1,8 @@
+
 import { useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Clock, Users, Check, Star } from 'lucide-react';
+import { ArrowLeft, Clock, FileText } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
@@ -13,9 +14,7 @@ const assessments = {
     description: 'Gain a clear understanding of your professional goals, values, and ideal work environment. This assessment helps you articulate your career vision and create a roadmap for achieving your professional aspirations.',
     image: '/lovable-uploads/97b42e5a-895c-4ce7-bf16-24ceb1b64649.png',
     duration: '15 minutes',
-    questions: 25,
-    users: '5.2k',
-    rating: 4.8,
+    questions: 15,
     benefits: [
       'Identify your core work values and motivations',
       'Clarify your long-term career goals',
@@ -30,10 +29,8 @@ const assessments = {
     subtitle: 'Social Cognitive Career Theory',
     description: 'Based on Bandura\'s Social Cognitive Theory, this assessment evaluates how your beliefs about your abilities influence your career choices. Gain insights into the relationship between your self-efficacy, outcome expectations, and career interests.',
     image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c',
-    duration: '25 minutes',
-    questions: 35,
-    users: '1.8k',
-    rating: 4.5,
+    duration: '20 minutes',
+    questions: 25,
     benefits: [
       'Understand how your beliefs influence your career choices',
       'Identify barriers to career development',
@@ -49,9 +46,7 @@ const assessments = {
     description: 'Based on John Holland\'s theory, this assessment categorizes your interests and preferences into six types: Realistic, Investigative, Artistic, Social, Enterprising, and Conventional. Discover which careers align with your personal attributes.',
     image: 'https://images.unsplash.com/photo-1494059980473-813e73ee784b',
     duration: '20 minutes',
-    questions: 30,
-    users: '8.7k',
-    rating: 4.9,
+    questions: 36,
     benefits: [
       'Identify your primary interest areas (Holland Codes)',
       'Discover careers that match your personal attributes',
@@ -67,9 +62,7 @@ const assessments = {
     description: 'Measure your emotional intelligence across key dimensions including self-awareness, self-regulation, motivation, empathy, and social skills. Develop the crucial soft skills needed for personal and professional success in today\'s workplace.',
     image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f',
     duration: '25 minutes',
-    questions: 10,
-    users: '3.4k',
-    rating: 4.7,
+    questions: 20,
     benefits: [
       'Measure your emotional intelligence across 5 key dimensions',
       'Identify strengths and growth opportunities in your EQ',
@@ -84,10 +77,8 @@ const assessments = {
     subtitle: 'Emerging Career Opportunities',
     description: 'Explore the intersection between your skills, interests, and emerging career fields. This forward-looking assessment helps you identify opportunities in evolving industries and prepare for the future of work.',
     image: 'https://images.unsplash.com/photo-1543269865-cbf427effbad',
-    duration: '30 minutes',
-    questions: 45,
-    users: '2.1k',
-    rating: 4.6,
+    duration: '25 minutes',
+    questions: 18,
     benefits: [
       'Identify emerging career fields aligned with your profile',
       'Discover the skills needed for future-ready careers',
@@ -162,7 +153,7 @@ const AssessmentDetail = () => {
                     <ul className="space-y-3 mb-8">
                       {assessment.benefits.map((benefit, index) => (
                         <li key={index} className="flex items-start">
-                          <Check className="h-5 w-5 text-brand-purple mr-3 mt-0.5 flex-shrink-0" />
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-brand-purple mr-3 mt-0.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                           <span>{benefit}</span>
                         </li>
                       ))}
@@ -194,38 +185,10 @@ const AssessmentDetail = () => {
                     </div>
                     
                     <div className="flex items-start">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-brand-purple mr-3 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                      </svg>
+                      <FileText className="h-5 w-5 text-brand-purple mr-3 mt-0.5" />
                       <div>
                         <h4 className="font-medium">Questions</h4>
                         <p className="text-foreground/70">{assessment.questions} questions</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-start">
-                      <Users className="h-5 w-5 text-brand-purple mr-3 mt-0.5" />
-                      <div>
-                        <h4 className="font-medium">Completed By</h4>
-                        <p className="text-foreground/70">{assessment.users} users</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-start">
-                      <Star className="h-5 w-5 text-yellow-400 fill-yellow-400 mr-3 mt-0.5" />
-                      <div>
-                        <h4 className="font-medium">Average Rating</h4>
-                        <div className="flex items-center">
-                          <span className="text-foreground/70 mr-2">{assessment.rating}/5</span>
-                          <div className="flex">
-                            {[...Array(5)].map((_, i) => (
-                              <Star 
-                                key={i} 
-                                className={`h-4 w-4 ${i < Math.floor(assessment.rating) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} 
-                              />
-                            ))}
-                          </div>
-                        </div>
                       </div>
                     </div>
                   </div>

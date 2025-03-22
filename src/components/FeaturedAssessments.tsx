@@ -2,7 +2,7 @@
 import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Clock, Users, Star } from 'lucide-react';
+import { ArrowRight, Clock, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Assessment {
@@ -11,8 +11,6 @@ interface Assessment {
   description: string;
   image: string;
   time: string;
-  users: string;
-  rating: number;
   questionCount: number;
   featured?: boolean;
   path?: string;
@@ -25,8 +23,6 @@ const assessments: Assessment[] = [
     description: 'Clarify your professional goals and map your ideal career path with our comprehensive vision assessment.',
     image: '/lovable-uploads/97b42e5a-895c-4ce7-bf16-24ceb1b64649.png',
     time: '15 min',
-    users: '5.2k',
-    rating: 4.8,
     questionCount: 15,
     featured: true
   },
@@ -36,8 +32,6 @@ const assessments: Assessment[] = [
     description: 'Discover your primary interest areas and matching career options based on the proven Holland Code framework.',
     image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c',
     time: '20 min',
-    users: '8.7k',
-    rating: 4.9,
     questionCount: 36,
     path: '/riasec'
   },
@@ -47,8 +41,6 @@ const assessments: Assessment[] = [
     description: 'Measure your emotional intelligence and develop crucial soft skills for personal and professional success.',
     image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f',
     time: '25 min',
-    users: '3.4k',
-    rating: 4.7,
     questionCount: 20,
     path: '/eq-navigator'
   },
@@ -58,8 +50,6 @@ const assessments: Assessment[] = [
     description: 'Explore emerging career opportunities and identify the skills you need to thrive in the future of work.',
     image: 'https://images.unsplash.com/photo-1543269865-cbf427effbad',
     time: '25 min',
-    users: '2.1k',
-    rating: 4.6,
     questionCount: 18,
     path: '/future-pathways'
   },
@@ -68,9 +58,7 @@ const assessments: Assessment[] = [
     title: 'SCCT Assessment',
     description: 'Apply Social Cognitive Career Theory to understand how your beliefs influence your professional choices.',
     image: 'https://images.unsplash.com/photo-1622675363311-3e1904dc1885',
-    time: '15 min',
-    users: '1.8k',
-    rating: 4.5,
+    time: '20 min',
     questionCount: 25,
     path: '/scct'
   }
@@ -143,23 +131,18 @@ const FeaturedAssessments = () => {
               <p className="text-foreground/70 mb-6 flex-grow">
                 {featuredAssessment.description}
               </p>
-              <div className="flex items-center justify-between text-sm text-foreground/60 mb-6">
-                <div className="flex items-center">
+              <div className="flex items-center text-sm text-foreground/60 mb-6">
+                <div className="flex items-center mr-4">
                   <Clock className="h-4 w-4 mr-1" />
                   <span>{featuredAssessment.time}</span>
                 </div>
                 <div className="flex items-center">
-                  <Users className="h-4 w-4 mr-1" />
-                  <span>{featuredAssessment.users} users</span>
-                </div>
-                <div className="flex items-center">
-                  <Star className="h-4 w-4 mr-1 text-yellow-400 fill-yellow-400" />
-                  <span>{featuredAssessment.rating}</span>
+                  <FileText className="h-4 w-4 mr-1" />
+                  <span>{featuredAssessment.questionCount} questions</span>
                 </div>
               </div>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <Button className="button-primary w-full sm:w-auto">Start Assessment</Button>
-                <span className="text-sm text-muted-foreground">{featuredAssessment.questionCount} questions</span>
               </div>
             </div>
           </Link>
@@ -196,19 +179,14 @@ const FeaturedAssessments = () => {
                     <span>{assessment.time}</span>
                   </div>
                   <div className="flex items-center">
-                    <Users className="h-3 w-3 mr-1" />
-                    <span>{assessment.users}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Star className="h-3 w-3 mr-1 text-yellow-400 fill-yellow-400" />
-                    <span>{assessment.rating}</span>
+                    <FileText className="h-3 w-3 mr-1" />
+                    <span>{assessment.questionCount} questions</span>
                   </div>
                 </div>
                 <div className="flex flex-col space-y-2">
                   <Button variant="outline" className="w-full text-brand-purple border-brand-purple/30 hover:bg-brand-purple/5 hover:border-brand-purple">
                     Take Assessment
                   </Button>
-                  <span className="text-xs text-center text-muted-foreground">{assessment.questionCount} questions</span>
                 </div>
               </div>
             </Link>
