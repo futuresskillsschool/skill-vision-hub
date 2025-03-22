@@ -20,18 +20,18 @@ export const assessments: AssessmentsData = {
   'career-vision': {
     title: 'Career Vision Assessment',
     subtitle: 'Clarify Your Professional Goals',
-    description: 'Gain a clear understanding of your professional goals, values, and ideal work environment. This assessment helps you articulate your career vision and create a roadmap for achieving your professional aspirations.',
+    description: 'Our most comprehensive assessment combining RIASEC Model, Future Pathways Explorer, and EQ Navigator to give you a complete picture of your career potential. Discover your ideal career path based on your interests, future-focused skills, and emotional intelligence.',
     image: '/lovable-uploads/97b42e5a-895c-4ce7-bf16-24ceb1b64649.png',
-    duration: '15 minutes',
-    questions: 15,
+    duration: '30 minutes',
+    questions: 37,
     benefits: [
-      'Identify your core work values and motivations',
-      'Clarify your long-term career goals',
-      'Understand your ideal work environment',
-      'Define success on your own terms',
-      'Create an actionable career development plan'
+      'Identify your RIASEC profile (Realistic, Investigative, Artistic, Social, Enterprising, Conventional)',
+      'Discover emerging career clusters that match your interests and skills',
+      'Measure your emotional intelligence and its impact on your career potential',
+      'Get personalized career recommendations based on all three assessments',
+      'Create an actionable career development plan based on comprehensive insights'
     ],
-    ideal: 'Professionals at any stage who want clarity on their career direction, recent graduates determining their path, or anyone considering a career transition.',
+    ideal: 'Professionals at any stage who want deep insights into their career direction, recent graduates determining their path, or anyone considering a career transition who wants a comprehensive assessment.',
     path: '/assessment/career-vision/lead-form'
   },
   'scct': {

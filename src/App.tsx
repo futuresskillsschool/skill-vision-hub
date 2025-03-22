@@ -17,6 +17,8 @@ import RIASECAssessment from "./pages/RIASECAssessment";
 import RIASECResults from "./pages/RIASECResults";
 import SCCTAssessment from "./pages/SCCTAssessment";
 import SCCTResults from "./pages/SCCTResults";
+import CareerVisionAssessment from "./pages/CareerVisionAssessment";
+import CareerVisionResults from "./pages/CareerVisionResults";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
@@ -39,6 +41,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/assessment/:id" element={<AssessmentDetail />} />
               <Route path="/assessment/:id/lead-form" element={<LeadForm />} />
+              <Route path="/assessment/career-vision/results" element={<CareerVisionResults />} />
               <Route path="/eq-navigator" element={<EQNavigatorAssessment />} />
               <Route path="/eq-navigator/results" element={<EQNavigatorResults />} />
               <Route path="/future-pathways" element={<FuturePathwaysAssessment />} />
@@ -47,6 +50,7 @@ const App = () => (
               <Route path="/riasec-results" element={<RIASECResults />} />
               <Route path="/scct" element={<SCCTAssessment />} />
               <Route path="/scct/results" element={<SCCTResults />} />
+              <Route path="/assessment/career-vision" element={<CareerVisionAssessment />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<SignUp />} />
               <Route path="/dashboard" element={
