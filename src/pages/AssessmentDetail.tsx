@@ -22,7 +22,8 @@ const assessments = {
       'Define success on your own terms',
       'Create an actionable career development plan'
     ],
-    ideal: 'Professionals at any stage who want clarity on their career direction, recent graduates determining their path, or anyone considering a career transition.'
+    ideal: 'Professionals at any stage who want clarity on their career direction, recent graduates determining their path, or anyone considering a career transition.',
+    path: '/assessment/career-vision/lead-form'
   },
   'scct': {
     title: 'SCCT Assessment',
@@ -38,7 +39,8 @@ const assessments = {
       'Align your self-efficacy with career aspirations',
       'Create a personalized career development roadmap'
     ],
-    ideal: 'Mid-career professionals facing obstacles or doubts, individuals with limiting beliefs about their capabilities, or anyone interested in the psychology behind their career choices.'
+    ideal: 'Mid-career professionals facing obstacles or doubts, individuals with limiting beliefs about their capabilities, or anyone interested in the psychology behind their career choices.',
+    path: '/scct'
   },
   'riasec': {
     title: 'RIASEC Model Assessment',
@@ -46,7 +48,7 @@ const assessments = {
     description: 'Based on John Holland\'s theory, this assessment categorizes your interests and preferences into six types: Realistic, Investigative, Artistic, Social, Enterprising, and Conventional. Discover which careers align with your personal attributes.',
     image: 'https://images.unsplash.com/photo-1494059980473-813e73ee784b',
     duration: '20 minutes',
-    questions: 36,
+    questions: 12,
     benefits: [
       'Identify your primary interest areas (Holland Codes)',
       'Discover careers that match your personal attributes',
@@ -54,7 +56,8 @@ const assessments = {
       'Recognize potential areas for skill development',
       'Make more informed educational and career choices'
     ],
-    ideal: 'Students choosing a major, early-career professionals exploring options, or career changers wanting to find fields that match their interests and strengths.'
+    ideal: 'Students choosing a major, early-career professionals exploring options, or career changers wanting to find fields that match their interests and strengths.',
+    path: '/riasec'
   },
   'eq-navigator': {
     title: 'EQ Navigator Assessment',
@@ -70,7 +73,8 @@ const assessments = {
       'Enhance your leadership and interpersonal skills',
       'Improve your ability to navigate workplace relationships'
     ],
-    ideal: 'Indian high school students (ages 13-17) wanting to improve their interpersonal effectiveness, conflict resolution skills, or ability to navigate complex social dynamics.'
+    ideal: 'Indian high school students (ages 13-17) wanting to improve their interpersonal effectiveness, conflict resolution skills, or ability to navigate complex social dynamics.',
+    path: '/eq-navigator'
   },
   'future-pathways': {
     title: 'Future Pathways Assessment',
@@ -86,7 +90,8 @@ const assessments = {
       'Create a plan to develop future-proof skills',
       'Position yourself for long-term career success'
     ],
-    ideal: 'Forward-thinking professionals concerned about industry disruption, those interested in emerging fields, or anyone wanting to ensure their skills remain relevant in a changing job market.'
+    ideal: 'Forward-thinking professionals concerned about industry disruption, those interested in emerging fields, or anyone wanting to ensure their skills remain relevant in a changing job market.',
+    path: '/future-pathways'
   }
 };
 
@@ -109,7 +114,12 @@ const AssessmentDetail = () => {
   }
 
   const handleStartAssessment = () => {
-    navigate(`/assessment/${id}/lead-form`);
+    // Check if there's a specific path for this assessment
+    if (assessment.path) {
+      navigate(assessment.path);
+    } else {
+      navigate(`/assessment/${id}/lead-form`);
+    }
   };
 
   return (

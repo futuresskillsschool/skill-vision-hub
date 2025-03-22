@@ -1,4 +1,3 @@
-
 import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -32,7 +31,7 @@ const assessments: Assessment[] = [
     description: 'Discover your primary interest areas and matching career options based on the proven Holland Code framework.',
     image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c',
     time: '20 min',
-    questionCount: 36,
+    questionCount: 12,
     path: '/riasec'
   },
   {
