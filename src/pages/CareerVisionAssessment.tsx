@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -790,4 +791,116 @@ const CareerVisionAssessment = () => {
                         <Button 
                           onClick={handlePathwaysNext}
                           disabled={!isPathwaysPageComplete()}
-                          className="bg-brand-purple
+                          className="bg-brand-purple hover:bg-brand-purple/90 text-white flex items-center gap-1 shadow-md"
+                        >
+                          {pathwaysPage === groupedPathwaysQuestions.length - 1 ? "Next Section" : "Next"}
+                          <ArrowRight className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TabsContent>
+                    
+                    <TabsContent value="eq" className="mt-0">
+                      <div className="mb-6">
+                        <div className="flex justify-between items-center mb-2">
+                          <h2 className="text-lg font-medium text-brand-red">
+                            EQ Navigator
+                          </h2>
+                          <span className="text-sm text-muted-foreground font-medium">
+                            Page {eqPage + 1} of {groupedEqQuestions.length}
+                          </span>
+                        </div>
+                        <Progress value={eqProgress} className="h-2 bg-brand-red/20" />
+                      </div>
+                      
+                      <div className="space-y-8">
+                        {groupedEqQuestions[eqPage].map((question, questionIndex) => {
+                          const globalQuestionIndex = eqPage * eqQuestionsPerPage + questionIndex;
+                          return (
+                            <div key={question.id} className="bg-brand-red/5 rounded-lg p-5 border border-brand-red/20">
+                              <h3 className="text-lg md:text-xl font-semibold mb-4 flex items-start">
+                                <span className="bg-brand-red text-white w-8 h-8 rounded-full flex items-center justify-center mr-3 flex-shrink-0 shadow-md">
+                                  {globalQuestionIndex + 1}
+                                </span>
+                                {question.scenario}
+                              </h3>
+                              
+                              <RadioGroup 
+                                value={eqAnswers[globalQuestionIndex]} 
+                                onValueChange={(value) => handleEqAnswer(questionIndex, value)}
+                                className="space-y-3"
+                              >
+                                {question.options.map((option) => (
+                                  <div 
+                                    key={option.id} 
+                                    className={`flex items-start space-x-2 border rounded-md p-3 transition-colors ${
+                                      eqAnswers[globalQuestionIndex] === option.id 
+                                        ? 'border-brand-red bg-brand-red/10' 
+                                        : 'border-border/50 hover:border-brand-red/50 hover:bg-brand-red/5'
+                                    }`}
+                                  >
+                                    <RadioGroupItem 
+                                      value={option.id} 
+                                      id={`eq-question-${question.id}-option-${option.id}`} 
+                                      className="mt-1" 
+                                    />
+                                    <Label 
+                                      htmlFor={`eq-question-${question.id}-option-${option.id}`} 
+                                      className="flex-1 cursor-pointer font-normal text-base"
+                                    >
+                                      {option.text}
+                                    </Label>
+                                    {eqAnswers[globalQuestionIndex] === option.id && (
+                                      <div className="bg-brand-red/20 rounded-full p-1">
+                                        <Check className="h-4 w-4 text-brand-red" />
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                              </RadioGroup>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      
+                      <div className="flex justify-between mt-8">
+                        <Button 
+                          variant="outline"
+                          onClick={handleEqPrevious}
+                          className="flex items-center gap-1"
+                        >
+                          <ArrowLeft className="h-4 w-4" />
+                          Previous
+                        </Button>
+                        
+                        <Button 
+                          onClick={handleEqNext}
+                          disabled={!isEqPageComplete()}
+                          className="bg-brand-purple hover:bg-brand-purple/90 text-white flex items-center gap-1 shadow-md"
+                        >
+                          {eqPage === groupedEqQuestions.length - 1 ? "Complete Assessment" : "Next"}
+                          <ArrowRight className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TabsContent>
+                  </Tabs>
+                </div>
+              </motion.div>
+            ) : (
+              <div className="text-center py-8">
+                <h2 className="text-2xl font-bold mb-4">Processing your results...</h2>
+                <p className="text-muted-foreground mb-6">Please wait while we analyze your responses.</p>
+                <div className="flex justify-center">
+                  <div className="animate-spin h-10 w-10 border-4 border-brand-purple/20 border-t-brand-purple rounded-full"></div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </main>
+      
+      <Footer />
+    </div>
+  );
+};
+
+export default CareerVisionAssessment;

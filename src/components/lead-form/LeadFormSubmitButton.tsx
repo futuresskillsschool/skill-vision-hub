@@ -12,7 +12,7 @@ const LeadFormSubmitButton = ({ isSubmitting }: LeadFormSubmitButtonProps) => {
     <div className="pt-4">
       <Button 
         type="submit" 
-        className="bg-brand-purple hover:bg-brand-purple/90 text-white w-full md:w-auto shadow-md"
+        className="bg-brand-purple hover:bg-brand-purple/90 text-white w-full md:w-auto shadow-lg"
         disabled={isSubmitting}
       >
         {isSubmitting ? (
@@ -24,7 +24,7 @@ const LeadFormSubmitButton = ({ isSubmitting }: LeadFormSubmitButtonProps) => {
             Processing...
           </span>
         ) : (
-          <span className="flex items-center">
+          <span className="flex items-center font-medium">
             Begin Assessment <ArrowRight className="ml-2 h-4 w-4" />
           </span>
         )}
