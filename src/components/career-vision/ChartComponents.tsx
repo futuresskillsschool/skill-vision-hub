@@ -15,6 +15,7 @@ import {
   Legend
 } from 'recharts';
 import { Card } from '@/components/ui/card';
+import { motion } from 'framer-motion';
 
 interface RadarChartCardProps {
   data: Array<{
@@ -92,10 +93,50 @@ export const CircularProgressIndicator = ({ value, max, size = 'md' }: { value: 
   const { width, height, radius, strokeWidth } = dimensions[size];
   const circumference = 2 * Math.PI * radius;
   
+  const getColorClass = (percentage: number) => {
+    if (percentage >= 87.5) return "text-green-500";
+    if (percentage >= 75) return "text-emerald-500";
+    if (percentage >= 62.5) return "text-teal-500";
+    if (percentage >= 50) return "text-cyan-500";
+    if (percentage >= 37.5) return "text-blue-500";
+    if (percentage >= 25) return "text-indigo-500";
+    if (percentage >= 12.5) return "text-purple-500";
+    return "text-red-500";
+  };
+  
+  const animationDuration = 1.5;
+  
   return (
-    <div className="relative flex items-center justify-center">
-      <div style={{ width: `${width}px`, height: `${height}px` }} className="relative">
+    <motion.div 
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.5 }}
+      className="relative flex items-center justify-center"
+    >
+      <div style={{ width: `${width * 1.5}px`, height: `${height * 1.5}px` }} className="relative">
+        {/* Gradient background glow effect */}
+        <div className="absolute inset-0 rounded-full blur-md bg-gradient-to-tr from-brand-purple/50 via-brand-red/30 to-transparent"></div>
+        
         <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+          {/* Background track with subtle pattern */}
+          <defs>
+            <pattern id="diagonalHatch" patternUnits="userSpaceOnUse" width="4" height="4">
+              <path d="M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2" stroke="rgba(200,200,200,0.2)" strokeWidth="0.5"/>
+            </pattern>
+          </defs>
+          
+          {/* Subtle glow effect under the progress ring */}
+          <circle 
+            className="text-gray-100" 
+            strokeWidth={strokeWidth - 0.5} 
+            stroke="url(#diagonalHatch)" 
+            fill="transparent" 
+            r={radius} 
+            cx="50" 
+            cy="50" 
+          />
+          
+          {/* Background circle */}
           <circle 
             className="text-gray-200" 
             strokeWidth={strokeWidth} 
@@ -105,24 +146,61 @@ export const CircularProgressIndicator = ({ value, max, size = 'md' }: { value: 
             cx="50" 
             cy="50" 
           />
-          <circle 
-            className="text-brand-red" 
+          
+          {/* Animated progress ring */}
+          <motion.circle 
+            className={getColorClass(percentage)}
             strokeWidth={strokeWidth} 
             stroke="currentColor" 
             fill="transparent" 
             r={radius} 
             cx="50" 
             cy="50" 
-            strokeDasharray={`${percentage * circumference / 100} ${circumference}`}
-            strokeDashoffset="0" 
+            strokeDasharray={circumference}
+            strokeDashoffset={circumference}
             strokeLinecap="round" 
+            initial={{ strokeDashoffset: circumference }}
+            animate={{ 
+              strokeDashoffset: circumference - (percentage * circumference / 100) 
+            }}
+            transition={{ 
+              duration: animationDuration,
+              ease: "easeInOut"
+            }}
           />
+          
+          {/* Decorative dots along the circle */}
+          {[0, 90, 180, 270].map((angle, i) => (
+            <motion.circle
+              key={i}
+              cx={50 + (radius + 5) * Math.cos(angle * Math.PI / 180)}
+              cy={50 + (radius + 5) * Math.sin(angle * Math.PI / 180)}
+              r={1}
+              fill={percentage >= (i+1) * 25 ? "#8860FF" : "#D1D5DB"}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 * i, duration: 0.3 }}
+            />
+          ))}
         </svg>
-        <div className="absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center">
-          <span className={`font-bold ${size === 'lg' ? 'text-3xl' : size === 'md' ? 'text-xl' : 'text-sm'}`}>{value}</span>
-          {size !== 'sm' && <span className="text-xs text-muted-foreground">/{max}</span>}
-        </div>
+        
+        {/* Score Display */}
+        <motion.div 
+          className="absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: animationDuration * 0.8, duration: 0.5 }}
+        >
+          <span className={`font-bold ${
+            size === 'lg' ? 'text-3xl' : size === 'md' ? 'text-xl' : 'text-sm'
+          } text-gray-800`}>
+            {value}
+          </span>
+          {size !== 'sm' && (
+            <span className="text-xs text-muted-foreground">/{max}</span>
+          )}
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 };
