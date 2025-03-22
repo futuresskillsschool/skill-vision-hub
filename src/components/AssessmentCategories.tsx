@@ -20,6 +20,7 @@ const assessmentCategories = [
     icon: '🧠',
     color: 'bg-brand-orange/10', 
     textColor: 'text-brand-orange',
+    path: '/scct'
   },
   {
     id: 'riasec',
@@ -28,6 +29,7 @@ const assessmentCategories = [
     icon: '🧩',
     color: 'bg-brand-purple/10',
     textColor: 'text-brand-purple',
+    path: '/riasec'
   },
   {
     id: 'eq-navigator',
@@ -36,6 +38,7 @@ const assessmentCategories = [
     icon: '❤️',
     color: 'bg-brand-red/10',
     textColor: 'text-brand-red',
+    path: '/eq-navigator'
   },
   {
     id: 'future-pathways',
@@ -44,6 +47,7 @@ const assessmentCategories = [
     icon: '🚀',
     color: 'bg-brand-green/10',
     textColor: 'text-brand-green',
+    path: '/future-pathways'
   }
 ];
 
@@ -70,7 +74,7 @@ const AssessmentCategories = () => {
                 <h3 className="text-xl font-semibold mb-2">{category.title}</h3>
                 <p className="text-muted-foreground mb-6">{category.description}</p>
                 
-                <Link to={`/assessment/${category.id}`}>
+                <Link to={category.path || `/assessment/${category.id}`}>
                   <Button variant="outline" className="group">
                     Learn More <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                   </Button>

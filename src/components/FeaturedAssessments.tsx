@@ -15,6 +15,7 @@ interface Assessment {
   rating: number;
   questionCount: number;
   featured?: boolean;
+  path?: string;
 }
 
 const assessments: Assessment[] = [
@@ -37,7 +38,8 @@ const assessments: Assessment[] = [
     time: '20 min',
     users: '8.7k',
     rating: 4.9,
-    questionCount: 36
+    questionCount: 36,
+    path: '/riasec'
   },
   {
     id: 'eq-navigator',
@@ -47,7 +49,8 @@ const assessments: Assessment[] = [
     time: '25 min',
     users: '3.4k',
     rating: 4.7,
-    questionCount: 20
+    questionCount: 20,
+    path: '/eq-navigator'
   },
   {
     id: 'future-pathways',
@@ -57,17 +60,19 @@ const assessments: Assessment[] = [
     time: '25 min',
     users: '2.1k',
     rating: 4.6,
-    questionCount: 18
+    questionCount: 18,
+    path: '/future-pathways'
   },
   {
-    id: 'scct-assessment',
+    id: 'scct',
     title: 'SCCT Assessment',
     description: 'Apply Social Cognitive Career Theory to understand how your beliefs influence your professional choices.',
     image: 'https://images.unsplash.com/photo-1622675363311-3e1904dc1885',
-    time: '25 min',
+    time: '15 min',
     users: '1.8k',
     rating: 4.5,
-    questionCount: 15
+    questionCount: 25,
+    path: '/scct'
   }
 ];
 
@@ -118,7 +123,7 @@ const FeaturedAssessments = () => {
         {/* Featured Assessment (Larger Card) */}
         <div className="animate-on-scroll mb-12 overflow-hidden">
           <Link 
-            to={`/assessment/${featuredAssessment.id}`}
+            to={featuredAssessment.path || `/assessment/${featuredAssessment.id}`}
             className="group relative flex flex-col md:flex-row bg-white rounded-2xl shadow-card overflow-hidden card-hover border border-border/40"
           >
             <div className="md:w-1/2 h-64 md:h-auto overflow-hidden">
@@ -165,7 +170,7 @@ const FeaturedAssessments = () => {
           {regularAssessments.map((assessment, index) => (
             <Link 
               key={assessment.id}
-              to={`/assessment/${assessment.id}`}
+              to={assessment.path || `/assessment/${assessment.id}`}
               className={cn(
                 "animate-on-scroll group flex flex-col bg-white rounded-xl overflow-hidden shadow-card card-hover border border-border/40",
               )}
