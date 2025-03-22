@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import {
@@ -27,8 +26,13 @@ import { useAuth } from '@/contexts/AuthContext';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
-// RIASEC category descriptions
-const riasecDescriptions = {
+interface RiasecDescription {
+  title: string;
+  description: string;
+  careers: string;
+}
+
+const riasecDescriptions: Record<string, RiasecDescription> = {
   R: {
     title: "Realistic",
     description: "You're practical and hands-on, enjoying work with tools, machines, and technology. You likely value concrete results and prefer straightforward tasks.",
@@ -61,8 +65,13 @@ const riasecDescriptions = {
   }
 };
 
-// Future Pathways cluster descriptions
-const pathwaysDescriptions = {
+interface PathwaysDescription {
+  title: string;
+  description: string;
+  careers: string;
+}
+
+const pathwaysDescriptions: Record<string, PathwaysDescription> = {
   "tech-innovator": {
     title: "Tech Innovator & Builder",
     description: "You enjoy creating and working with technology. You're likely to thrive in roles that involve building, designing, or developing technological solutions.",
@@ -90,8 +99,13 @@ const pathwaysDescriptions = {
   }
 };
 
-// EQ level descriptions
-const eqLevelDescriptions = {
+interface EqLevelDescription {
+  title: string;
+  description: string;
+  tips: string;
+}
+
+const eqLevelDescriptions: Record<string, EqLevelDescription> = {
   low: {
     title: "Developing EQ",
     description: "You're at the beginning of your emotional intelligence journey. With practice, you can develop greater awareness of your emotions and those of others.",
@@ -109,22 +123,17 @@ const eqLevelDescriptions = {
   }
 };
 
-// Combined career recommendations based on all assessments
 const getCareerRecommendations = (riasecScores: Record<string, number>, pathwaysScores: Record<string, number>, eqScore: number) => {
-  // Find top RIASEC categories
   const topRiasecEntries = Object.entries(riasecScores)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 3);
   
-  // Find top Pathways clusters
   const topPathwaysEntries = Object.entries(pathwaysScores)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 2);
   
-  // Determine EQ level
   const eqLevel = eqScore < 25 ? "low" : eqScore < 35 ? "medium" : "high";
   
-  // Combined career recommendations
   const recommendations = [
     {
       title: "Technology & Innovation",
@@ -218,7 +227,6 @@ const getCareerRecommendations = (riasecScores: Record<string, number>, pathways
     }
   ];
   
-  // Sort by match percentage and return top 3
   return recommendations.sort((a, b) => b.match - a.match).slice(0, 3);
 };
 
@@ -227,22 +235,17 @@ const CareerVisionResults = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
   
-  // Get results from location state or fetch from database if user is logged in
   const [results, setResults] = useState<any>(location.state || null);
   
   useEffect(() => {
-    // Reset to top of page on mount
     window.scrollTo(0, 0);
     
-    // If results are not available in location state but user is logged in,
-    // we could fetch results from the database here
     if (!results && user) {
       // This would be implemented if we had a function to fetch results
       // fetchUserResults('career-vision').then(setResults);
     }
   }, [results, user]);
   
-  // Handle case where results are not available
   if (!results) {
     return (
       <div className="min-h-screen flex flex-col">
@@ -263,44 +266,36 @@ const CareerVisionResults = () => {
     );
   }
   
-  // Extract results
   const { riasec, pathways, eq } = results;
   
-  // Format RIASEC data for charts
   const riasecChartData = Object.entries(riasec).map(([category, score]) => ({
     name: riasecDescriptions[category as keyof typeof riasecDescriptions].title,
     score: score as number,
     fullMark: 10,
   }));
   
-  // Format Pathways data for charts
   const pathwaysChartData = Object.entries(pathways).map(([cluster, score]) => ({
     name: pathwaysDescriptions[cluster as keyof typeof pathwaysDescriptions].title.split(' ')[0],
     score: score as number,
     fullMark: 25,
   }));
   
-  // Determine EQ level
   const eqScore = eq.totalScore;
   const eqLevel = eqScore < 25 ? "low" : eqScore < 35 ? "medium" : "high";
-  const eqPercentage = (eqScore / 40) * 100; // Max score is 40
+  const eqPercentage = (eqScore / 40) * 100;
   
-  // Get career recommendations
   const careerRecommendations = getCareerRecommendations(riasec, pathways, eqScore);
   
-  // Get top RIASEC categories
   const topRiasecCategories = Object.entries(riasec)
     .sort((a, b) => (b[1] as number) - (a[1] as number))
     .slice(0, 3)
     .map(([category]) => category);
   
-  // Get top Pathways clusters
   const topPathwaysClusters = Object.entries(pathways)
     .sort((a, b) => (b[1] as number) - (a[1] as number))
     .slice(0, 2)
     .map(([cluster]) => cluster);
   
-  // Handle PDF download
   const handleDownloadPDF = async () => {
     const element = document.getElementById('results-container');
     if (!element) return;
@@ -365,7 +360,6 @@ const CareerVisionResults = () => {
                     <TabsTrigger value="eq">EQ Navigator</TabsTrigger>
                   </TabsList>
                   
-                  {/* Overview Tab */}
                   <TabsContent value="overview" className="mt-0">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                       <Card className="p-6 bg-brand-blue/5">
@@ -514,7 +508,6 @@ const CareerVisionResults = () => {
                     </Button>
                   </TabsContent>
                   
-                  {/* RIASEC Tab */}
                   <TabsContent value="riasec" className="mt-0">
                     <div className="mb-8">
                       <h2 className="text-2xl font-bold mb-4">Your RIASEC Profile</h2>
@@ -576,7 +569,6 @@ const CareerVisionResults = () => {
                     </div>
                   </TabsContent>
                   
-                  {/* Future Pathways Tab */}
                   <TabsContent value="pathways" className="mt-0">
                     <div className="mb-8">
                       <h2 className="text-2xl font-bold mb-4">Your Future Pathways Explorer Results</h2>
@@ -644,7 +636,6 @@ const CareerVisionResults = () => {
                     </div>
                   </TabsContent>
                   
-                  {/* EQ Navigator Tab */}
                   <TabsContent value="eq" className="mt-0">
                     <div className="mb-8">
                       <h2 className="text-2xl font-bold mb-4">Your EQ Navigator Results</h2>
