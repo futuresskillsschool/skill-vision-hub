@@ -3,19 +3,6 @@ import { useEffect, useRef, useState } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Download, Star } from 'lucide-react';
-import {
-  Chart as ChartJS,
-  RadialLinearScale,
-  PointElement,
-  LineElement,
-  Filler,
-  Tooltip,
-  Legend,
-  BarElement,
-  CategoryScale,
-  LinearScale
-} from 'chart.js';
-import { Radar, Bar } from 'react-chartjs-2';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import html2canvas from 'html2canvas';
@@ -24,8 +11,23 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 
+// Import Chart.js directly with type imports
+import { 
+  Chart,
+  RadialLinearScale, 
+  PointElement, 
+  LineElement, 
+  Filler, 
+  Tooltip, 
+  Legend,
+  BarElement,
+  CategoryScale,
+  LinearScale
+} from 'chart.js';
+import { Radar, Bar } from 'react-chartjs-2';
+
 // Register Chart.js components
-ChartJS.register(
+Chart.register(
   RadialLinearScale,
   PointElement,
   LineElement,
