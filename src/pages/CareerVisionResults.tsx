@@ -535,10 +535,9 @@ const CareerVisionResults = () => {
                         .sort((a, b) => (b[1] as number) - (a[1] as number))
                         .slice(0, 3)
                         .map(([category, score], index) => {
-                          const catInfo = riasecDescriptions[category as keyof typeof riasecDescriptions];
+                          const catKey = category as keyof typeof riasecDescriptions;
+                          const catInfo = riasecDescriptions[catKey];
                           if (!catInfo) return null;
-                          
-                          const careers = catInfo.careers || "No career information available";
                           
                           return (
                             <Card key={category} className="p-6">
@@ -563,7 +562,7 @@ const CareerVisionResults = () => {
                                   
                                   <div>
                                     <h5 className="font-medium mb-2">Potential Career Paths:</h5>
-                                    <p className="text-sm">{careers}</p>
+                                    <p className="text-sm">{catInfo.careers}</p>
                                   </div>
                                 </div>
                               </div>
@@ -600,10 +599,9 @@ const CareerVisionResults = () => {
                         .sort((a, b) => (b[1] as number) - (a[1] as number))
                         .slice(0, 3)
                         .map(([cluster, score], index) => {
-                          const clusterInfo = pathwaysDescriptions[cluster as keyof typeof pathwaysDescriptions];
+                          const clusterKey = cluster as keyof typeof pathwaysDescriptions;
+                          const clusterInfo = pathwaysDescriptions[clusterKey];
                           if (!clusterInfo) return null;
-                          
-                          const careers = clusterInfo.careers || "No career information available";
                           
                           return (
                             <Card key={cluster} className="p-6">
@@ -634,7 +632,7 @@ const CareerVisionResults = () => {
                                   
                                   <div>
                                     <h5 className="font-medium mb-2">Future-Focused Careers:</h5>
-                                    <p className="text-sm">{careers}</p>
+                                    <p className="text-sm">{clusterInfo.careers}</p>
                                   </div>
                                 </div>
                               </div>
