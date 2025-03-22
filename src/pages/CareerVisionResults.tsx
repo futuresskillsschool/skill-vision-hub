@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import {
@@ -269,13 +270,13 @@ const CareerVisionResults = () => {
   const { riasec, pathways, eq } = results;
   
   const riasecChartData = Object.entries(riasec).map(([category, score]) => ({
-    name: riasecDescriptions[category as keyof typeof riasecDescriptions].title,
+    name: riasecDescriptions[category as keyof typeof riasecDescriptions]?.title || category,
     score: score as number,
     fullMark: 10,
   }));
   
   const pathwaysChartData = Object.entries(pathways).map(([cluster, score]) => ({
-    name: pathwaysDescriptions[cluster as keyof typeof pathwaysDescriptions].title.split(' ')[0],
+    name: pathwaysDescriptions[cluster as keyof typeof pathwaysDescriptions]?.title.split(' ')[0] || cluster,
     score: score as number,
     fullMark: 25,
   }));
@@ -360,6 +361,7 @@ const CareerVisionResults = () => {
                     <TabsTrigger value="eq">EQ Navigator</TabsTrigger>
                   </TabsList>
                   
+                  {/* Overview Tab */}
                   <TabsContent value="overview" className="mt-0">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                       <Card className="p-6 bg-brand-blue/5">
@@ -508,6 +510,7 @@ const CareerVisionResults = () => {
                     </Button>
                   </TabsContent>
                   
+                  {/* RIASEC Tab */}
                   <TabsContent value="riasec" className="mt-0">
                     <div className="mb-8">
                       <h2 className="text-2xl font-bold mb-4">Your RIASEC Profile</h2>
@@ -536,6 +539,7 @@ const CareerVisionResults = () => {
                         .slice(0, 3)
                         .map(([category, score], index) => {
                           const catInfo = riasecDescriptions[category as keyof typeof riasecDescriptions];
+                          if (!catInfo) return null;
                           return (
                             <Card key={category} className="p-6">
                               <div className="flex items-start">
@@ -569,6 +573,7 @@ const CareerVisionResults = () => {
                     </div>
                   </TabsContent>
                   
+                  {/* Pathways Tab */}
                   <TabsContent value="pathways" className="mt-0">
                     <div className="mb-8">
                       <h2 className="text-2xl font-bold mb-4">Your Future Pathways Explorer Results</h2>
@@ -597,6 +602,7 @@ const CareerVisionResults = () => {
                         .slice(0, 3)
                         .map(([cluster, score], index) => {
                           const clusterInfo = pathwaysDescriptions[cluster as keyof typeof pathwaysDescriptions];
+                          if (!clusterInfo) return null;
                           return (
                             <Card key={cluster} className="p-6">
                               <div className="flex items-start">
@@ -636,6 +642,7 @@ const CareerVisionResults = () => {
                     </div>
                   </TabsContent>
                   
+                  {/* EQ Tab */}
                   <TabsContent value="eq" className="mt-0">
                     <div className="mb-8">
                       <h2 className="text-2xl font-bold mb-4">Your EQ Navigator Results</h2>
