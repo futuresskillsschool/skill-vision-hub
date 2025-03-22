@@ -3,7 +3,7 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 import { CircularProgressIndicator } from './ChartComponents';
 import { eqLevelDescriptions } from './DataTypes';
-import { Briefcase } from 'lucide-react';
+import { Briefcase, Heart, Brain, Users, Star } from 'lucide-react';
 
 interface EQTabProps {
   eqScore: number;
@@ -21,9 +21,24 @@ const EQTab: React.FC<EQTabProps> = ({ eqScore }) => {
         </p>
       </div>
       
-      <div className="flex justify-center mb-8">
-        <div className="relative w-48 h-48">
-          <CircularProgressIndicator value={eqScore} max={40} size="lg" />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+        <div className="flex flex-col items-center">
+          <div className="relative w-48 h-48">
+            <CircularProgressIndicator value={eqScore} max={40} size="lg" />
+          </div>
+          <p className="text-center mt-4 text-muted-foreground">
+            EQ Score: <span className="font-semibold">{eqScore}/40</span>
+          </p>
+        </div>
+        
+        <div className="flex items-center justify-center">
+          <div className="max-w-xs">
+            <img 
+              src="/lovable-uploads/75c5f36e-61c3-4ec9-bdb0-96518285a821.png" 
+              alt="EQ Navigator" 
+              className="w-full h-auto rounded-lg shadow-md"
+            />
+          </div>
         </div>
       </div>
       
@@ -52,7 +67,7 @@ const EQTab: React.FC<EQTabProps> = ({ eqScore }) => {
         <Card className="p-5">
           <div className="flex items-center mb-3">
             <div className="w-8 h-8 rounded-full bg-brand-red/10 flex items-center justify-center mr-3">
-              <Briefcase className="h-4 w-4 text-brand-red" />
+              <Users className="h-4 w-4 text-brand-red" />
             </div>
             <h4 className="font-medium">Leadership Potential</h4>
           </div>
@@ -64,7 +79,7 @@ const EQTab: React.FC<EQTabProps> = ({ eqScore }) => {
         <Card className="p-5">
           <div className="flex items-center mb-3">
             <div className="w-8 h-8 rounded-full bg-brand-blue/10 flex items-center justify-center mr-3">
-              <Briefcase className="h-4 w-4 text-brand-blue" />
+              <Heart className="h-4 w-4 text-brand-blue" />
             </div>
             <h4 className="font-medium">Team Collaboration</h4>
           </div>
@@ -76,7 +91,7 @@ const EQTab: React.FC<EQTabProps> = ({ eqScore }) => {
         <Card className="p-5">
           <div className="flex items-center mb-3">
             <div className="w-8 h-8 rounded-full bg-brand-green/10 flex items-center justify-center mr-3">
-              <Briefcase className="h-4 w-4 text-brand-green" />
+              <Star className="h-4 w-4 text-brand-green" />
             </div>
             <h4 className="font-medium">Adaptability</h4>
           </div>
@@ -88,7 +103,7 @@ const EQTab: React.FC<EQTabProps> = ({ eqScore }) => {
         <Card className="p-5">
           <div className="flex items-center mb-3">
             <div className="w-8 h-8 rounded-full bg-brand-purple/10 flex items-center justify-center mr-3">
-              <Briefcase className="h-4 w-4 text-brand-purple" />
+              <Brain className="h-4 w-4 text-brand-purple" />
             </div>
             <h4 className="font-medium">Decision Making</h4>
           </div>

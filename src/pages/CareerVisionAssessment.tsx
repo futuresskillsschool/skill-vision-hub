@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -8,7 +7,7 @@ import Footer from '@/components/Footer';
 import { Progress } from '@/components/ui/progress';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Sparkles, ArrowLeft, ArrowRight, Check, Star, Target } from 'lucide-react';
+import { Sparkles, ArrowLeft, ArrowRight, Check, Star, Target, Heart } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
@@ -821,7 +820,7 @@ const CareerVisionAssessment = () => {
                                 <span className="bg-brand-red text-white w-8 h-8 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
                                   {globalQuestionIndex + 1}
                                 </span>
-                                {question.scenario}
+                                <span>{question.scenario}</span>
                               </h3>
                               
                               <RadioGroup 
