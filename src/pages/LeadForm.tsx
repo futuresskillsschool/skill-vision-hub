@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -63,14 +64,20 @@ const LeadForm = () => {
   const assessmentTitle = id ? assessmentTitles[id as keyof typeof assessmentTitles] : 'Assessment';
   
   useEffect(() => {
+    // If user is already logged in, redirect to the appropriate assessment
     if (user) {
-      if (id === 'eq-navigator') {
-        navigate('/eq-navigator');
+      if (id === 'career-vision') {
+        navigate('/assessment/career-vision/take');
+      } else if (id === 'eq-navigator') {
+        navigate('/eq-navigator/take');
       } else if (id === 'future-pathways') {
-        navigate('/future-pathways');
-      } else if (id === 'riasec' || id === 'riasec-model') {
-        navigate('/riasec');
+        navigate('/future-pathways/take');
+      } else if (id === 'riasec') {
+        navigate('/riasec/take');
+      } else if (id === 'scct') {
+        navigate('/scct/take');
       } else {
+        // Fallback to assessment detail page if no specific path
         navigate(`/assessment/${id}`);
       }
     }

@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -7,10 +6,12 @@ import { assessments } from '@/components/assessment/AssessmentData';
 import AssessmentHeader from '@/components/assessment/AssessmentHeader';
 import AssessmentContent from '@/components/assessment/AssessmentContent';
 import AssessmentDetailsPanel from '@/components/assessment/AssessmentDetailsPanel';
+import { useAuth } from '@/contexts/AuthContext';
 
 const AssessmentDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
   
   const assessment = id ? assessments[id] : null;
   
@@ -31,7 +32,29 @@ const AssessmentDetail = () => {
     if (assessment.path) {
       navigate(assessment.path);
     } else {
-      navigate(`/assessment/${id}/lead-form`);
+      // If user is logged in, go directly to assessment if possible
+      // Otherwise, navigate to lead form
+      if (user) {
+        // Check if there's a "take" path available
+        const assessmentId = id as string;
+        if (assessmentId === 'career-vision') {
+          navigate('/assessment/career-vision/take');
+        } else if (assessmentId === 'eq-navigator') {
+          navigate('/eq-navigator/take');
+        } else if (assessmentId === 'future-pathways') {
+          navigate('/future-pathways/take');
+        } else if (assessmentId === 'riasec') {
+          navigate('/riasec/take');
+        } else if (assessmentId === 'scct') {
+          navigate('/scct/take');
+        } else {
+          // Fallback to lead form if no specific take path
+          navigate(`/assessment/${id}/lead-form`);
+        }
+      } else {
+        // Not logged in - go to lead form
+        navigate(`/assessment/${id}/lead-form`);
+      }
     }
   };
 

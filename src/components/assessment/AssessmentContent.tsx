@@ -1,6 +1,7 @@
 
 import { Button } from '@/components/ui/button';
 import AssessmentBenefits from './AssessmentBenefits';
+import { useAuth } from '@/contexts/AuthContext';
 
 type AssessmentContentProps = {
   image: string;
@@ -19,6 +20,8 @@ const AssessmentContent = ({
   ideal, 
   onStartAssessment 
 }: AssessmentContentProps) => {
+  const { user } = useAuth();
+  
   return (
     <div className="bg-white rounded-xl overflow-hidden shadow-card">
       <img 
