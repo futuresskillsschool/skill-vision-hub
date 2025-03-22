@@ -12,6 +12,7 @@ const assessmentCategories = [
     icon: '🎯',
     color: 'bg-brand-blue/10',
     textColor: 'text-brand-blue',
+    path: '/assessment/career-vision'
   },
   {
     id: 'scct',
@@ -74,7 +75,7 @@ const AssessmentCategories = () => {
                 <h3 className="text-xl font-semibold mb-2">{category.title}</h3>
                 <p className="text-muted-foreground mb-6">{category.description}</p>
                 
-                <Link to={category.path || `/assessment/${category.id}`}>
+                <Link to={category.path}>
                   <Button variant="outline" className="group">
                     Learn More <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                   </Button>

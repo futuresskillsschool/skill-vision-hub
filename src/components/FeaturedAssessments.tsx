@@ -23,7 +23,8 @@ const assessments: Assessment[] = [
     image: '/lovable-uploads/97b42e5a-895c-4ce7-bf16-24ceb1b64649.png',
     time: '15 min',
     questionCount: 15,
-    featured: true
+    featured: true,
+    path: '/assessment/career-vision'
   },
   {
     id: 'riasec',
