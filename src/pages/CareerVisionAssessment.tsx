@@ -352,16 +352,28 @@ const CareerVisionAssessment = () => {
   }, [activeTab, riasecPage, pathwaysPage, eqPage]);
   
   // Calculate progress percentages
-  const riasecProgress = ((riasecPage + 1) / groupedRiasecQuestions.length) * 100;
-  const pathwaysProgress = ((pathwaysPage + 1) / groupedPathwaysQuestions.length) * 100;
-  const eqProgress = ((eqPage + 1) / groupedEqQuestions.length) * 100;
+  const riasecProgress = riasecComplete ? 100 : ((riasecPage + 1) / groupedRiasecQuestions.length) * 100;
+  const pathwaysProgress = pathwaysComplete ? 100 : ((pathwaysPage + 1) / groupedPathwaysQuestions.length) * 100;
+  const eqProgress = eqComplete ? 100 : ((eqPage + 1) / groupedEqQuestions.length) * 100;
   
-  // Overall progress
+  // Overall progress - Fixed to show 0% initially unless there are actual answers
   const overallProgress = () => {
-    const riasecWeight = riasecComplete ? 33.33 : (riasecProgress / 3);
-    const pathwaysWeight = pathwaysComplete ? 33.33 : (pathwaysProgress / 3);
-    const eqWeight = eqComplete ? 33.33 : (eqProgress / 3);
-    return riasecWeight + pathwaysWeight + eqWeight;
+    // Count total answered questions
+    const riasecAnswered = riasecAnswers.filter(answer => answer !== 0).length;
+    const pathwaysAnswered = pathwaysAnswers.filter(answer => answer !== 0).length;
+    const eqAnswered = eqAnswers.filter(answer => answer !== '').length;
+    
+    // Total questions
+    const totalQuestions = riasecQuestions.length + pathwaysQuestions.length + eqQuestions.length;
+    
+    // Total answered questions
+    const totalAnswered = riasecAnswered + pathwaysAnswered + eqAnswered;
+    
+    // If no questions answered, return 0
+    if (totalAnswered === 0) return 0;
+    
+    // Calculate progress based on answered questions
+    return (totalAnswered / totalQuestions) * 100;
   };
 
   // RIASEC handlers
@@ -636,7 +648,7 @@ const CareerVisionAssessment = () => {
                           const globalQuestionIndex = riasecPage * riasecQuestionsPerPage + questionIndex;
                           return (
                             <div key={question.id} className="bg-brand-blue/5 rounded-lg p-5 border border-brand-blue/20">
-                              <h3 className="text-lg md:text-xl font-semibold mb-4 flex">
+                              <h3 className="text-lg md:text-xl font-semibold mb-4 flex items-start">
                                 <span className="bg-brand-blue text-white w-8 h-8 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
                                   {globalQuestionIndex + 1}
                                 </span>
@@ -721,7 +733,7 @@ const CareerVisionAssessment = () => {
                           const globalQuestionIndex = pathwaysPage * pathwaysQuestionsPerPage + questionIndex;
                           return (
                             <div key={question.id} className="bg-brand-green/5 rounded-lg p-5 border border-brand-green/20">
-                              <h3 className="text-lg md:text-xl font-semibold mb-4 flex">
+                              <h3 className="text-lg md:text-xl font-semibold mb-4 flex items-start">
                                 <span className="bg-brand-green text-white w-8 h-8 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
                                   {globalQuestionIndex + 1}
                                 </span>
@@ -805,7 +817,7 @@ const CareerVisionAssessment = () => {
                           const globalQuestionIndex = eqPage * eqQuestionsPerPage + questionIndex;
                           return (
                             <div key={question.id} className="bg-brand-red/5 rounded-lg p-5 border border-brand-red/20">
-                              <h3 className="text-lg md:text-xl font-semibold mb-4 flex">
+                              <h3 className="text-lg md:text-xl font-semibold mb-4 flex items-start">
                                 <span className="bg-brand-red text-white w-8 h-8 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
                                   {globalQuestionIndex + 1}
                                 </span>

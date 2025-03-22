@@ -32,7 +32,7 @@ export const assessments: AssessmentsData = {
       'Create an actionable career development plan based on comprehensive insights'
     ],
     ideal: 'Professionals at any stage who want deep insights into their career direction, recent graduates determining their path, or anyone considering a career transition who wants a comprehensive assessment.',
-    path: '/assessment/career-vision/lead-form'
+    path: '/assessment/career-vision'
   },
   'scct': {
     title: 'SCCT Assessment',
