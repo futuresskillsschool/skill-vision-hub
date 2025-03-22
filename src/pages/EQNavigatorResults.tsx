@@ -340,6 +340,9 @@ const EQNavigatorResults = () => {
       const imgHeight = canvas.height;
       
       const ratio = pdfWidth / imgWidth * 0.95;
+      const totalPdfHeight = imgHeight * ratio;
+      const pageHeight = pdfHeight - 20;
+      const pageCount = Math.ceil(totalPdfHeight / pageHeight);
       
       let heightLeft = totalPdfHeight;
       let position = 0;
@@ -360,16 +363,7 @@ const EQNavigatorResults = () => {
           10,
           10,
           pdfWidth - 20,
-          currentPageHeight,
-          null,
-          null,
-          null,
-          {
-            sourceX: 0,
-            sourceY: srcY,
-            sourceWidth: imgWidth,
-            sourceHeight: srcHeight
-          }
+          currentPageHeight
         );
         
         heightLeft -= currentPageHeight;

@@ -9,7 +9,6 @@ import jsPDF from 'jspdf';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 
-// Define RIASEC types and descriptions
 const riasecTypes = {
   R: {
     name: 'Realistic',
@@ -179,12 +178,10 @@ const RIASECResults = () => {
   const { user, storeAssessmentResult } = useAuth();
   const [isDownloading, setIsDownloading] = useState(false);
   
-  // Get scores from location state or set default values
   const scores: RIASECScores = location.state?.scores || { R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 };
   
   useEffect(() => {
     if (!location.state) {
-      // If no scores are provided, redirect to the assessment
       navigate('/assessment/riasec');
       return;
     }
@@ -192,7 +189,6 @@ const RIASECResults = () => {
     window.scrollTo(0, 0);
   }, [location.state, navigate]);
   
-  // Get the top 3 personality types
   const sortedTypes = Object.entries(scores)
     .sort(([, scoreA], [, scoreB]) => scoreB - scoreA)
     .map(([type]) => type as keyof typeof riasecTypes);
@@ -213,10 +209,8 @@ const RIASECResults = () => {
     try {
       setIsDownloading(true);
       
-      // Create a clone of the results content that will be used for the PDF
       const contentToCapture = resultsRef.current.cloneNode(true) as HTMLElement;
       
-      // Set up styles for the clone
       contentToCapture.style.width = '800px';
       contentToCapture.style.backgroundColor = '#ffffff';
       contentToCapture.style.padding = '40px';
@@ -225,14 +219,12 @@ const RIASECResults = () => {
       contentToCapture.style.top = '-9999px';
       document.body.appendChild(contentToCapture);
       
-      // Ensure all content is visible for the PDF
       const expandElements = (element: HTMLElement) => {
         element.style.height = 'auto';
         element.style.maxHeight = 'none';
         element.style.overflow = 'visible';
         element.style.display = element.style.display === 'none' ? 'none' : 'block';
         
-        // For all child elements
         Array.from(element.children).forEach(child => {
           expandElements(child as HTMLElement);
         });
@@ -240,9 +232,8 @@ const RIASECResults = () => {
       
       expandElements(contentToCapture);
       
-      // Generate high-quality canvas
       const canvas = await html2canvas(contentToCapture, {
-        scale: 2, // Higher scale for better quality
+        scale: 2,
         logging: false,
         useCORS: true,
         backgroundColor: '#ffffff',
@@ -258,10 +249,8 @@ const RIASECResults = () => {
         }
       });
       
-      // Remove the temporary element from DOM
       document.body.removeChild(contentToCapture);
       
-      // Create PDF with appropriate size and quality
       const imgData = canvas.toDataURL('image/png', 1.0);
       const pdf = new jsPDF({
         orientation: 'portrait',
@@ -273,60 +262,42 @@ const RIASECResults = () => {
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
       
-      // Calculate dimensions to fit the PDF page properly
       const imgWidth = canvas.width;
       const imgHeight = canvas.height;
       
-      // Calculate ratio to fit width while preserving aspect ratio
-      const ratio = pdfWidth / imgWidth * 0.95; // 95% of page width
+      const ratio = pdfWidth / imgWidth * 0.95;
       
-      // Calculate how many pages we need
-      const pageHeight = pdfHeight - 20; // Leave 10mm margins at top and bottom
+      const pageHeight = pdfHeight - 20;
       const totalPdfHeight = imgHeight * ratio;
       const pageCount = Math.ceil(totalPdfHeight / pageHeight);
       
-      // Add each section of the image to a new page
       let heightLeft = totalPdfHeight;
       let position = 0;
       let currentPage = 0;
       
       while (heightLeft > 0) {
-        // If we're not on the first page, add a new page
         if (currentPage > 0) {
           pdf.addPage();
         }
         
-        // Calculate what portion of the image to add to this page
         const currentPageHeight = Math.min(heightLeft, pageHeight);
         const srcY = position / ratio;
         const srcHeight = currentPageHeight / ratio;
         
-        // Add this portion of the image to the current page
         pdf.addImage(
           imgData, 
           'PNG', 
-          10, // 10mm margin from left
-          10, // 10mm margin from top
-          pdfWidth - 20, // width with 10mm margins on each side
-          currentPageHeight,
-          null,
-          null,
-          null,
-          {
-            sourceX: 0,
-            sourceY: srcY,
-            sourceWidth: imgWidth,
-            sourceHeight: srcHeight
-          }
+          10,
+          10,
+          pdfWidth - 20,
+          currentPageHeight
         );
         
-        // Update variables for next iteration
         heightLeft -= currentPageHeight;
         position += currentPageHeight;
         currentPage++;
       }
       
-      // Save PDF
       pdf.save('RIASEC-Assessment-Results.pdf');
     } catch (error) {
       console.error('Error generating PDF:', error);
@@ -369,13 +340,11 @@ const RIASECResults = () => {
             </Button>
           </div>
           
-          {/* Results container - this will be captured for PDF */}
           <div 
             ref={resultsRef}
             id="results-content"
             className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm max-w-4xl mx-auto animate-fade-in"
           >
-            {/* Header */}
             <div className="bg-brand-purple/10 p-6 md:p-8 border-b border-gray-200">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
                 <div>
@@ -391,9 +360,7 @@ const RIASECResults = () => {
               </div>
             </div>
             
-            {/* Main content */}
             <div className="p-6 md:p-8">
-              {/* Primary type */}
               <div className="mb-8">
                 <h3 className="text-xl font-semibold mb-4 flex items-center">
                   <span className={`w-6 h-6 rounded-full mr-2 ${riasecTypes[primaryType].color}`}></span>
@@ -412,7 +379,6 @@ const RIASECResults = () => {
                 </div>
               </div>
               
-              {/* Secondary & Tertiary types */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 <div>
                   <h3 className="text-lg font-semibold mb-3 flex items-center">
@@ -435,7 +401,6 @@ const RIASECResults = () => {
                 </div>
               </div>
               
-              {/* RIASEC Profile */}
               <div className="mb-8">
                 <h3 className="text-xl font-semibold mb-4">Your RIASEC Profile</h3>
                 
@@ -457,7 +422,6 @@ const RIASECResults = () => {
                 </div>
               </div>
               
-              {/* Career suggestions */}
               <div>
                 <h3 className="text-xl font-semibold mb-4">Potential Career Paths</h3>
                 <p className="mb-4">Based on your Holland Code ({primaryType}{secondaryType}{tertiaryType}), here are some career paths that might interest you:</p>
@@ -501,7 +465,6 @@ const RIASECResults = () => {
                 </div>
               </div>
               
-              {/* Footer note */}
               <div className="mt-10 pt-6 border-t border-gray-200 text-sm text-foreground/70">
                 <p>
                   Note: This assessment is based on the Holland Occupational Themes (RIASEC) model developed by psychologist John Holland. 
@@ -512,7 +475,6 @@ const RIASECResults = () => {
             </div>
           </div>
           
-          {/* Call to action */}
           <div className="mt-12 text-center">
             <h3 className="text-xl font-bold mb-4">Want to explore more about your career options?</h3>
             <div className="flex flex-wrap justify-center gap-4">

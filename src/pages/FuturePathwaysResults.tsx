@@ -204,6 +204,11 @@ const FuturePathwaysResults = () => {
     setIsLoading(false);
   }, [location, navigate]);
 
+  const calculatePercentage = (score: number) => {
+    if (maxScore === 0) return 0;
+    return Math.round((score / maxScore) * 100);
+  };
+
   const downloadAsPDF = async () => {
     if (!reportRef.current) return;
     
@@ -292,16 +297,7 @@ const FuturePathwaysResults = () => {
           10,
           10,
           pdfWidth - 20,
-          currentPageHeight,
-          null,
-          null,
-          null,
-          {
-            sourceX: 0,
-            sourceY: srcY,
-            sourceWidth: imgWidth,
-            sourceHeight: srcHeight
-          }
+          currentPageHeight
         );
         
         heightLeft -= currentPageHeight;
@@ -313,11 +309,6 @@ const FuturePathwaysResults = () => {
     } catch (error) {
       console.error('Error generating PDF:', error);
     }
-  };
-
-  const calculatePercentage = (score: number) => {
-    if (maxScore === 0) return 0;
-    return Math.round((score / maxScore) * 100);
   };
 
   if (isLoading || topClusters.length === 0) {
