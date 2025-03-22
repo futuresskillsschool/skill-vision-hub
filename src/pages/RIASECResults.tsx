@@ -209,54 +209,21 @@ const RIASECResults = () => {
     try {
       setIsDownloading(true);
       
-      const contentToCapture = resultsRef.current.cloneNode(true) as HTMLElement;
-      
-      contentToCapture.style.width = '800px';
-      contentToCapture.style.backgroundColor = '#ffffff';
-      contentToCapture.style.padding = '40px';
-      contentToCapture.style.position = 'absolute';
-      contentToCapture.style.left = '-9999px';
-      contentToCapture.style.top = '-9999px';
-      document.body.appendChild(contentToCapture);
-      
-      const expandElements = (element: HTMLElement) => {
-        element.style.height = 'auto';
-        element.style.maxHeight = 'none';
-        element.style.overflow = 'visible';
-        element.style.display = element.style.display === 'none' ? 'none' : 'block';
-        
-        Array.from(element.children).forEach(child => {
-          expandElements(child as HTMLElement);
-        });
-      };
-      
-      expandElements(contentToCapture);
-      
-      const canvas = await html2canvas(contentToCapture, {
+      const canvas = await html2canvas(resultsRef.current, {
         scale: 2,
         logging: false,
         useCORS: true,
         backgroundColor: '#ffffff',
-        allowTaint: true,
-        onclone: (clonedDoc) => {
-          const clonedElement = clonedDoc.body.querySelector('[id="results-content"]') as HTMLElement;
-          if (clonedElement) {
-            clonedElement.style.width = '800px';
-            clonedElement.style.boxShadow = 'none';
-            clonedElement.style.margin = '0';
-            clonedElement.style.maxWidth = 'none';
-          }
-        }
+        allowTaint: true
       });
       
-      document.body.removeChild(contentToCapture);
-      
       const imgData = canvas.toDataURL('image/png', 1.0);
+      
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
         format: 'a4',
-        compress: false
+        compress: true
       });
       
       const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -264,39 +231,22 @@ const RIASECResults = () => {
       
       const imgWidth = canvas.width;
       const imgHeight = canvas.height;
+      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight) * 0.95;
       
-      const ratio = pdfWidth / imgWidth * 0.95;
+      const scaledWidth = imgWidth * ratio;
+      const scaledHeight = imgHeight * ratio;
       
-      const pageHeight = pdfHeight - 20;
-      const totalPdfHeight = imgHeight * ratio;
-      const pageCount = Math.ceil(totalPdfHeight / pageHeight);
+      const x = (pdfWidth - scaledWidth) / 2;
+      const y = 10;
       
-      let heightLeft = totalPdfHeight;
-      let position = 0;
-      let currentPage = 0;
-      
-      while (heightLeft > 0) {
-        if (currentPage > 0) {
-          pdf.addPage();
-        }
-        
-        const currentPageHeight = Math.min(heightLeft, pageHeight);
-        const srcY = position / ratio;
-        const srcHeight = currentPageHeight / ratio;
-        
-        pdf.addImage(
-          imgData, 
-          'PNG', 
-          10,
-          10,
-          pdfWidth - 20,
-          currentPageHeight
-        );
-        
-        heightLeft -= currentPageHeight;
-        position += currentPageHeight;
-        currentPage++;
-      }
+      pdf.addImage(
+        imgData, 
+        'PNG', 
+        x, 
+        y, 
+        scaledWidth, 
+        scaledHeight
+      );
       
       pdf.save('RIASEC-Assessment-Results.pdf');
     } catch (error) {
