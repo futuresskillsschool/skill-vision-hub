@@ -44,10 +44,10 @@ const EQTab: React.FC<EQTabProps> = ({ eqScore }) => {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="flex flex-col items-center justify-center bg-white p-8 rounded-2xl shadow-md border border-gray-100"
+          className="flex flex-col items-center justify-center bg-white p-8 rounded-2xl shadow-md border border-purple-100"
         >
           <div className="relative w-64 h-64 flex items-center justify-center">
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-100 to-blue-100 animate-pulse"></div>
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-100 to-blue-100 animate-pulse opacity-70"></div>
             <div className="w-56 h-56 relative">
               <svg className="w-full h-full" viewBox="0 0 100 100">
                 <circle 
@@ -102,7 +102,7 @@ const EQTab: React.FC<EQTabProps> = ({ eqScore }) => {
               </div>
               <Progress 
                 value={scorePercentage * 0.9} 
-                className="h-2.5" 
+                className="h-2.5 bg-purple-100" 
                 indicatorClassName="bg-gradient-to-r from-purple-300 to-blue-300"
               />
             </div>
@@ -114,7 +114,7 @@ const EQTab: React.FC<EQTabProps> = ({ eqScore }) => {
               </div>
               <Progress 
                 value={scorePercentage * 0.95} 
-                className="h-2.5" 
+                className="h-2.5 bg-purple-100" 
                 indicatorClassName="bg-gradient-to-r from-purple-300 to-blue-300"
               />
             </div>
@@ -174,33 +174,17 @@ const EQTab: React.FC<EQTabProps> = ({ eqScore }) => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.6 }}
       >
-        <Card className={`p-6 border-2 overflow-hidden relative ${
-          eqLevel === "high" ? "border-green-300 shadow-[0_0_20px_rgba(76,175,80,0.15)]" :
-          eqLevel === "medium" ? "border-yellow-300 shadow-[0_0_20px_rgba(255,193,7,0.15)]" :
-          "border-red-300 shadow-[0_0_20px_rgba(244,67,54,0.15)]"
-        } mb-8 rounded-xl`}>
-          <div className={`absolute inset-0 bg-gradient-to-br ${
-            eqLevel === "high" ? "from-green-50 to-green-100/50" :
-            eqLevel === "medium" ? "from-yellow-50 to-yellow-100/50" :
-            "from-red-50 to-red-100/50"
-          } opacity-70`}></div>
+        <Card className="p-6 border-2 overflow-hidden relative border-purple-300 shadow-[0_0_20px_rgba(160,128,240,0.15)] mb-8 rounded-xl">
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-50 to-blue-50/50 opacity-70"></div>
           
           <div className="relative z-10">
             <div className="flex items-center">
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center mr-4 ${
-                eqLevel === "high" ? "bg-green-100 text-green-700" :
-                eqLevel === "medium" ? "bg-yellow-100 text-yellow-700" :
-                "bg-red-100 text-red-700"
-              }`}>
+              <div className="w-12 h-12 rounded-full flex items-center justify-center mr-4 bg-purple-100 text-purple-700">
                 {eqLevel === "high" ? <Shield className="h-6 w-6" /> : 
                  eqLevel === "medium" ? <Star className="h-6 w-6" /> : 
                  <Brain className="h-6 w-6" />}
               </div>
-              <h3 className={`text-xl font-semibold ${
-                eqLevel === "high" ? "text-green-700" :
-                eqLevel === "medium" ? "text-yellow-700" :
-                "text-red-700"
-              }`}>
+              <h3 className="text-xl font-semibold text-purple-700">
                 {eqLevelDescriptions[eqLevel as keyof typeof eqLevelDescriptions].title}
               </h3>
             </div>
@@ -209,13 +193,9 @@ const EQTab: React.FC<EQTabProps> = ({ eqScore }) => {
               {eqLevelDescriptions[eqLevel as keyof typeof eqLevelDescriptions].description}
             </p>
             
-            <div className="mt-6 bg-white/60 p-4 rounded-lg backdrop-blur-sm border border-gray-100">
+            <div className="mt-6 bg-white/60 p-4 rounded-lg backdrop-blur-sm border border-purple-100">
               <h4 className="font-medium mb-3 flex items-center text-gray-800">
-                <Star className={`h-5 w-5 mr-2 ${
-                  eqLevel === "high" ? "text-green-500" :
-                  eqLevel === "medium" ? "text-yellow-500" :
-                  "text-red-500"
-                }`} />
+                <Star className="h-5 w-5 mr-2 text-purple-500" /> 
                 Development Tips:
               </h4>
               <p className="text-base text-gray-600">
@@ -258,14 +238,14 @@ const EQTab: React.FC<EQTabProps> = ({ eqScore }) => {
             icon: <Star className="h-5 w-5 text-white" />,
             title: "Adaptability",
             description: "Strong emotional intelligence helps you adapt to change, manage stress, and remain resilient in the face of challenges and uncertainty.",
-            color: "from-green-300 to-green-400",
+            color: "from-purple-300 to-purple-400",
             delay: 1.2
           },
           {
             icon: <Brain className="h-5 w-5 text-white" />,
             title: "Decision Making",
             description: "EQ supports better decision-making by helping you understand others' perspectives and consider the emotional implications of different choices.",
-            color: "from-yellow-300 to-yellow-400",
+            color: "from-blue-300 to-purple-400",
             delay: 1.3
           }
         ].map((item, index) => (
@@ -288,7 +268,7 @@ const EQTab: React.FC<EQTabProps> = ({ eqScore }) => {
                 </div>
                 <h4 className="font-medium text-lg text-gray-800">{item.title}</h4>
               </div>
-              <p className="text-sm text-gray-600 pl-3 border-l-2 border-gray-100">
+              <p className="text-sm text-gray-600 pl-3 border-l-2 border-purple-100">
                 {item.description}
               </p>
               <div className="mt-3 pt-2 text-sm font-medium flex items-center justify-end text-purple-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300">

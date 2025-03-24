@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -603,7 +602,7 @@ const CareerVisionAssessment = () => {
                         {Math.round(overallProgress())}% Complete
                       </span>
                     </div>
-                    <Progress value={overallProgress()} className="h-2 bg-brand-purple/20" />
+                    <Progress value={overallProgress()} className="h-2 bg-purple-100" indicatorClassName="bg-gradient-to-r from-purple-400 to-blue-400" />
                   </div>
                   
                   <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
@@ -623,7 +622,7 @@ const CareerVisionAssessment = () => {
                       </TabsTrigger>
                       <TabsTrigger 
                         value="eq" 
-                        className={`data-[state=active]:bg-brand-red/20 data-[state=active]:text-brand-red ${eqComplete ? 'after:content-["✓"] after:ml-1 after:text-green-500' : ''}`}
+                        className={`data-[state=active]:bg-purple-100 data-[state=active]:text-purple-600 ${eqComplete ? 'after:content-["✓"] after:ml-1 after:text-green-500' : ''}`}
                         disabled={!pathwaysComplete && activeTab !== "eq"}
                       >
                         EQ Navigator
@@ -802,26 +801,35 @@ const CareerVisionAssessment = () => {
                     <TabsContent value="eq" className="mt-0">
                       <div className="mb-6">
                         <div className="flex justify-between items-center mb-2">
-                          <h2 className="text-lg font-medium text-brand-red">
+                          <h2 className="text-lg font-medium text-purple-600">
                             EQ Navigator
                           </h2>
                           <span className="text-sm text-muted-foreground font-medium">
                             Page {eqPage + 1} of {groupedEqQuestions.length}
                           </span>
                         </div>
-                        <Progress value={eqProgress} className="h-2 bg-brand-red/20" />
+                        <Progress 
+                          value={eqProgress} 
+                          className="h-2 bg-purple-100" 
+                          indicatorClassName="bg-gradient-to-r from-purple-400 to-blue-400" 
+                        />
                       </div>
                       
                       <div className="space-y-8">
                         {groupedEqQuestions[eqPage].map((question, questionIndex) => {
                           const globalQuestionIndex = eqPage * eqQuestionsPerPage + questionIndex;
                           return (
-                            <div key={question.id} className="bg-brand-red/5 rounded-lg p-5 border border-brand-red/20">
-                              <h3 className="text-lg md:text-xl font-semibold mb-4 flex items-start">
-                                <span className="bg-brand-red text-white w-8 h-8 rounded-full flex items-center justify-center mr-3 flex-shrink-0 shadow-md">
+                            <div 
+                              key={question.id} 
+                              className="bg-gradient-to-br from-white to-purple-50 rounded-xl p-6 border border-purple-200/40 shadow-md relative overflow-hidden"
+                            >
+                              <div className="absolute top-0 right-0 h-20 w-20 bg-gradient-to-br from-purple-100/20 to-blue-100/20 rounded-full -mt-10 -mr-10 blur-xl opacity-50"></div>
+                              
+                              <h3 className="text-lg md:text-xl font-semibold mb-5 flex items-start">
+                                <span className="bg-gradient-to-br from-purple-400 to-blue-400 text-white w-8 h-8 rounded-full flex items-center justify-center mr-3 flex-shrink-0 shadow-md">
                                   {globalQuestionIndex + 1}
                                 </span>
-                                {question.scenario}
+                                <span className="flex-1">{question.scenario}</span>
                               </h3>
                               
                               <RadioGroup 
@@ -832,10 +840,10 @@ const CareerVisionAssessment = () => {
                                 {question.options.map((option) => (
                                   <div 
                                     key={option.id} 
-                                    className={`flex items-start space-x-2 border rounded-md p-3 transition-colors ${
+                                    className={`flex items-start space-x-2 border-2 rounded-xl p-4 transition-all duration-300 ${
                                       eqAnswers[globalQuestionIndex] === option.id 
-                                        ? 'border-brand-red bg-brand-red/10' 
-                                        : 'border-border/50 hover:border-brand-red/50 hover:bg-brand-red/5'
+                                        ? 'border-purple-400 bg-gradient-to-r from-purple-50 to-blue-50 shadow-md transform -translate-y-0.5' 
+                                        : 'border-gray-200 hover:border-purple-300 hover:bg-purple-50/30'
                                     }`}
                                   >
                                     <RadioGroupItem 
@@ -845,13 +853,13 @@ const CareerVisionAssessment = () => {
                                     />
                                     <Label 
                                       htmlFor={`eq-question-${question.id}-option-${option.id}`} 
-                                      className="flex-1 cursor-pointer font-normal text-base"
+                                      className="flex-1 cursor-pointer font-medium text-gray-700 group-hover:text-gray-900"
                                     >
                                       {option.text}
                                     </Label>
                                     {eqAnswers[globalQuestionIndex] === option.id && (
-                                      <div className="bg-brand-red/20 rounded-full p-1">
-                                        <Check className="h-4 w-4 text-brand-red" />
+                                      <div className="bg-purple-200 rounded-full p-1">
+                                        <Check className="h-4 w-4 text-purple-600" />
                                       </div>
                                     )}
                                   </div>
@@ -866,7 +874,7 @@ const CareerVisionAssessment = () => {
                         <Button 
                           variant="outline"
                           onClick={handleEqPrevious}
-                          className="flex items-center gap-1"
+                          className="flex items-center gap-1 border-purple-200 hover:bg-purple-50"
                         >
                           <ArrowLeft className="h-4 w-4" />
                           Previous
@@ -875,7 +883,7 @@ const CareerVisionAssessment = () => {
                         <Button 
                           onClick={handleEqNext}
                           disabled={!isEqPageComplete()}
-                          className="bg-brand-purple hover:bg-brand-purple/90 text-white flex items-center gap-1 shadow-md"
+                          className="bg-gradient-to-r from-purple-400 to-blue-400 hover:from-purple-500 hover:to-blue-500 text-white flex items-center gap-1 shadow-md"
                         >
                           {eqPage === groupedEqQuestions.length - 1 ? "Complete Assessment" : "Next"}
                           <ArrowRight className="h-4 w-4" />
@@ -890,7 +898,7 @@ const CareerVisionAssessment = () => {
                 <h2 className="text-2xl font-bold mb-4">Processing your results...</h2>
                 <p className="text-muted-foreground mb-6">Please wait while we analyze your responses.</p>
                 <div className="flex justify-center">
-                  <div className="animate-spin h-10 w-10 border-4 border-brand-purple/20 border-t-brand-purple rounded-full"></div>
+                  <div className="animate-spin h-10 w-10 border-4 border-purple-400/20 border-t-purple-400 rounded-full"></div>
                 </div>
               </div>
             )}

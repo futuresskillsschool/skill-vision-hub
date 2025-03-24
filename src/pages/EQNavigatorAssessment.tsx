@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -14,7 +13,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
 import confetti from 'canvas-confetti';
 
-// Define the structure of a question
 interface Question {
   id: number;
   scenario: string;
@@ -25,7 +23,6 @@ interface Question {
   }[];
 }
 
-// EQ Navigator questions
 const eqQuestions: Question[] = [
   {
     id: 1,
@@ -129,7 +126,6 @@ const eqQuestions: Question[] = [
   }
 ];
 
-// Group questions for a multi-question page layout
 const groupQuestions = (questions: Question[], perPage: number) => {
   const groupedQuestions = [];
   for (let i = 0; i < questions.length; i += perPage) {
@@ -147,20 +143,16 @@ const EQNavigatorAssessment = () => {
   const [totalScore, setTotalScore] = useState(0);
   const confettiRef = useRef<HTMLDivElement>(null);
   
-  // Group questions 5 per page
   const questionsPerPage = 5;
   const groupedQuestions = groupQuestions(eqQuestions, questionsPerPage);
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
 
-  // Reset to top of page on mount
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  // Calculate progress percentage
   const progressPercentage = ((currentPageIndex * questionsPerPage) / eqQuestions.length) * 100;
   
-  // Function to trigger confetti on completion
   const triggerConfetti = () => {
     if (confettiRef.current) {
       const { top, left, width, height } = confettiRef.current.getBoundingClientRect();
@@ -191,7 +183,6 @@ const EQNavigatorAssessment = () => {
       setCurrentPageIndex(currentPageIndex + 1);
       window.scrollTo(0, 0);
     } else {
-      // Calculate total score
       let score = 0;
       selectedOptions.forEach((optionId, index) => {
         const question = eqQuestions[index];
@@ -204,7 +195,6 @@ const EQNavigatorAssessment = () => {
       setShowResults(true);
       setTimeout(() => triggerConfetti(), 500);
       
-      // Save results to Supabase if the user is logged in
       if (user) {
         const resultData = {
           totalScore: score,
@@ -247,7 +237,6 @@ const EQNavigatorAssessment = () => {
     });
   };
 
-  // Check if all questions on current page have been answered
   const isCurrentPageComplete = () => {
     const currentQuestions = groupedQuestions[currentPageIndex];
     for (let i = 0; i < currentQuestions.length; i++) {
@@ -276,7 +265,6 @@ const EQNavigatorAssessment = () => {
                   transition={{ duration: 0.4 }}
                   className="bg-white rounded-2xl shadow-lg border-2 border-purple-200/30 p-8 overflow-hidden relative"
                 >
-                  {/* Decorative elements */}
                   <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-purple-100/30 to-blue-100/30 rounded-full -mt-20 -mr-20 blur-3xl"></div>
                   <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-blue-100/30 to-purple-100/30 rounded-full -mb-20 -ml-20 blur-3xl"></div>
                   

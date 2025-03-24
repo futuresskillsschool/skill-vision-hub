@@ -44,19 +44,25 @@
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
     
-    /* Define EQ Navigator specific colors - now using pastel colors */
+    /* EQ Navigator specific colors - enhanced pastel palette */
     --eq-primary: 260 60% 70%;
     --eq-primary-light: 260 60% 85%;
     --eq-primary-dark: 260 60% 60%;
     --eq-secondary: 230 70% 80%;
     --eq-accent: 190 70% 80%;
     
-    /* Pastel palette */
+    /* Expanded pastel palette with more purple shades */
     --pastel-purple: 260 60% 85%;
+    --pastel-purple-light: 260 60% 90%;
+    --pastel-purple-dark: 260 60% 75%;
+    --pastel-lavender: 270 60% 85%;
+    --pastel-periwinkle: 240 70% 85%;
     --pastel-blue: 230 70% 85%;
+    --pastel-sky: 210 70% 85%;
     --pastel-pink: 340 80% 90%;
     --pastel-green: 140 50% 85%;
     --pastel-yellow: 50 80% 85%;
+    --pastel-peach: 30 80% 85%;
   }
 
   .dark {
@@ -97,19 +103,25 @@
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
     
-    /* Define EQ Navigator specific colors for dark mode - now using pastel colors */
+    /* EQ Navigator specific colors for dark mode - enhanced pastel colors */
     --eq-primary: 260 50% 65%;
     --eq-primary-light: 260 50% 75%;
     --eq-primary-dark: 260 50% 55%;
     --eq-secondary: 230 50% 65%;
     --eq-accent: 190 50% 65%;
     
-    /* Pastel palette dark mode */
+    /* Expanded pastel palette for dark mode */
     --pastel-purple: 260 40% 65%;
+    --pastel-purple-light: 260 40% 75%;
+    --pastel-purple-dark: 260 40% 55%;
+    --pastel-lavender: 270 40% 65%;
+    --pastel-periwinkle: 240 50% 65%;
     --pastel-blue: 230 40% 65%;
+    --pastel-sky: 210 40% 65%;
     --pastel-pink: 340 40% 70%;
     --pastel-green: 140 30% 65%;
     --pastel-yellow: 50 40% 65%;
+    --pastel-peach: 30 40% 65%;
   }
 }
 
@@ -194,6 +206,28 @@
   
   .eq-section {
     @apply py-12 px-4 md:px-6;
+  }
+  
+  /* EQ Progress components */
+  .eq-progress-track {
+    @apply h-2.5 bg-purple-100 rounded-full overflow-hidden;
+  }
+  
+  .eq-progress-indicator {
+    @apply h-full bg-gradient-to-r from-purple-400 to-blue-400 rounded-full;
+  }
+  
+  /* Additional gradients for EQ Navigator */
+  .eq-gradient-primary {
+    @apply bg-gradient-to-r from-purple-400 to-blue-400;
+  }
+  
+  .eq-gradient-soft {
+    @apply bg-gradient-to-r from-purple-100 to-blue-100;
+  }
+  
+  .eq-gradient-card {
+    @apply bg-gradient-to-br from-white via-purple-50 to-blue-50;
   }
 }
 
