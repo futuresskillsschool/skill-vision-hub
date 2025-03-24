@@ -32,7 +32,9 @@ const PathwaysTab: React.FC<PathwaysTabProps> = ({ pathways, pathwaysChartData }
         transition={{ duration: 0.6, delay: 0.2 }}
         className="text-xl font-semibold mb-4 flex items-center"
       >
-        <Target className="h-5 w-5 text-brand-green mr-2" />
+        <div className="bg-brand-green/10 p-2 rounded-full mr-2">
+          <Target className="h-5 w-5 text-brand-green" />
+        </div>
         Your Top Future Career Clusters
       </motion.h3>
       
@@ -53,9 +55,9 @@ const PathwaysTab: React.FC<PathwaysTabProps> = ({ pathways, pathwaysChartData }
             ];
             
             const iconBgColors = [
-              'bg-brand-green/10 text-brand-green',
-              'bg-brand-blue/10 text-brand-blue',
-              'bg-brand-purple/10 text-brand-purple'
+              'bg-gradient-to-br from-green-400 to-green-600 text-white',
+              'bg-gradient-to-br from-blue-400 to-blue-600 text-white',
+              'bg-gradient-to-br from-purple-400 to-purple-600 text-white'
             ];
             
             const cardColors = [
@@ -65,9 +67,9 @@ const PathwaysTab: React.FC<PathwaysTabProps> = ({ pathways, pathwaysChartData }
             ];
             
             const borderColors = [
-              'border-green-200',
-              'border-blue-200',
-              'border-purple-200'
+              'border-green-200 shadow-[0_0_15px_rgba(76,175,80,0.1)]',
+              'border-blue-200 shadow-[0_0_15px_rgba(66,165,245,0.1)]',
+              'border-purple-200 shadow-[0_0_15px_rgba(156,39,176,0.1)]'
             ];
             
             return (
@@ -78,7 +80,7 @@ const PathwaysTab: React.FC<PathwaysTabProps> = ({ pathways, pathwaysChartData }
                 transition={{ duration: 0.6, delay: 0.3 + (index * 0.1) }}
                 whileHover={{ 
                   y: -5, 
-                  boxShadow: "0 10px 25px rgba(0, 0, 0, 0.08)",
+                  boxShadow: "0 15px 30px rgba(0, 0, 0, 0.1)",
                   transition: { duration: 0.2 }
                 }}
               >
@@ -86,7 +88,7 @@ const PathwaysTab: React.FC<PathwaysTabProps> = ({ pathways, pathwaysChartData }
                   <div className={`absolute inset-0 bg-gradient-to-br ${cardColors[index]} opacity-60`}></div>
                   
                   <div className="flex items-start relative z-10">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center mr-4 ${iconBgColors[index]}`}>
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center mr-4 ${iconBgColors[index]} shadow-lg`}>
                       {icons[index]}
                     </div>
                     
@@ -100,7 +102,7 @@ const PathwaysTab: React.FC<PathwaysTabProps> = ({ pathways, pathwaysChartData }
                       
                       <p className="text-muted-foreground mb-4">{clusterInfo.description}</p>
                       
-                      <div>
+                      <div className="bg-white/70 p-4 rounded-lg backdrop-blur-sm border border-gray-100">
                         <h5 className="font-medium mb-2 flex items-center">
                           <Zap className="h-4 w-4 mr-2 text-brand-orange" />
                           Future-Focused Careers:

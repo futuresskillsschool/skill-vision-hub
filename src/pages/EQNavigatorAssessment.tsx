@@ -8,7 +8,7 @@ import Footer from '@/components/Footer';
 import { Progress } from '@/components/ui/progress';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { Sparkles, ArrowLeft, ArrowRight, Check } from 'lucide-react';
+import { Sparkles, ArrowLeft, ArrowRight, Check, BrainCircuit } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
@@ -128,7 +128,7 @@ const eqQuestions: Question[] = [
   }
 ];
 
-// Group questions for a multi-question page layout (3 questions per page)
+// Group questions for a multi-question page layout
 const groupQuestions = (questions: Question[], perPage: number) => {
   const groupedQuestions = [];
   for (let i = 0; i < questions.length; i += perPage) {
@@ -145,8 +145,8 @@ const EQNavigatorAssessment = () => {
   const [showResults, setShowResults] = useState(false);
   const [totalScore, setTotalScore] = useState(0);
   
-  // Group questions 3 per page
-  const questionsPerPage = 3;
+  // Group questions 5 per page (increased from 3)
+  const questionsPerPage = 5;
   const groupedQuestions = groupQuestions(eqQuestions, questionsPerPage);
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
 
@@ -238,7 +238,7 @@ const EQNavigatorAssessment = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-brand-purple/5">
       <Navbar />
       
       <main className="flex-grow pt-24 pb-16">
@@ -251,27 +251,40 @@ const EQNavigatorAssessment = () => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
-                className="bg-white rounded-xl shadow-card p-6 md:p-8"
+                className="bg-white rounded-xl shadow-lg border border-brand-purple/10 p-6 md:p-8"
               >
                 <div className="mb-8">
+                  <h1 className="text-2xl md:text-3xl font-bold mb-3 text-brand-purple flex items-center">
+                    <BrainCircuit className="h-7 w-7 mr-3 text-brand-purple" />
+                    EQ Navigator Assessment
+                  </h1>
+                  <p className="text-muted-foreground mb-6">
+                    This assessment helps identify your emotional intelligence strengths and opportunities for growth.
+                  </p>
                   <div className="flex justify-between items-center mb-2">
                     <h2 className="text-lg font-medium text-muted-foreground">
                       Page {currentPageIndex + 1} of {groupedQuestions.length}
                     </h2>
-                    <span className="text-sm text-muted-foreground font-medium">
+                    <span className="text-sm text-brand-purple font-medium px-3 py-1 rounded-full bg-brand-purple/10">
                       {Math.min((currentPageIndex + 1) * questionsPerPage, eqQuestions.length)} of {eqQuestions.length} questions
                     </span>
                   </div>
-                  <Progress value={progressPercentage} className="h-2 bg-brand-purple/20" />
+                  <Progress value={progressPercentage} className="h-2.5 bg-brand-purple/20" indicatorClassName="bg-gradient-to-r from-brand-purple to-brand-blue" />
                 </div>
                 
                 <div className="space-y-8">
                   {groupedQuestions[currentPageIndex].map((question, questionIndex) => {
                     const globalQuestionIndex = currentPageIndex * questionsPerPage + questionIndex;
                     return (
-                      <div key={question.id} className="bg-brand-purple/5 rounded-lg p-5 border border-brand-purple/20">
+                      <motion.div 
+                        key={question.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3, delay: questionIndex * 0.1 }}
+                        className="bg-gradient-to-br from-brand-purple/5 to-white rounded-lg p-6 border border-brand-purple/20 shadow-sm"
+                      >
                         <h3 className="text-lg md:text-xl font-semibold mb-4 flex">
-                          <span className="bg-brand-purple text-white w-8 h-8 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                          <span className="bg-brand-purple text-white w-8 h-8 rounded-full flex items-center justify-center mr-3 flex-shrink-0 shadow-md">
                             {globalQuestionIndex + 1}
                           </span>
                           {question.scenario}
@@ -285,9 +298,9 @@ const EQNavigatorAssessment = () => {
                           {question.options.map((option) => (
                             <div 
                               key={option.id} 
-                              className={`flex items-start space-x-2 border rounded-md p-3 transition-colors ${
+                              className={`flex items-start space-x-2 border rounded-md p-3.5 transition-all duration-200 ${
                                 selectedOptions[globalQuestionIndex] === option.id 
-                                  ? 'border-brand-purple bg-brand-purple/10' 
+                                  ? 'border-brand-purple bg-brand-purple/10 shadow-md transform -translate-y-0.5' 
                                   : 'border-border/50 hover:border-brand-purple/50 hover:bg-brand-purple/5'
                               }`}
                             >
@@ -310,7 +323,7 @@ const EQNavigatorAssessment = () => {
                             </div>
                           ))}
                         </RadioGroup>
-                      </div>
+                      </motion.div>
                     );
                   })}
                 </div>
@@ -320,7 +333,7 @@ const EQNavigatorAssessment = () => {
                     variant="outline"
                     onClick={handlePrevious}
                     disabled={currentPageIndex === 0}
-                    className="flex items-center gap-1"
+                    className="flex items-center gap-1 shadow-sm hover:shadow-md transition-all duration-200"
                   >
                     <ArrowLeft className="h-4 w-4" />
                     Previous
@@ -329,7 +342,7 @@ const EQNavigatorAssessment = () => {
                   <Button 
                     onClick={handleNext}
                     disabled={!isCurrentPageComplete()}
-                    className="bg-brand-purple hover:bg-brand-dark-purple flex items-center gap-1"
+                    className="bg-gradient-to-r from-brand-purple to-brand-blue hover:from-brand-dark-purple hover:to-brand-dark-blue text-white shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-1"
                   >
                     {currentPageIndex === groupedQuestions.length - 1 ? "Finish" : "Next"}
                     <ArrowRight className="h-4 w-4" />
@@ -340,19 +353,27 @@ const EQNavigatorAssessment = () => {
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-xl shadow-card p-6 md:p-8 text-center"
+                className="bg-white rounded-xl shadow-lg border border-brand-purple/10 p-8 md:p-10 text-center"
               >
-                <div className="w-20 h-20 mx-auto bg-brand-purple/10 rounded-full flex items-center justify-center mb-6">
-                  <Sparkles className="h-10 w-10 text-brand-purple" />
-                </div>
+                <motion.div
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.2, duration: 0.5 }}
+                  className="relative w-28 h-28 mx-auto mb-6"
+                >
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-brand-purple/20 to-brand-blue/20 animate-pulse"></div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Sparkles className="h-14 w-14 text-brand-purple" />
+                  </div>
+                </motion.div>
                 
-                <h2 className="text-2xl md:text-3xl font-semibold mb-3">Assessment Complete!</h2>
-                <p className="text-muted-foreground mb-8">Thank you for completing the EQ Navigator assessment. You're ready to view your personalized results!</p>
+                <h2 className="text-2xl md:text-3xl font-semibold mb-3 bg-gradient-to-r from-brand-purple to-brand-blue bg-clip-text text-transparent">Assessment Complete!</h2>
+                <p className="text-muted-foreground mb-8 max-w-md mx-auto">Thank you for completing the EQ Navigator assessment. You're ready to view your personalized emotional intelligence profile!</p>
                 
                 <Button 
                   onClick={handleViewResults}
                   size="lg"
-                  className="bg-brand-purple hover:bg-brand-dark-purple"
+                  className="bg-gradient-to-r from-brand-purple to-brand-blue hover:from-brand-dark-purple hover:to-brand-dark-blue text-white shadow-lg hover:shadow-xl transition-all duration-200 px-8 py-6 text-lg"
                 >
                   View Your Results
                 </Button>
