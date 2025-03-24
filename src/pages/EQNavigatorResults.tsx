@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Progress } from '@/components/ui/progress';
-import { Sparkles, Heart, ArrowRight, Brain, BookOpen, PenTool, Home, Download, Check, Share2, Award, ArrowLeft } from 'lucide-react';
+import { Sparkles, Heart, ArrowRight, Brain, BookOpen, PenTool, Home, Download, Check, Share2, Award, ArrowLeft, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
