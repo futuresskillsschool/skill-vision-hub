@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -37,7 +36,7 @@ export const CircularProgressIndicator: React.FC<CircularProgressProps> = ({
   return (
     <div className={cn("relative flex items-center justify-center", containerSize)}>
       {/* Glowing effect */}
-      <div className={cn("absolute inset-0 rounded-full opacity-20 blur-md", colorClass)}></div>
+      <div className={cn("absolute inset-0 rounded-full opacity-20 blur-md animate-pulse", colorClass)}></div>
       
       {/* Track Circle */}
       <svg className="w-full h-full transform -rotate-90" viewBox={`0 0 ${radius * 2 + strokeWidth} ${radius * 2 + strokeWidth}`}>

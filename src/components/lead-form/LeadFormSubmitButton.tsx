@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Sparkles } from 'lucide-react';
 
 type LeadFormSubmitButtonProps = {
   isSubmitting: boolean;
@@ -12,7 +12,7 @@ const LeadFormSubmitButton = ({ isSubmitting }: LeadFormSubmitButtonProps) => {
     <div className="pt-4">
       <Button 
         type="submit" 
-        className="bg-brand-purple hover:bg-brand-purple/90 text-white w-full md:w-auto shadow-lg"
+        className="bg-gradient-to-r from-brand-purple to-purple-700 hover:from-purple-600 hover:to-brand-purple text-white w-full md:w-auto shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5"
         disabled={isSubmitting}
       >
         {isSubmitting ? (
@@ -25,7 +25,7 @@ const LeadFormSubmitButton = ({ isSubmitting }: LeadFormSubmitButtonProps) => {
           </span>
         ) : (
           <span className="flex items-center font-medium">
-            Begin Assessment <ArrowRight className="ml-2 h-4 w-4" />
+            Begin Assessment <Sparkles className="mx-1 h-4 w-4" /> <ArrowRight className="ml-1 h-4 w-4" />
           </span>
         )}
       </Button>

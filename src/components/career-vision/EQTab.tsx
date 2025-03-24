@@ -27,7 +27,7 @@ const EQTab: React.FC<EQTabProps> = ({ eqScore }) => {
       >
         <h2 className="text-2xl font-bold mb-4 flex items-center">
           <div className="bg-gradient-to-br from-brand-red to-brand-purple w-10 h-10 rounded-full flex items-center justify-center mr-3 shadow-md">
-            <Sparkles className="h-5 w-5 text-white" />
+            <Heart className="h-5 w-5 text-white" />
           </div>
           Your EQ Navigator Results
         </h2>
@@ -77,7 +77,7 @@ const EQTab: React.FC<EQTabProps> = ({ eqScore }) => {
           >
             <div className="absolute inset-0 bg-gradient-to-br from-brand-purple/40 via-brand-red/30 to-brand-orange/20"></div>
             <img 
-              src="/lovable-uploads/ebf39e97-383d-44ee-8568-12a8b1dc889b.png" 
+              src="/lovable-uploads/2a57ac38-c970-47f4-9845-ae1dfc4315f1.png" 
               alt="EQ Navigator" 
               className="w-full h-auto rounded-lg relative z-10"
             />
