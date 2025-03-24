@@ -88,27 +88,117 @@ const CareerVisionResults = () => {
     .map(([cluster]) => cluster);
   
   const handleDownloadPDF = async () => {
-    const element = document.getElementById('results-container');
-    if (!element) return;
+    // Create a reference to all tab content divs
+    const overviewContent = document.getElementById('overview-content');
+    const riasecContent = document.getElementById('riasec-content');
+    const pathwaysContent = document.getElementById('pathways-content');
+    const eqContent = document.getElementById('eq-content');
     
-    const canvas = await html2canvas(element, {
-      scale: 1,
-      useCORS: true,
-      logging: false
-    });
+    if (!overviewContent || !riasecContent || !pathwaysContent || !eqContent) {
+      console.error("Could not find all tab content elements");
+      return;
+    }
     
-    const imgData = canvas.toDataURL('image/png');
+    // Create a new PDF document
     const pdf = new jsPDF({
       orientation: 'portrait',
       unit: 'mm',
       format: 'a4'
     });
     
-    const imgWidth = 210;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-    
-    pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-    pdf.save('Career-Vision-Assessment-Results.pdf');
+    try {
+      // Function to add a tab's content to the PDF
+      const addTabToPDF = async (contentElement: HTMLElement, title: string, isFirstPage: boolean = false) => {
+        if (!isFirstPage) {
+          pdf.addPage();
+        }
+        
+        // Add title to the PDF
+        pdf.setFont("helvetica", "bold");
+        pdf.setFontSize(16);
+        pdf.setTextColor(80, 80, 80);
+        pdf.text(title, 15, 20);
+        pdf.setLineWidth(0.5);
+        pdf.line(15, 22, 195, 22);
+        pdf.setFont("helvetica", "normal");
+        
+        // Clone the content to avoid modifying the original DOM
+        const clonedContent = contentElement.cloneNode(true) as HTMLElement;
+        
+        // Apply styling for PDF conversion
+        clonedContent.style.backgroundColor = 'white';
+        clonedContent.style.padding = '20px';
+        clonedContent.style.width = '800px';
+        clonedContent.style.position = 'absolute';
+        clonedContent.style.left = '-9999px';
+        clonedContent.style.top = '-9999px';
+        document.body.appendChild(clonedContent);
+        
+        // Make any SVGs in content have explicit dimensions
+        const svgs = clonedContent.querySelectorAll('svg');
+        svgs.forEach(svg => {
+          const bbox = svg.getBoundingClientRect();
+          svg.setAttribute('width', bbox.width.toString());
+          svg.setAttribute('height', bbox.height.toString());
+        });
+        
+        // Capture content as canvas
+        const canvas = await html2canvas(clonedContent, {
+          scale: 2,
+          logging: false,
+          useCORS: true
+        });
+        
+        // Remove cloned element from DOM
+        document.body.removeChild(clonedContent);
+        
+        // Convert canvas to image data
+        const imgData = canvas.toDataURL('image/png');
+        
+        // Calculate dimensions
+        const imgWidth = 190;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        
+        // Add image to PDF, positioned below the title
+        pdf.addImage(imgData, 'PNG', 10, 25, imgWidth, imgHeight);
+        
+        return imgHeight;
+      };
+      
+      // Make all tabs visible temporarily
+      const originalDisplay: Record<string, string> = {};
+      [overviewContent, riasecContent, pathwaysContent, eqContent].forEach(el => {
+        if (el) {
+          originalDisplay[el.id] = el.style.display;
+          el.style.display = 'block';
+        }
+      });
+      
+      // Add overview tab (first page)
+      await addTabToPDF(overviewContent, "Career Vision Assessment - Overview", true);
+      
+      // Add RIASEC tab
+      await addTabToPDF(riasecContent, "Your RIASEC Profile");
+      
+      // Add Pathways tab
+      await addTabToPDF(pathwaysContent, "Your Future Pathways");
+      
+      // Add EQ tab
+      await addTabToPDF(eqContent, "Your EQ Navigator Profile");
+      
+      // Restore original display settings
+      [overviewContent, riasecContent, pathwaysContent, eqContent].forEach(el => {
+        if (el) {
+          el.style.display = originalDisplay[el.id];
+        }
+      });
+      
+      // Save the PDF
+      pdf.save('Career-Vision-Complete-Results.pdf');
+      
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+    }
   };
   
   return (
@@ -133,7 +223,7 @@ const CareerVisionResults = () => {
                 className="hidden md:flex items-center gap-2"
               >
                 <Download className="h-4 w-4" />
-                Download PDF
+                Download Complete PDF
               </Button>
             </div>
             
@@ -152,35 +242,43 @@ const CareerVisionResults = () => {
                   </TabsList>
                   
                   <TabsContent value="overview" className="mt-0">
-                    <OverviewTab 
-                      riasec={riasec}
-                      pathways={pathways}
-                      eqScore={eqScore}
-                      careerRecommendations={careerRecommendations}
-                      topRiasecCategories={topRiasecCategories}
-                      topPathwaysClusters={topPathwaysClusters}
-                      riasecChartData={riasecChartData}
-                      pathwaysChartData={pathwaysChartData}
-                      handleDownloadPDF={handleDownloadPDF}
-                    />
+                    <div id="overview-content">
+                      <OverviewTab 
+                        riasec={riasec}
+                        pathways={pathways}
+                        eqScore={eqScore}
+                        careerRecommendations={careerRecommendations}
+                        topRiasecCategories={topRiasecCategories}
+                        topPathwaysClusters={topPathwaysClusters}
+                        riasecChartData={riasecChartData}
+                        pathwaysChartData={pathwaysChartData}
+                        handleDownloadPDF={handleDownloadPDF}
+                      />
+                    </div>
                   </TabsContent>
                   
                   <TabsContent value="riasec" className="mt-0">
-                    <RIASECTab 
-                      riasec={riasec}
-                      riasecChartData={riasecChartData}
-                    />
+                    <div id="riasec-content">
+                      <RIASECTab 
+                        riasec={riasec}
+                        riasecChartData={riasecChartData}
+                      />
+                    </div>
                   </TabsContent>
                   
                   <TabsContent value="pathways" className="mt-0">
-                    <PathwaysTab 
-                      pathways={pathways}
-                      pathwaysChartData={pathwaysChartData}
-                    />
+                    <div id="pathways-content">
+                      <PathwaysTab 
+                        pathways={pathways}
+                        pathwaysChartData={pathwaysChartData}
+                      />
+                    </div>
                   </TabsContent>
                   
                   <TabsContent value="eq" className="mt-0">
-                    <EQTab eqScore={eqScore} />
+                    <div id="eq-content">
+                      <EQTab eqScore={eqScore} />
+                    </div>
                   </TabsContent>
                 </Tabs>
               </div>
