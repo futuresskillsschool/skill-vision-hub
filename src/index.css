@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -43,12 +44,19 @@
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
     
-    /* Define EQ Navigator specific colors */
-    --brand-red: 350 91% 54%;
-    --brand-red-light: 350 91% 65%;
-    --brand-red-dark: 350 91% 45%;
-    --brand-pink: 330 80% 80%;
-    --brand-orange: 20 90% 65%;
+    /* Define EQ Navigator specific colors - now using pastel colors */
+    --eq-primary: 260 60% 70%;
+    --eq-primary-light: 260 60% 85%;
+    --eq-primary-dark: 260 60% 60%;
+    --eq-secondary: 230 70% 80%;
+    --eq-accent: 190 70% 80%;
+    
+    /* Pastel palette */
+    --pastel-purple: 260 60% 85%;
+    --pastel-blue: 230 70% 85%;
+    --pastel-pink: 340 80% 90%;
+    --pastel-green: 140 50% 85%;
+    --pastel-yellow: 50 80% 85%;
   }
 
   .dark {
@@ -89,12 +97,19 @@
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
     
-    /* Define EQ Navigator specific colors for dark mode */
-    --brand-red: 350 80% 60%;
-    --brand-red-light: 350 80% 70%;
-    --brand-red-dark: 350 80% 50%;
-    --brand-pink: 330 70% 70%;
-    --brand-orange: 20 80% 60%;
+    /* Define EQ Navigator specific colors for dark mode - now using pastel colors */
+    --eq-primary: 260 50% 65%;
+    --eq-primary-light: 260 50% 75%;
+    --eq-primary-dark: 260 50% 55%;
+    --eq-secondary: 230 50% 65%;
+    --eq-accent: 190 50% 65%;
+    
+    /* Pastel palette dark mode */
+    --pastel-purple: 260 40% 65%;
+    --pastel-blue: 230 40% 65%;
+    --pastel-pink: 340 40% 70%;
+    --pastel-green: 140 30% 65%;
+    --pastel-yellow: 50 40% 65%;
   }
 }
 
@@ -164,17 +179,17 @@
     @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-subtle;
   }
   
-  /* EQ Navigator specific components */
+  /* EQ Navigator specific components - updated to pastel colors */
   .eq-button-primary {
-    @apply bg-gradient-to-r from-[hsl(var(--brand-red))] to-[hsl(var(--brand-red-dark))] text-white px-6 py-3 rounded-lg font-semibold shadow-md transition-all duration-300 hover:from-[hsl(var(--brand-red-dark))] hover:to-[hsl(var(--brand-red))] hover:shadow-lg;
+    @apply bg-gradient-to-r from-purple-400 to-blue-400 text-white px-6 py-3 rounded-lg font-semibold shadow-md transition-all duration-300 hover:from-purple-500 hover:to-blue-500 hover:shadow-lg;
   }
   
   .eq-button-secondary {
-    @apply bg-white text-[hsl(var(--brand-red))] border border-[hsl(var(--brand-red))] px-6 py-3 rounded-lg font-semibold shadow-sm transition-all duration-300 hover:bg-[hsl(var(--brand-red))/5];
+    @apply bg-white text-purple-500 border border-purple-400 px-6 py-3 rounded-lg font-semibold shadow-sm transition-all duration-300 hover:bg-purple-50;
   }
   
   .eq-card {
-    @apply bg-white rounded-xl border border-[hsl(var(--brand-red))/20] shadow-md hover:shadow-lg transition-all duration-300;
+    @apply bg-white rounded-xl border border-purple-200/30 shadow-md hover:shadow-lg transition-all duration-300;
   }
   
   .eq-section {

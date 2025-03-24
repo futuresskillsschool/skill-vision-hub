@@ -158,7 +158,7 @@ const EQNavigatorAssessment = () => {
   }, []);
 
   // Calculate progress percentage
-  const progressPercentage = ((currentPageIndex + 1) / groupedQuestions.length) * 100;
+  const progressPercentage = ((currentPageIndex * questionsPerPage) / eqQuestions.length) * 100;
   
   // Function to trigger confetti on completion
   const triggerConfetti = () => {
@@ -174,7 +174,7 @@ const EQNavigatorAssessment = () => {
           x: centerX / window.innerWidth, 
           y: centerY / window.innerHeight 
         },
-        colors: ['#FF5733', '#FFC300', '#FF5733', '#C70039', '#900C3F']
+        colors: ['#B5D8FE', '#A0C3FF', '#D8B5FF', '#FFB5E8', '#B5FFD8']
       });
     }
   };
@@ -260,7 +260,7 @@ const EQNavigatorAssessment = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-white via-red-50 to-pink-50">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-white via-purple-50 to-blue-50">
       <Navbar />
       
       <main className="flex-grow pt-24 pb-16 px-4">
@@ -274,11 +274,11 @@ const EQNavigatorAssessment = () => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.4 }}
-                  className="bg-white rounded-2xl shadow-lg border-2 border-[hsl(var(--brand-red))/10] p-8 overflow-hidden relative"
+                  className="bg-white rounded-2xl shadow-lg border-2 border-purple-200/30 p-8 overflow-hidden relative"
                 >
                   {/* Decorative elements */}
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-[hsl(var(--brand-red))/5] to-pink-100/50 rounded-full -mt-20 -mr-20 blur-3xl"></div>
-                  <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-pink-100/50 to-[hsl(var(--brand-red))/5] rounded-full -mb-20 -ml-20 blur-3xl"></div>
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-purple-100/30 to-blue-100/30 rounded-full -mt-20 -mr-20 blur-3xl"></div>
+                  <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-blue-100/30 to-purple-100/30 rounded-full -mb-20 -ml-20 blur-3xl"></div>
                   
                   <div className="relative z-10">
                     <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
@@ -286,32 +286,32 @@ const EQNavigatorAssessment = () => {
                         <Button
                           variant="ghost"
                           onClick={() => navigate(-1)}
-                          className="mb-4 text-[hsl(var(--brand-red))] hover:text-[hsl(var(--brand-red-dark))] -ml-3"
+                          className="mb-4 text-purple-500 hover:text-purple-700 -ml-3"
                         >
                           <ArrowLeft className="mr-2 h-4 w-4" /> Back
                         </Button>
                         
                         <h1 className="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">
-                          <div className="bg-gradient-to-br from-[hsl(var(--brand-red))/10] to-red-100 p-2.5 rounded-full mr-3 shadow-sm">
-                            <Heart className="h-6 w-6 text-[hsl(var(--brand-red))]" />
+                          <div className="bg-gradient-to-br from-purple-100 to-blue-100 p-2.5 rounded-full mr-3 shadow-sm">
+                            <Heart className="h-6 w-6 text-purple-500" />
                           </div>
                           EQ Navigator Assessment
                         </h1>
                       </div>
                       
                       <div className="flex items-center gap-3">
-                        <div className="bg-[hsl(var(--brand-red))/10] text-[hsl(var(--brand-red))] px-3 py-1.5 rounded-full text-sm font-medium flex items-center">
+                        <div className="bg-purple-100 text-purple-600 px-3 py-1.5 rounded-full text-sm font-medium flex items-center">
                           <Clock className="w-3.5 h-3.5 mr-1.5" />
                           ~5 mins
                         </div>
-                        <div className="bg-[hsl(var(--brand-red))/10] text-[hsl(var(--brand-red))] px-3 py-1.5 rounded-full text-sm font-medium">
+                        <div className="bg-purple-100 text-purple-600 px-3 py-1.5 rounded-full text-sm font-medium">
                           {Math.min((currentPageIndex + 1) * questionsPerPage, eqQuestions.length)} of {eqQuestions.length} questions
                         </div>
                       </div>
                     </div>
                     
-                    <div className="mb-6 p-4 bg-[hsl(var(--brand-red))/5] border border-[hsl(var(--brand-red))/20] rounded-xl flex items-start">
-                      <div className="bg-[hsl(var(--brand-red))/10] text-[hsl(var(--brand-red))] p-2 rounded-full mr-3 flex-shrink-0">
+                    <div className="mb-6 p-4 bg-purple-50 border border-purple-200 rounded-xl flex items-start">
+                      <div className="bg-purple-100 text-purple-600 p-2 rounded-full mr-3 flex-shrink-0">
                         <Info className="h-5 w-5" />
                       </div>
                       <div>
@@ -326,7 +326,7 @@ const EQNavigatorAssessment = () => {
                     <div className="mb-8">
                       <div className="flex justify-between items-center mb-2">
                         <h2 className="text-lg font-medium text-gray-700 flex items-center">
-                          <span className="bg-[hsl(var(--brand-red))] text-white w-8 h-8 rounded-full flex items-center justify-center mr-2 text-sm font-bold shadow-sm">
+                          <span className="bg-purple-500 text-white w-8 h-8 rounded-full flex items-center justify-center mr-2 text-sm font-bold shadow-sm">
                             {currentPageIndex + 1}
                           </span>
                           Page {currentPageIndex + 1} of {groupedQuestions.length}
@@ -338,8 +338,8 @@ const EQNavigatorAssessment = () => {
                       
                       <Progress 
                         value={progressPercentage} 
-                        className="h-3 bg-[hsl(var(--brand-red))/10]" 
-                        indicatorClassName="bg-gradient-to-r from-[hsl(var(--brand-red))] to-[hsl(var(--brand-red-dark))]" 
+                        className="h-3 bg-purple-100/50" 
+                        indicatorClassName="bg-gradient-to-r from-purple-400 to-blue-300" 
                       />
                     </div>
                     
@@ -352,12 +352,12 @@ const EQNavigatorAssessment = () => {
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.3, delay: questionIndex * 0.1 }}
-                            className="bg-gradient-to-br from-white to-[hsl(var(--brand-red))/5] rounded-xl p-6 border border-[hsl(var(--brand-red))/20] shadow-md relative overflow-hidden"
+                            className="bg-gradient-to-br from-white to-purple-50 rounded-xl p-6 border border-purple-200/40 shadow-md relative overflow-hidden"
                           >
-                            <div className="absolute top-0 right-0 h-20 w-20 bg-gradient-to-br from-[hsl(var(--brand-red))/5] to-pink-100 rounded-full -mt-10 -mr-10 blur-xl opacity-50"></div>
+                            <div className="absolute top-0 right-0 h-20 w-20 bg-gradient-to-br from-purple-100/20 to-blue-100/20 rounded-full -mt-10 -mr-10 blur-xl opacity-50"></div>
                             
                             <h3 className="text-lg md:text-xl font-semibold mb-5 flex items-start">
-                              <span className="bg-gradient-to-br from-[hsl(var(--brand-red))] to-[hsl(var(--brand-red-dark))] text-white w-8 h-8 rounded-full flex items-center justify-center mr-3 flex-shrink-0 shadow-md">
+                              <span className="bg-gradient-to-br from-purple-400 to-blue-400 text-white w-8 h-8 rounded-full flex items-center justify-center mr-3 flex-shrink-0 shadow-md">
                                 {globalQuestionIndex + 1}
                               </span>
                               <span className="flex-1">{question.scenario}</span>
@@ -373,8 +373,8 @@ const EQNavigatorAssessment = () => {
                                   key={option.id} 
                                   className={`group flex items-start space-x-2 border-2 rounded-xl p-4 transition-all duration-300 ${
                                     selectedOptions[globalQuestionIndex] === option.id 
-                                      ? 'border-[hsl(var(--brand-red))] bg-gradient-to-r from-[hsl(var(--brand-red))/10] to-red-50 shadow-md transform -translate-y-0.5' 
-                                      : 'border-gray-200 hover:border-[hsl(var(--brand-red))/50] hover:bg-[hsl(var(--brand-red))/5]'
+                                      ? 'border-purple-400 bg-gradient-to-r from-purple-50 to-blue-50 shadow-md transform -translate-y-0.5' 
+                                      : 'border-gray-200 hover:border-purple-300 hover:bg-purple-50/30'
                                   }`}
                                 >
                                   <RadioGroupItem 
@@ -389,8 +389,8 @@ const EQNavigatorAssessment = () => {
                                     {option.text}
                                   </Label>
                                   {selectedOptions[globalQuestionIndex] === option.id && (
-                                    <div className="bg-[hsl(var(--brand-red))/20] rounded-full p-1">
-                                      <Check className="h-4 w-4 text-[hsl(var(--brand-red))]" />
+                                    <div className="bg-purple-200 rounded-full p-1">
+                                      <Check className="h-4 w-4 text-purple-600" />
                                     </div>
                                   )}
                                 </div>
@@ -406,7 +406,7 @@ const EQNavigatorAssessment = () => {
                         variant="outline"
                         onClick={handlePrevious}
                         disabled={currentPageIndex === 0}
-                        className="flex items-center gap-1 shadow-sm hover:shadow-md transition-all duration-200 border-[hsl(var(--brand-red))/20] hover:bg-[hsl(var(--brand-red))/5]"
+                        className="flex items-center gap-1 shadow-sm hover:shadow-md transition-all duration-200 border-purple-200 hover:bg-purple-50"
                       >
                         <ArrowLeft className="h-4 w-4" />
                         Previous
@@ -415,7 +415,7 @@ const EQNavigatorAssessment = () => {
                       <Button 
                         onClick={handleNext}
                         disabled={!isCurrentPageComplete()}
-                        className="bg-gradient-to-r from-[hsl(var(--brand-red))] to-[hsl(var(--brand-red-dark))] hover:from-[hsl(var(--brand-red-dark))] hover:to-[hsl(var(--brand-red))] text-white shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-1"
+                        className="bg-gradient-to-r from-purple-400 to-blue-400 hover:from-purple-500 hover:to-blue-500 text-white shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-1"
                       >
                         {currentPageIndex === groupedQuestions.length - 1 ? "Finish" : "Next"}
                         <ArrowRight className="h-4 w-4" />
@@ -428,12 +428,12 @@ const EQNavigatorAssessment = () => {
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-2xl shadow-lg border-2 border-[hsl(var(--brand-red))/10] p-8 md:p-10 text-center overflow-hidden relative"
+                className="bg-white rounded-2xl shadow-lg border-2 border-purple-200/30 p-8 md:p-10 text-center overflow-hidden relative"
                 ref={confettiRef}
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-white via-red-50/30 to-pink-50/30"></div>
-                <div className="absolute top-0 right-0 h-64 w-64 bg-gradient-to-br from-[hsl(var(--brand-red))/10] to-pink-100 rounded-full -mt-32 -mr-32 blur-3xl"></div>
-                <div className="absolute bottom-0 left-0 h-64 w-64 bg-gradient-to-br from-pink-100 to-[hsl(var(--brand-red))/10] rounded-full -mb-32 -ml-32 blur-3xl"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-white via-purple-50/30 to-blue-50/30"></div>
+                <div className="absolute top-0 right-0 h-64 w-64 bg-gradient-to-br from-purple-100/20 to-blue-100/20 rounded-full -mt-32 -mr-32 blur-3xl"></div>
+                <div className="absolute bottom-0 left-0 h-64 w-64 bg-gradient-to-br from-blue-100/20 to-purple-100/20 rounded-full -mb-32 -ml-32 blur-3xl"></div>
                 
                 <div className="relative z-10">
                   <motion.div
@@ -442,13 +442,13 @@ const EQNavigatorAssessment = () => {
                     transition={{ delay: 0.2, duration: 0.5 }}
                     className="relative w-32 h-32 mx-auto mb-8"
                   >
-                    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[hsl(var(--brand-red))/20] to-pink-200/50 animate-pulse"></div>
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-200/50 to-blue-200/50 animate-pulse"></div>
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <Heart className="h-16 w-16 text-[hsl(var(--brand-red))]" />
+                      <Heart className="h-16 w-16 text-purple-500" />
                     </div>
                   </motion.div>
                   
-                  <h2 className="text-3xl md:text-4xl font-bold mb-3 bg-gradient-to-r from-[hsl(var(--brand-red))] to-[hsl(var(--brand-red-dark))] bg-clip-text text-transparent">Assessment Complete!</h2>
+                  <h2 className="text-3xl md:text-4xl font-bold mb-3 bg-gradient-to-r from-purple-500 to-blue-500 bg-clip-text text-transparent">Assessment Complete!</h2>
                   <p className="text-gray-600 mb-8 max-w-md mx-auto">
                     Thank you for completing the EQ Navigator assessment. You're ready to view your personalized emotional intelligence profile!
                   </p>
@@ -456,7 +456,7 @@ const EQNavigatorAssessment = () => {
                   <Button 
                     onClick={handleViewResults}
                     size="lg"
-                    className="bg-gradient-to-r from-[hsl(var(--brand-red))] to-[hsl(var(--brand-red-dark))] hover:from-[hsl(var(--brand-red-dark))] hover:to-[hsl(var(--brand-red))] text-white shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-6 text-lg transform hover:-translate-y-1"
+                    className="bg-gradient-to-r from-purple-400 to-blue-400 hover:from-purple-500 hover:to-blue-500 text-white shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-6 text-lg transform hover:-translate-y-1"
                   >
                     <Sparkles className="h-5 w-5 mr-2" />
                     View Your Results

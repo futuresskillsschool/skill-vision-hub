@@ -29,8 +29,8 @@ const EQTab: React.FC<EQTabProps> = ({ eqScore }) => {
         className="mb-8"
       >
         <h2 className="text-2xl font-bold mb-4 flex items-center text-gray-800">
-          <div className="bg-gradient-to-br from-purple-300 to-purple-400 w-10 h-10 rounded-full flex items-center justify-center mr-3 shadow-md">
-            <Heart className="h-5 w-5 text-white" />
+          <div className="bg-gradient-to-br from-purple-200 to-blue-200 w-10 h-10 rounded-full flex items-center justify-center mr-3 shadow-md">
+            <Heart className="h-5 w-5 text-purple-600" />
           </div>
           Your EQ Navigator Results
         </h2>
@@ -47,7 +47,7 @@ const EQTab: React.FC<EQTabProps> = ({ eqScore }) => {
           className="flex flex-col items-center justify-center bg-white p-8 rounded-2xl shadow-md border border-gray-100"
         >
           <div className="relative w-64 h-64 flex items-center justify-center">
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-100 to-pink-100 animate-pulse"></div>
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-100 to-blue-100 animate-pulse"></div>
             <div className="w-56 h-56 relative">
               <svg className="w-full h-full" viewBox="0 0 100 100">
                 <circle 
@@ -103,7 +103,7 @@ const EQTab: React.FC<EQTabProps> = ({ eqScore }) => {
               <Progress 
                 value={scorePercentage * 0.9} 
                 className="h-2.5" 
-                indicatorClassName="bg-gradient-to-r from-purple-300 to-purple-400"
+                indicatorClassName="bg-gradient-to-r from-purple-300 to-blue-300"
               />
             </div>
             
@@ -115,7 +115,7 @@ const EQTab: React.FC<EQTabProps> = ({ eqScore }) => {
               <Progress 
                 value={scorePercentage * 0.95} 
                 className="h-2.5" 
-                indicatorClassName="bg-gradient-to-r from-purple-300 to-purple-400"
+                indicatorClassName="bg-gradient-to-r from-purple-300 to-blue-300"
               />
             </div>
           </div>
@@ -132,7 +132,7 @@ const EQTab: React.FC<EQTabProps> = ({ eqScore }) => {
             transition={{ type: "spring", stiffness: 300 }}
             className="relative overflow-hidden rounded-2xl shadow-lg w-full h-full"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-400 via-purple-300 to-pink-300 opacity-90"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-400 via-purple-300 to-blue-300 opacity-90"></div>
             <div className="absolute inset-0 bg-[url('/lovable-uploads/2a57ac38-c970-47f4-9845-ae1dfc4315f1.png')] bg-cover bg-center mix-blend-overlay opacity-30"></div>
             <div className="absolute inset-0 flex flex-col justify-between p-8 text-white z-20">
               <div className="flex items-start">
@@ -244,7 +244,7 @@ const EQTab: React.FC<EQTabProps> = ({ eqScore }) => {
             icon: <Users className="h-5 w-5 text-white" />,
             title: "Leadership Potential",
             description: "High emotional intelligence correlates with stronger leadership abilities, as it enables you to understand team dynamics, motivate others, and navigate workplace challenges.",
-            color: "from-purple-400 to-purple-500",
+            color: "from-purple-400 to-blue-400",
             delay: 1.0
           },
           {
