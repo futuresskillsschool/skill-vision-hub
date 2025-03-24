@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, TooltipProps } from 'recharts';
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, TooltipProps, RadarChart, PolarGrid, PolarAngleAxis, Radar } from 'recharts';
 import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
 
 // Circular Progress Indicator
@@ -129,11 +129,46 @@ export const BarChartCard: React.FC<BarChartCardProps> = ({ data, title, descrip
             />
             <defs>
               <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#9b87f5" stopColor="#9b87f5" />
-                <stop offset="95%" stopColor="#7469ab" stopColor="#7469ab" />
+                <stop offset="0%" stopColor="#9b87f5" />
+                <stop offset="95%" stopColor="#7469ab" />
               </linearGradient>
             </defs>
           </BarChart>
+        </ResponsiveContainer>
+      </div>
+    </Card>
+  );
+};
+
+// Radar Chart Card
+interface RadarChartCardProps {
+  data: any[];
+  title: string;
+  description?: string;
+}
+
+export const RadarChartCard: React.FC<RadarChartCardProps> = ({ data, title, description }) => {
+  return (
+    <Card className="p-6 mb-8 overflow-hidden relative border-2 border-brand-purple/20 shadow-lg">
+      <div className="absolute top-0 right-0 h-32 w-32 bg-brand-purple/5 rounded-full -mt-10 -mr-10 blur-2xl"></div>
+      <div className="absolute bottom-0 left-0 h-32 w-32 bg-brand-green/5 rounded-full -mb-10 -ml-10 blur-2xl"></div>
+      
+      <h3 className="text-xl font-semibold mb-2">{title}</h3>
+      {description && <p className="text-muted-foreground mb-6">{description}</p>}
+      
+      <div className="h-64 mt-4">
+        <ResponsiveContainer width="100%" height="100%">
+          <RadarChart outerRadius="80%" data={data}>
+            <PolarGrid stroke="#e0e0e0" />
+            <PolarAngleAxis dataKey="name" tick={{ fill: '#666', fontSize: 12 }} />
+            <Radar 
+              name="Score" 
+              dataKey="score" 
+              stroke="#9b87f5" 
+              fill="#9b87f5" 
+              fillOpacity={0.6} 
+            />
+          </RadarChart>
         </ResponsiveContainer>
       </div>
     </Card>
