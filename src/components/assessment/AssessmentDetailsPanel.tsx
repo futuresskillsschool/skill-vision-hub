@@ -20,24 +20,26 @@ const AssessmentDetailsPanel = ({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="bg-white rounded-xl shadow-md p-6 md:p-8 mb-6 border border-pastel-purple/20"
+        className="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-6 border border-purple-200/30"
       >
         <h3 className="text-xl font-semibold mb-6 flex items-center text-gray-800">
-          <FileText className="h-5 w-5 text-pastel-purple mr-2" />
+          <div className="bg-purple-100 p-2 rounded-full mr-3">
+            <FileText className="h-5 w-5 text-purple-500" />
+          </div>
           Assessment Details
         </h3>
         
         <div className="space-y-6">
-          <div className="flex items-start bg-pastel-purple/10 p-4 rounded-lg transition-all hover:bg-pastel-purple/15">
-            <Clock className="h-5 w-5 text-pastel-purple mr-3 mt-0.5" />
+          <div className="flex items-start bg-purple-50 p-4 rounded-lg transition-all hover:bg-purple-100/50">
+            <Clock className="h-5 w-5 text-purple-500 mr-3 mt-0.5" />
             <div>
               <h4 className="font-medium text-gray-800">Duration</h4>
               <p className="text-gray-600">{duration}</p>
             </div>
           </div>
           
-          <div className="flex items-start bg-pastel-purple/10 p-4 rounded-lg transition-all hover:bg-pastel-purple/15">
-            <FileText className="h-5 w-5 text-pastel-purple mr-3 mt-0.5" />
+          <div className="flex items-start bg-purple-50 p-4 rounded-lg transition-all hover:bg-purple-100/50">
+            <FileText className="h-5 w-5 text-purple-500 mr-3 mt-0.5" />
             <div>
               <h4 className="font-medium text-gray-800">Questions</h4>
               <p className="text-gray-600">{questions} questions</p>
@@ -50,10 +52,10 @@ const AssessmentDetailsPanel = ({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.1 }}
-        className="bg-white rounded-xl p-6 md:p-8 border border-pastel-purple/20 shadow-md"
+        className="bg-gradient-to-br from-purple-100/50 to-blue-100/50 rounded-xl p-6 md:p-8 border border-purple-200/30 shadow-lg"
       >
         <h3 className="text-xl font-semibold mb-4 flex items-center text-gray-800">
-          <Sparkles className="h-5 w-5 text-pastel-purple mr-2" />
+          <Sparkles className="h-5 w-5 text-purple-500 mr-2" />
           Ready to Begin?
         </h3>
         <p className="text-gray-600 mb-6">
@@ -61,7 +63,7 @@ const AssessmentDetailsPanel = ({
         </p>
         <Button 
           onClick={onStartAssessment} 
-          className="w-full bg-pastel-purple hover:bg-pastel-purple-dark text-white shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center"
+          className="w-full bg-gradient-to-r from-purple-400 to-blue-400 hover:from-purple-500 hover:to-blue-500 text-white shadow-md hover:shadow-lg transition-all duration-300"
           size="lg"
         >
           <Sparkles className="h-4 w-4 mr-2" />
