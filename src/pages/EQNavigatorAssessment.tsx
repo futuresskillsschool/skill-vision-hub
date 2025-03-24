@@ -1,17 +1,18 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Progress } from '@/components/ui/progress';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { Sparkles, ArrowLeft, ArrowRight, Check, BrainCircuit, Heart } from 'lucide-react';
 import { Card } from '@/components/ui/card';
+import { Sparkles, ArrowLeft, ArrowRight, Check, BrainCircuit, Heart, Info, Clock } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
+import confetti from 'canvas-confetti';
 
 // Define the structure of a question
 interface Question {
@@ -144,6 +145,7 @@ const EQNavigatorAssessment = () => {
   const [selectedOptions, setSelectedOptions] = useState<string[]>(Array(eqQuestions.length).fill(''));
   const [showResults, setShowResults] = useState(false);
   const [totalScore, setTotalScore] = useState(0);
+  const confettiRef = useRef<HTMLDivElement>(null);
   
   // Group questions 5 per page
   const questionsPerPage = 5;
@@ -157,6 +159,25 @@ const EQNavigatorAssessment = () => {
 
   // Calculate progress percentage
   const progressPercentage = ((currentPageIndex + 1) / groupedQuestions.length) * 100;
+  
+  // Function to trigger confetti on completion
+  const triggerConfetti = () => {
+    if (confettiRef.current) {
+      const { top, left, width, height } = confettiRef.current.getBoundingClientRect();
+      const centerX = left + width / 2;
+      const centerY = top + height / 2;
+      
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { 
+          x: centerX / window.innerWidth, 
+          y: centerY / window.innerHeight 
+        },
+        colors: ['#FF5733', '#FFC300', '#FF5733', '#C70039', '#900C3F']
+      });
+    }
+  };
 
   const handleOptionSelect = (questionIndex: number, optionId: string) => {
     const newSelectedOptions = [...selectedOptions];
@@ -181,6 +202,7 @@ const EQNavigatorAssessment = () => {
       });
       setTotalScore(score);
       setShowResults(true);
+      setTimeout(() => triggerConfetti(), 500);
       
       // Save results to Supabase if the user is logged in
       if (user) {
@@ -241,142 +263,177 @@ const EQNavigatorAssessment = () => {
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-white via-red-50 to-pink-50">
       <Navbar />
       
-      <main className="flex-grow pt-24 pb-16">
-        <div className="container mx-auto px-4 md:px-6">
+      <main className="flex-grow pt-24 pb-16 px-4">
+        <div className="container mx-auto">
           <div className="max-w-4xl mx-auto">
             {!showResults ? (
-              <motion.div 
-                key={`page-${currentPageIndex}`}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-                className="bg-white rounded-xl shadow-lg border-2 border-brand-red/10 p-6 md:p-8 overflow-hidden relative"
-              >
-                <div className="absolute top-0 right-0 h-32 w-32 bg-gradient-to-br from-brand-red/5 to-pink-100 rounded-full -mt-10 -mr-10 blur-2xl"></div>
-                <div className="absolute bottom-0 left-0 h-32 w-32 bg-gradient-to-br from-pink-100 to-brand-red/5 rounded-full -mb-10 -ml-10 blur-2xl"></div>
-                
-                <div className="mb-8 relative z-10">
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-3">
-                    <h1 className="text-2xl md:text-3xl font-bold mb-2 md:mb-0 text-gray-800 flex items-center">
-                      <div className="bg-gradient-to-br from-brand-red/10 to-red-100 p-2 rounded-full mr-3 shadow-sm">
-                        <Heart className="h-6 w-6 text-brand-red" />
-                      </div>
-                      EQ Navigator Assessment
-                    </h1>
-                    <span className="text-sm font-medium px-3 py-1.5 rounded-full bg-gradient-to-r from-brand-red/10 to-pink-100 text-brand-red shadow-sm">
-                      {Math.min((currentPageIndex + 1) * questionsPerPage, eqQuestions.length)} of {eqQuestions.length} questions
-                    </span>
-                  </div>
+              <AnimatePresence mode="wait">
+                <motion.div 
+                  key={`page-${currentPageIndex}`}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.4 }}
+                  className="bg-white rounded-2xl shadow-lg border-2 border-[hsl(var(--brand-red))/10] p-8 overflow-hidden relative"
+                >
+                  {/* Decorative elements */}
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-[hsl(var(--brand-red))/5] to-pink-100/50 rounded-full -mt-20 -mr-20 blur-3xl"></div>
+                  <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-pink-100/50 to-[hsl(var(--brand-red))/5] rounded-full -mb-20 -ml-20 blur-3xl"></div>
                   
-                  <p className="text-muted-foreground mb-6">
-                    This assessment helps identify your emotional intelligence strengths and opportunities for growth.
-                  </p>
-                  
-                  <div className="flex justify-between items-center mb-3">
-                    <h2 className="text-lg font-medium text-muted-foreground flex items-center">
-                      <span className="bg-brand-red/10 text-brand-red w-8 h-8 rounded-full flex items-center justify-center mr-2 text-sm font-bold shadow-sm">
-                        {currentPageIndex + 1}
-                      </span>
-                      Page {currentPageIndex + 1} of {groupedQuestions.length}
-                    </h2>
-                  </div>
-                  
-                  <Progress 
-                    value={progressPercentage} 
-                    className="h-2.5 bg-brand-red/10" 
-                    indicatorClassName="bg-gradient-to-r from-brand-red to-red-500" 
-                  />
-                </div>
-                
-                <div className="space-y-8">
-                  {groupedQuestions[currentPageIndex].map((question, questionIndex) => {
-                    const globalQuestionIndex = currentPageIndex * questionsPerPage + questionIndex;
-                    return (
-                      <motion.div 
-                        key={question.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3, delay: questionIndex * 0.1 }}
-                        className="bg-gradient-to-br from-white to-red-50/50 rounded-lg p-6 border border-brand-red/20 shadow-sm relative overflow-hidden"
-                      >
-                        <div className="absolute top-0 right-0 h-16 w-16 bg-gradient-to-br from-brand-red/5 to-pink-100/50 rounded-full -mt-8 -mr-8 blur-xl"></div>
-                        
-                        <h3 className="text-lg md:text-xl font-semibold mb-4 flex items-start">
-                          <span className="bg-gradient-to-br from-brand-red to-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center mr-3 flex-shrink-0 shadow-md">
-                            {globalQuestionIndex + 1}
-                          </span>
-                          <span className="flex-1">{question.scenario}</span>
-                        </h3>
-                        
-                        <RadioGroup 
-                          value={selectedOptions[globalQuestionIndex]} 
-                          onValueChange={(value) => handleOptionSelect(questionIndex, value)}
-                          className="space-y-3"
+                  <div className="relative z-10">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+                      <div>
+                        <Button
+                          variant="ghost"
+                          onClick={() => navigate(-1)}
+                          className="mb-4 text-[hsl(var(--brand-red))] hover:text-[hsl(var(--brand-red-dark))] -ml-3"
                         >
-                          {question.options.map((option) => (
-                            <div 
-                              key={option.id} 
-                              className={`flex items-start space-x-2 border rounded-md p-4 transition-all duration-200 ${
-                                selectedOptions[globalQuestionIndex] === option.id 
-                                  ? 'border-brand-red bg-gradient-to-r from-brand-red/10 to-red-50 shadow-md transform -translate-y-0.5' 
-                                  : 'border-border/50 hover:border-brand-red/50 hover:bg-red-50'
-                              }`}
+                          <ArrowLeft className="mr-2 h-4 w-4" /> Back
+                        </Button>
+                        
+                        <h1 className="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">
+                          <div className="bg-gradient-to-br from-[hsl(var(--brand-red))/10] to-red-100 p-2.5 rounded-full mr-3 shadow-sm">
+                            <Heart className="h-6 w-6 text-[hsl(var(--brand-red))]" />
+                          </div>
+                          EQ Navigator Assessment
+                        </h1>
+                      </div>
+                      
+                      <div className="flex items-center gap-3">
+                        <div className="bg-[hsl(var(--brand-red))/10] text-[hsl(var(--brand-red))] px-3 py-1.5 rounded-full text-sm font-medium flex items-center">
+                          <Clock className="w-3.5 h-3.5 mr-1.5" />
+                          ~5 mins
+                        </div>
+                        <div className="bg-[hsl(var(--brand-red))/10] text-[hsl(var(--brand-red))] px-3 py-1.5 rounded-full text-sm font-medium">
+                          {Math.min((currentPageIndex + 1) * questionsPerPage, eqQuestions.length)} of {eqQuestions.length} questions
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="mb-6 p-4 bg-[hsl(var(--brand-red))/5] border border-[hsl(var(--brand-red))/20] rounded-xl flex items-start">
+                      <div className="bg-[hsl(var(--brand-red))/10] text-[hsl(var(--brand-red))] p-2 rounded-full mr-3 flex-shrink-0">
+                        <Info className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <h2 className="font-medium text-gray-800 mb-1">About this assessment</h2>
+                        <p className="text-gray-600 text-sm">
+                          This assessment measures your emotional intelligence across different situations.
+                          Choose the options that best reflect how you would genuinely respond.
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="mb-8">
+                      <div className="flex justify-between items-center mb-2">
+                        <h2 className="text-lg font-medium text-gray-700 flex items-center">
+                          <span className="bg-[hsl(var(--brand-red))] text-white w-8 h-8 rounded-full flex items-center justify-center mr-2 text-sm font-bold shadow-sm">
+                            {currentPageIndex + 1}
+                          </span>
+                          Page {currentPageIndex + 1} of {groupedQuestions.length}
+                        </h2>
+                        <span className="text-sm text-gray-500">
+                          {Math.round(progressPercentage)}% complete
+                        </span>
+                      </div>
+                      
+                      <Progress 
+                        value={progressPercentage} 
+                        className="h-3 bg-[hsl(var(--brand-red))/10]" 
+                        indicatorClassName="bg-gradient-to-r from-[hsl(var(--brand-red))] to-[hsl(var(--brand-red-dark))]" 
+                      />
+                    </div>
+                    
+                    <div className="space-y-8">
+                      {groupedQuestions[currentPageIndex].map((question, questionIndex) => {
+                        const globalQuestionIndex = currentPageIndex * questionsPerPage + questionIndex;
+                        return (
+                          <motion.div 
+                            key={question.id}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.3, delay: questionIndex * 0.1 }}
+                            className="bg-gradient-to-br from-white to-[hsl(var(--brand-red))/5] rounded-xl p-6 border border-[hsl(var(--brand-red))/20] shadow-md relative overflow-hidden"
+                          >
+                            <div className="absolute top-0 right-0 h-20 w-20 bg-gradient-to-br from-[hsl(var(--brand-red))/5] to-pink-100 rounded-full -mt-10 -mr-10 blur-xl opacity-50"></div>
+                            
+                            <h3 className="text-lg md:text-xl font-semibold mb-5 flex items-start">
+                              <span className="bg-gradient-to-br from-[hsl(var(--brand-red))] to-[hsl(var(--brand-red-dark))] text-white w-8 h-8 rounded-full flex items-center justify-center mr-3 flex-shrink-0 shadow-md">
+                                {globalQuestionIndex + 1}
+                              </span>
+                              <span className="flex-1">{question.scenario}</span>
+                            </h3>
+                            
+                            <RadioGroup 
+                              value={selectedOptions[globalQuestionIndex]} 
+                              onValueChange={(value) => handleOptionSelect(questionIndex, value)}
+                              className="space-y-3"
                             >
-                              <RadioGroupItem 
-                                value={option.id} 
-                                id={`question-${question.id}-option-${option.id}`} 
-                                className="mt-1" 
-                              />
-                              <Label 
-                                htmlFor={`question-${question.id}-option-${option.id}`} 
-                                className="flex-1 cursor-pointer font-normal text-base"
-                              >
-                                {option.text}
-                              </Label>
-                              {selectedOptions[globalQuestionIndex] === option.id && (
-                                <div className="bg-brand-red/20 rounded-full p-1">
-                                  <Check className="h-4 w-4 text-brand-red" />
+                              {question.options.map((option) => (
+                                <div 
+                                  key={option.id} 
+                                  className={`group flex items-start space-x-2 border-2 rounded-xl p-4 transition-all duration-300 ${
+                                    selectedOptions[globalQuestionIndex] === option.id 
+                                      ? 'border-[hsl(var(--brand-red))] bg-gradient-to-r from-[hsl(var(--brand-red))/10] to-red-50 shadow-md transform -translate-y-0.5' 
+                                      : 'border-gray-200 hover:border-[hsl(var(--brand-red))/50] hover:bg-[hsl(var(--brand-red))/5]'
+                                  }`}
+                                >
+                                  <RadioGroupItem 
+                                    value={option.id} 
+                                    id={`question-${question.id}-option-${option.id}`} 
+                                    className="mt-1" 
+                                  />
+                                  <Label 
+                                    htmlFor={`question-${question.id}-option-${option.id}`} 
+                                    className="flex-1 cursor-pointer font-medium text-gray-700 group-hover:text-gray-900"
+                                  >
+                                    {option.text}
+                                  </Label>
+                                  {selectedOptions[globalQuestionIndex] === option.id && (
+                                    <div className="bg-[hsl(var(--brand-red))/20] rounded-full p-1">
+                                      <Check className="h-4 w-4 text-[hsl(var(--brand-red))]" />
+                                    </div>
+                                  )}
                                 </div>
-                              )}
-                            </div>
-                          ))}
-                        </RadioGroup>
-                      </motion.div>
-                    );
-                  })}
-                </div>
-                
-                <div className="flex justify-between mt-8">
-                  <Button 
-                    variant="outline"
-                    onClick={handlePrevious}
-                    disabled={currentPageIndex === 0}
-                    className="flex items-center gap-1 shadow-sm hover:shadow-md transition-all duration-200 border-brand-red/20 hover:bg-red-50"
-                  >
-                    <ArrowLeft className="h-4 w-4" />
-                    Previous
-                  </Button>
-                  
-                  <Button 
-                    onClick={handleNext}
-                    disabled={!isCurrentPageComplete()}
-                    className="bg-gradient-to-r from-brand-red to-red-600 hover:from-red-600 hover:to-brand-red text-white shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-1"
-                  >
-                    {currentPageIndex === groupedQuestions.length - 1 ? "Finish" : "Next"}
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </div>
-              </motion.div>
+                              ))}
+                            </RadioGroup>
+                          </motion.div>
+                        );
+                      })}
+                    </div>
+                    
+                    <div className="flex justify-between mt-8">
+                      <Button 
+                        variant="outline"
+                        onClick={handlePrevious}
+                        disabled={currentPageIndex === 0}
+                        className="flex items-center gap-1 shadow-sm hover:shadow-md transition-all duration-200 border-[hsl(var(--brand-red))/20] hover:bg-[hsl(var(--brand-red))/5]"
+                      >
+                        <ArrowLeft className="h-4 w-4" />
+                        Previous
+                      </Button>
+                      
+                      <Button 
+                        onClick={handleNext}
+                        disabled={!isCurrentPageComplete()}
+                        className="bg-gradient-to-r from-[hsl(var(--brand-red))] to-[hsl(var(--brand-red-dark))] hover:from-[hsl(var(--brand-red-dark))] hover:to-[hsl(var(--brand-red))] text-white shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-1"
+                      >
+                        {currentPageIndex === groupedQuestions.length - 1 ? "Finish" : "Next"}
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
             ) : (
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-xl shadow-lg border-2 border-brand-red/10 p-8 md:p-10 text-center overflow-hidden relative"
+                className="bg-white rounded-2xl shadow-lg border-2 border-[hsl(var(--brand-red))/10] p-8 md:p-10 text-center overflow-hidden relative"
+                ref={confettiRef}
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-white via-red-50/30 to-pink-50/30"></div>
-                <div className="absolute top-0 right-0 h-48 w-48 bg-gradient-to-br from-brand-red/5 to-pink-100 rounded-full -mt-24 -mr-24 blur-3xl"></div>
-                <div className="absolute bottom-0 left-0 h-48 w-48 bg-gradient-to-br from-pink-100 to-brand-red/5 rounded-full -mb-24 -ml-24 blur-3xl"></div>
+                <div className="absolute top-0 right-0 h-64 w-64 bg-gradient-to-br from-[hsl(var(--brand-red))/10] to-pink-100 rounded-full -mt-32 -mr-32 blur-3xl"></div>
+                <div className="absolute bottom-0 left-0 h-64 w-64 bg-gradient-to-br from-pink-100 to-[hsl(var(--brand-red))/10] rounded-full -mb-32 -ml-32 blur-3xl"></div>
                 
                 <div className="relative z-10">
                   <motion.div
@@ -385,19 +442,21 @@ const EQNavigatorAssessment = () => {
                     transition={{ delay: 0.2, duration: 0.5 }}
                     className="relative w-32 h-32 mx-auto mb-8"
                   >
-                    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-brand-red/20 to-pink-200/50 animate-pulse"></div>
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[hsl(var(--brand-red))/20] to-pink-200/50 animate-pulse"></div>
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <Heart className="h-16 w-16 text-brand-red" />
+                      <Heart className="h-16 w-16 text-[hsl(var(--brand-red))]" />
                     </div>
                   </motion.div>
                   
-                  <h2 className="text-2xl md:text-3xl font-semibold mb-3 bg-gradient-to-r from-brand-red to-red-700 bg-clip-text text-transparent">Assessment Complete!</h2>
-                  <p className="text-muted-foreground mb-8 max-w-md mx-auto">Thank you for completing the EQ Navigator assessment. You're ready to view your personalized emotional intelligence profile!</p>
+                  <h2 className="text-3xl md:text-4xl font-bold mb-3 bg-gradient-to-r from-[hsl(var(--brand-red))] to-[hsl(var(--brand-red-dark))] bg-clip-text text-transparent">Assessment Complete!</h2>
+                  <p className="text-gray-600 mb-8 max-w-md mx-auto">
+                    Thank you for completing the EQ Navigator assessment. You're ready to view your personalized emotional intelligence profile!
+                  </p>
                   
                   <Button 
                     onClick={handleViewResults}
                     size="lg"
-                    className="bg-gradient-to-r from-brand-red to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-6 text-lg transform hover:-translate-y-1"
+                    className="bg-gradient-to-r from-[hsl(var(--brand-red))] to-[hsl(var(--brand-red-dark))] hover:from-[hsl(var(--brand-red-dark))] hover:to-[hsl(var(--brand-red))] text-white shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-6 text-lg transform hover:-translate-y-1"
                   >
                     <Sparkles className="h-5 w-5 mr-2" />
                     View Your Results

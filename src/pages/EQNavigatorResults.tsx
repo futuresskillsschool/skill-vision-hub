@@ -1,3 +1,4 @@
+
 import { useEffect, useState, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -5,11 +6,11 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Sparkles, Heart, ArrowRight, Brain, BookOpen, PenTool, Home, Download, Check } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { Sparkles, Heart, ArrowRight, Brain, BookOpen, PenTool, Home, Download, Check, Share2, Award, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-import { Progress } from '@/components/ui/progress';
 
 interface EQResultsProps {
   totalScore: number;
@@ -241,6 +242,7 @@ const EQNavigatorResults = () => {
   const [scoreRange, setScoreRange] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const reportRef = useRef<HTMLDivElement>(null);
+  const [activeSection, setActiveSection] = useState('profile');
   
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -379,10 +381,13 @@ const EQNavigatorResults = () => {
 
   if (isLoading || !profile) {
     return (
-      <div className="min-h-screen flex flex-col">
+      <div className="min-h-screen flex flex-col bg-gradient-to-br from-white via-red-50 to-pink-50">
         <Navbar />
         <div className="flex-grow flex items-center justify-center">
-          <div className="animate-pulse text-brand-purple">Loading your results...</div>
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-16 h-16 border-4 border-t-[hsl(var(--brand-red))] border-r-[hsl(var(--brand-red))/30] border-b-[hsl(var(--brand-red))/10] border-l-[hsl(var(--brand-red))/30] rounded-full animate-spin"></div>
+            <p className="text-[hsl(var(--brand-red))] font-medium">Loading your results...</p>
+          </div>
         </div>
         <Footer />
       </div>
@@ -393,259 +398,384 @@ const EQNavigatorResults = () => {
   const scorePercentage = calculatePercentage(scoreData.totalScore);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-white via-red-50 to-pink-50">
       <Navbar />
       
-      <main className="flex-grow pt-24 pb-16">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="mb-6 flex justify-end">
-            <Button 
-              onClick={downloadAsPDF} 
-              variant="outline" 
-              className="flex items-center gap-2"
-            >
-              <Download className="h-4 w-4" />
-              Download as PDF
-            </Button>
-          </div>
-
-          <div ref={reportRef} className="max-w-4xl mx-auto bg-white p-8 rounded-xl shadow-card">
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <div className={cn(
-                "rounded-xl p-8 mb-8 text-center relative overflow-hidden",
-                profile.color
-              )}>
-                <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
-                <div className="absolute bottom-0 left-0 w-40 h-40 bg-black/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2"></div>
-                
-                <motion.div 
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: 0.2, duration: 0.5 }}
-                  className="w-20 h-20 mx-auto bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-4 relative z-10"
+      <main className="flex-grow pt-24 pb-16 px-4">
+        <div className="container mx-auto">
+          <div className="max-w-4xl mx-auto">
+            <div className="mb-6 flex flex-col sm:flex-row justify-between items-start gap-4">
+              <div>
+                <Button
+                  variant="ghost"
+                  onClick={() => navigate(-1)}
+                  className="mb-4 text-[hsl(var(--brand-red))] hover:text-[hsl(var(--brand-red-dark))] -ml-3"
                 >
-                  {profile.icon}
-                </motion.div>
+                  <ArrowLeft className="mr-2 h-4 w-4" /> Back
+                </Button>
                 
-                <h1 className="text-3xl md:text-4xl font-bold mb-2 relative z-10">{profile.title}</h1>
-                <p className="text-xl opacity-90 mb-6 relative z-10">{profile.subtitle}</p>
-                
-                <div className="mt-6 relative z-10">
-                  <div className="w-32 h-32 mx-auto relative mb-6">
-                    <svg className="w-full h-full" viewBox="0 0 100 100">
-                      <circle 
-                        className="stroke-white/20" 
-                        cx="50" cy="50" r="40" 
-                        strokeWidth="8" 
-                        fill="none"
-                      />
-                      <circle 
-                        className="stroke-white" 
-                        cx="50" cy="50" r="40" 
-                        strokeWidth="8" 
-                        fill="none"
-                        strokeLinecap="round"
-                        strokeDasharray={`${2 * Math.PI * 40}`}
-                        strokeDashoffset={`${2 * Math.PI * 40 * (1 - scorePercentage / 100)}`}
-                        transform="rotate(-90 50 50)"
-                      />
-                      <text 
-                        x="50" y="50" 
-                        dominantBaseline="middle" 
-                        textAnchor="middle"
-                        className="fill-white text-xl font-bold"
-                      >
-                        {scorePercentage}%
-                      </text>
-                    </svg>
-                  </div>
-                  
-                  <div className="grid grid-cols-3 gap-4 max-w-sm mx-auto">
-                    <div className="text-center p-3 bg-white/10 backdrop-blur-sm rounded-lg">
-                      <div className="text-2xl font-bold">{scoreData.totalScore}</div>
-                      <div className="text-xs opacity-80">Score</div>
-                    </div>
-                    
-                    <div className="text-center p-3 bg-white/10 backdrop-blur-sm rounded-lg">
-                      <div className="text-2xl font-bold">40</div>
-                      <div className="text-xs opacity-80">Max Score</div>
-                    </div>
-                    
-                    <div className="text-center p-3 bg-white/10 backdrop-blur-sm rounded-lg">
-                      <div className="text-2xl font-bold">{scoreRange}</div>
-                      <div className="text-xs opacity-80">Range</div>
-                    </div>
-                  </div>
-                </div>
+                <h1 className="text-2xl md:text-3xl font-bold mb-2 text-gray-800">Your EQ Navigator Results</h1>
+                <p className="text-gray-600 max-w-2xl">
+                  Explore your emotional intelligence profile and discover personalized insights to enhance your social and emotional skills.
+                </p>
               </div>
               
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3, duration: 0.5 }}
-                className="bg-white rounded-xl p-6 md:p-8 shadow-card mb-8 border border-gray-100"
-              >
-                <h2 className="text-2xl font-semibold mb-4 flex items-center">
-                  <div className="w-10 h-10 rounded-full bg-brand-purple/10 flex items-center justify-center mr-3">
-                    <Sparkles className="h-5 w-5 text-brand-purple" />
-                  </div>
-                  Your EQ Profile
-                </h2>
-                <p className="text-foreground/80 text-lg leading-relaxed">{profile.description}</p>
+              <div className="flex gap-3">
+                <Button 
+                  onClick={downloadAsPDF} 
+                  variant="outline" 
+                  className="flex items-center gap-2 border-[hsl(var(--brand-red))/20] text-[hsl(var(--brand-red))] hover:bg-[hsl(var(--brand-red))/5]"
+                >
+                  <Download className="h-4 w-4" />
+                  Download PDF
+                </Button>
                 
-                <div className="mt-6 pt-6 border-t border-gray-100">
-                  <h3 className="text-lg font-medium mb-4">Emotional Intelligence Breakdown</h3>
-                  
-                  <div className="space-y-4">
-                    <div>
-                      <div className="flex justify-between mb-1">
-                        <span className="text-sm font-medium">Self-Awareness</span>
-                        <span className="text-sm font-medium">{Math.round(scorePercentage * 0.9)}%</span>
-                      </div>
-                      <Progress value={scorePercentage * 0.9} className="h-2" />
-                    </div>
-                    
-                    <div>
-                      <div className="flex justify-between mb-1">
-                        <span className="text-sm font-medium">Self-Regulation</span>
-                        <span className="text-sm font-medium">{Math.round(scorePercentage * 0.85)}%</span>
-                      </div>
-                      <Progress value={scorePercentage * 0.85} className="h-2" />
-                    </div>
-                    
-                    <div>
-                      <div className="flex justify-between mb-1">
-                        <span className="text-sm font-medium">Empathy</span>
-                        <span className="text-sm font-medium">{Math.round(scorePercentage * 0.95)}%</span>
-                      </div>
-                      <Progress value={scorePercentage * 0.95} className="h-2" />
-                    </div>
-                    
-                    <div>
-                      <div className="flex justify-between mb-1">
-                        <span className="text-sm font-medium">Social Skills</span>
-                        <span className="text-sm font-medium">{Math.round(scorePercentage * 0.8)}%</span>
-                      </div>
-                      <Progress value={scorePercentage * 0.8} className="h-2" />
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-              
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4, duration: 0.5 }}
-                className="bg-white rounded-xl p-6 md:p-8 shadow-card mb-8 border border-gray-100"
-              >
-                <div className="flex items-center mb-4">
-                  <div className="w-10 h-10 rounded-full bg-brand-purple/10 flex items-center justify-center mr-3">
-                    <Sparkles className="h-5 w-5 text-brand-purple" />
-                  </div>
-                  <h2 className="text-2xl font-semibold">Your Strengths</h2>
-                </div>
-                
-                <p className="text-foreground/80 mb-6">{profile.strengthsIntro}</p>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {profile.strengths.map((strength, index) => (
-                    <div 
-                      key={index} 
-                      className="bg-brand-purple/5 border border-brand-purple/10 rounded-lg p-4 flex items-start"
-                    >
-                      <div className="bg-brand-purple/20 text-brand-purple rounded-full p-1 mr-3 mt-0.5">
-                        <Check className="h-4 w-4" />
-                      </div>
-                      <p>{strength}</p>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-              
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5, duration: 0.5 }}
-                className="bg-white rounded-xl p-6 md:p-8 shadow-card mb-8 border border-gray-100"
-              >
-                <div className="flex items-center mb-4">
-                  <div className="w-10 h-10 rounded-full bg-brand-orange/10 flex items-center justify-center mr-3">
-                    <ArrowRight className="h-5 w-5 text-brand-orange" />
-                  </div>
-                  <h2 className="text-2xl font-semibold">Growth Opportunities</h2>
-                </div>
-                
-                <p className="text-foreground/80 mb-6">{profile.growthIntro}</p>
-                
-                <div className="space-y-4">
-                  {profile.growthAreas.map((area, index) => (
-                    <Card key={index} className="p-5 border border-gray-100 hover:shadow-md transition-shadow">
-                      <h3 className="font-semibold text-lg mb-2">{area.area}</h3>
-                      <div className="flex items-start">
-                        <div className="bg-brand-purple/10 text-brand-purple rounded-full p-1 mr-3 mt-0.5">
-                          <ArrowRight className="h-4 w-4" />
-                        </div>
-                        <p className="text-foreground/70">{area.tip}</p>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              </motion.div>
-              
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6, duration: 0.5 }}
-                className="bg-white rounded-xl p-6 md:p-8 shadow-card mb-8 border border-gray-100"
-              >
-                <div className="flex items-center mb-6">
-                  <div className="w-10 h-10 rounded-full bg-brand-green/10 flex items-center justify-center mr-3">
-                    <BookOpen className="h-5 w-5 text-brand-green" />
-                  </div>
-                  <h2 className="text-2xl font-semibold">Helpful Resources</h2>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                  {profile.resources.map((resource, index) => (
-                    <Card 
-                      key={index} 
-                      className="p-5 border border-gray-100 hover:border-brand-purple/30 hover:shadow-md transition-all group"
-                    >
-                      <div className="w-12 h-12 mb-4 bg-brand-purple/10 rounded-full flex items-center justify-center text-brand-purple group-hover:bg-brand-purple/20 transition-colors">
-                        {resource.icon}
-                      </div>
-                      <h3 className="font-semibold text-lg mb-1">{resource.title}</h3>
-                      <p className="text-sm text-foreground/70">{resource.description}</p>
-                      <div className="mt-4 pt-3 border-t border-gray-100 text-brand-purple font-medium text-sm flex items-center">
-                        Learn More <ArrowRight className="h-3 w-3 ml-1 group-hover:translate-x-1 transition-transform" />
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              </motion.div>
-            </motion.div>
-          </div>
-          
-          <div className="flex flex-col sm:flex-row justify-center gap-4 mt-8">
-            <Button 
-              onClick={() => navigate('/')}
-              variant="outline"
-              className="flex items-center gap-2"
-            >
-              <Home className="h-4 w-4" />
-              Return Home
-            </Button>
+                <Button
+                  variant="outline"
+                  className="flex items-center gap-2 border-[hsl(var(--brand-red))/20] text-[hsl(var(--brand-red))] hover:bg-[hsl(var(--brand-red))/5]"
+                >
+                  <Share2 className="h-4 w-4" />
+                  Share Results
+                </Button>
+              </div>
+            </div>
             
-            <Button 
-              onClick={() => navigate('/eq-navigator')}
-              className="bg-brand-purple hover:bg-brand-dark-purple"
-            >
-              Take Another Assessment
-            </Button>
+            <div className="flex space-x-2 mb-6 bg-white/50 p-1 rounded-lg w-fit">
+              <Button
+                variant={activeSection === 'profile' ? 'default' : 'ghost'}
+                onClick={() => setActiveSection('profile')}
+                className={activeSection === 'profile' ? 'bg-[hsl(var(--brand-red))]' : 'text-gray-600 hover:text-[hsl(var(--brand-red))]'}
+                size="sm"
+              >
+                Overview
+              </Button>
+              <Button
+                variant={activeSection === 'strengths' ? 'default' : 'ghost'}
+                onClick={() => setActiveSection('strengths')}
+                className={activeSection === 'strengths' ? 'bg-[hsl(var(--brand-red))]' : 'text-gray-600 hover:text-[hsl(var(--brand-red))]'}
+                size="sm"
+              >
+                Strengths
+              </Button>
+              <Button
+                variant={activeSection === 'growth' ? 'default' : 'ghost'}
+                onClick={() => setActiveSection('growth')}
+                className={activeSection === 'growth' ? 'bg-[hsl(var(--brand-red))]' : 'text-gray-600 hover:text-[hsl(var(--brand-red))]'}
+                size="sm"
+              >
+                Growth
+              </Button>
+              <Button
+                variant={activeSection === 'resources' ? 'default' : 'ghost'}
+                onClick={() => setActiveSection('resources')}
+                className={activeSection === 'resources' ? 'bg-[hsl(var(--brand-red))]' : 'text-gray-600 hover:text-[hsl(var(--brand-red))]'}
+                size="sm"
+              >
+                Resources
+              </Button>
+            </div>
+
+            <div ref={reportRef}>
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <div className={cn(
+                  "rounded-2xl p-8 mb-8 text-center relative overflow-hidden",
+                  "bg-gradient-to-br from-[hsl(var(--brand-red))] to-[hsl(var(--brand-red-dark))] text-white shadow-lg"
+                )}>
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+                  <div className="absolute bottom-0 left-0 w-64 h-64 bg-black/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
+                  
+                  <motion.div 
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 0.2, duration: 0.5 }}
+                    className="w-24 h-24 mx-auto rounded-full flex items-center justify-center mb-6 relative z-10 bg-white/20 backdrop-blur-sm shadow-lg"
+                  >
+                    <Heart className="h-12 w-12 text-white" />
+                  </motion.div>
+                  
+                  <h1 className="text-3xl md:text-4xl font-bold mb-2 relative z-10">{profile.title}</h1>
+                  <p className="text-xl text-white/80 mb-6 relative z-10">{profile.subtitle}</p>
+                  
+                  <div className="mt-6 relative z-10">
+                    <div className="w-36 h-36 mx-auto relative mb-6">
+                      <svg className="w-full h-full" viewBox="0 0 100 100">
+                        <circle 
+                          className="stroke-white/20" 
+                          cx="50" cy="50" r="40" 
+                          strokeWidth="8" 
+                          fill="none"
+                        />
+                        <circle 
+                          className="stroke-white" 
+                          cx="50" cy="50" r="40" 
+                          strokeWidth="8" 
+                          fill="none"
+                          strokeLinecap="round"
+                          strokeDasharray={`${2 * Math.PI * 40}`}
+                          strokeDashoffset={`${2 * Math.PI * 40 * (1 - scorePercentage / 100)}`}
+                          transform="rotate(-90 50 50)"
+                        />
+                        <text 
+                          x="50" y="43" 
+                          dominantBaseline="middle" 
+                          textAnchor="middle"
+                          className="fill-white text-2xl font-bold"
+                        >
+                          {scorePercentage}%
+                        </text>
+                        <text 
+                          x="50" y="58" 
+                          dominantBaseline="middle" 
+                          textAnchor="middle"
+                          className="fill-white/80 text-xs"
+                        >
+                          EQ Score
+                        </text>
+                      </svg>
+                    </div>
+                    
+                    <div className="grid grid-cols-3 gap-4 max-w-sm mx-auto">
+                      <div className="text-center p-3 bg-white/10 backdrop-blur-sm rounded-xl">
+                        <div className="text-2xl font-bold">{scoreData.totalScore}</div>
+                        <div className="text-xs text-white/80">Your Score</div>
+                      </div>
+                      
+                      <div className="text-center p-3 bg-white/10 backdrop-blur-sm rounded-xl">
+                        <div className="text-2xl font-bold">40</div>
+                        <div className="text-xs text-white/80">Max Score</div>
+                      </div>
+                      
+                      <div className="text-center p-3 bg-white/10 backdrop-blur-sm rounded-xl">
+                        <div className="text-2xl font-bold">{scoreRange}</div>
+                        <div className="text-xs text-white/80">Range</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {activeSection === 'profile' && (
+                  <>
+                    <motion.div 
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3, duration: 0.5 }}
+                      className="bg-white rounded-2xl p-8 shadow-lg mb-8 border border-gray-100"
+                    >
+                      <h2 className="text-2xl font-semibold mb-4 flex items-center text-gray-800">
+                        <div className="w-10 h-10 rounded-full bg-[hsl(var(--brand-red))/10] flex items-center justify-center mr-3">
+                          <Award className="h-5 w-5 text-[hsl(var(--brand-red))]" />
+                        </div>
+                        Your EQ Profile
+                      </h2>
+                      <p className="text-gray-600 text-lg leading-relaxed">{profile.description}</p>
+                      
+                      <div className="mt-8 pt-6 border-t border-gray-100">
+                        <h3 className="text-lg font-medium mb-4 text-gray-800">Emotional Intelligence Breakdown</h3>
+                        
+                        <div className="space-y-6">
+                          <div>
+                            <div className="flex justify-between mb-2">
+                              <span className="text-sm font-medium text-gray-700">Self-Awareness</span>
+                              <span className="text-sm font-medium text-gray-700">{Math.round(scorePercentage * 0.9)}%</span>
+                            </div>
+                            <Progress 
+                              value={scorePercentage * 0.9} 
+                              className="h-3" 
+                              indicatorClassName="bg-gradient-to-r from-[hsl(var(--brand-red))] to-[hsl(var(--brand-red-dark))]"
+                            />
+                          </div>
+                          
+                          <div>
+                            <div className="flex justify-between mb-2">
+                              <span className="text-sm font-medium text-gray-700">Self-Regulation</span>
+                              <span className="text-sm font-medium text-gray-700">{Math.round(scorePercentage * 0.85)}%</span>
+                            </div>
+                            <Progress 
+                              value={scorePercentage * 0.85} 
+                              className="h-3" 
+                              indicatorClassName="bg-gradient-to-r from-[hsl(var(--brand-red))] to-[hsl(var(--brand-red-dark))]"
+                            />
+                          </div>
+                          
+                          <div>
+                            <div className="flex justify-between mb-2">
+                              <span className="text-sm font-medium text-gray-700">Empathy</span>
+                              <span className="text-sm font-medium text-gray-700">{Math.round(scorePercentage * 0.95)}%</span>
+                            </div>
+                            <Progress 
+                              value={scorePercentage * 0.95} 
+                              className="h-3" 
+                              indicatorClassName="bg-gradient-to-r from-[hsl(var(--brand-red))] to-[hsl(var(--brand-red-dark))]"
+                            />
+                          </div>
+                          
+                          <div>
+                            <div className="flex justify-between mb-2">
+                              <span className="text-sm font-medium text-gray-700">Social Skills</span>
+                              <span className="text-sm font-medium text-gray-700">{Math.round(scorePercentage * 0.8)}%</span>
+                            </div>
+                            <Progress 
+                              value={scorePercentage * 0.8} 
+                              className="h-3" 
+                              indicatorClassName="bg-gradient-to-r from-[hsl(var(--brand-red))] to-[hsl(var(--brand-red-dark))]"
+                            />
+                          </div>
+                        </div>
+                        
+                        <div className="mt-8 p-4 bg-[hsl(var(--brand-red))/5] border border-[hsl(var(--brand-red))/20] rounded-xl flex items-start">
+                          <div className="bg-[hsl(var(--brand-red))/10] text-[hsl(var(--brand-red))] p-2 rounded-full mr-3 flex-shrink-0">
+                            <Info className="h-5 w-5" />
+                          </div>
+                          <div>
+                            <h4 className="font-medium text-gray-800 mb-1">What This Means</h4>
+                            <p className="text-gray-600 text-sm">
+                              Your EQ score indicates your ability to recognize, understand, and manage emotions in yourself and others.
+                              A higher score suggests stronger emotional intelligence, which contributes to better relationships, decision-making, and overall well-being.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  </>
+                )}
+                
+                {activeSection === 'strengths' && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4, duration: 0.5 }}
+                    className="bg-white rounded-2xl p-8 shadow-lg mb-8 border border-gray-100"
+                  >
+                    <div className="flex items-center mb-6">
+                      <div className="w-10 h-10 rounded-full bg-[hsl(var(--brand-red))/10] flex items-center justify-center mr-3">
+                        <Sparkles className="h-5 w-5 text-[hsl(var(--brand-red))]" />
+                      </div>
+                      <h2 className="text-2xl font-semibold text-gray-800">Your Strengths</h2>
+                    </div>
+                    
+                    <p className="text-gray-600 mb-6">{profile.strengthsIntro}</p>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {profile.strengths.map((strength, index) => (
+                        <motion.div 
+                          key={index} 
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.5 + index * 0.1 }}
+                          className="bg-[hsl(var(--brand-red))/5] border border-[hsl(var(--brand-red))/10] rounded-xl p-4 flex items-start"
+                        >
+                          <div className="bg-[hsl(var(--brand-red))/20] text-[hsl(var(--brand-red))] rounded-full p-2 mr-3 mt-0.5 flex-shrink-0">
+                            <Check className="h-4 w-4" />
+                          </div>
+                          <p className="text-gray-700">{strength}</p>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+                
+                {activeSection === 'growth' && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5, duration: 0.5 }}
+                    className="bg-white rounded-2xl p-8 shadow-lg mb-8 border border-gray-100"
+                  >
+                    <div className="flex items-center mb-6">
+                      <div className="w-10 h-10 rounded-full bg-[hsl(var(--brand-red))/10] flex items-center justify-center mr-3">
+                        <ArrowRight className="h-5 w-5 text-[hsl(var(--brand-red))]" />
+                      </div>
+                      <h2 className="text-2xl font-semibold text-gray-800">Growth Opportunities</h2>
+                    </div>
+                    
+                    <p className="text-gray-600 mb-6">{profile.growthIntro}</p>
+                    
+                    <div className="space-y-4">
+                      {profile.growthAreas.map((area, index) => (
+                        <motion.div
+                          key={index}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.6 + index * 0.1 }}
+                        >
+                          <Card className="p-5 border border-gray-100 hover:shadow-md transition-shadow bg-gradient-to-br from-white to-[hsl(var(--brand-red))/5]">
+                            <h3 className="font-semibold text-lg mb-3 text-gray-800">{area.area}</h3>
+                            <div className="flex items-start">
+                              <div className="bg-[hsl(var(--brand-red))/10] text-[hsl(var(--brand-red))] rounded-full p-2 mr-3 mt-0.5 flex-shrink-0">
+                                <ArrowRight className="h-4 w-4" />
+                              </div>
+                              <p className="text-gray-600">{area.tip}</p>
+                            </div>
+                          </Card>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+                
+                {activeSection === 'resources' && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6, duration: 0.5 }}
+                    className="bg-white rounded-2xl p-8 shadow-lg mb-8 border border-gray-100"
+                  >
+                    <div className="flex items-center mb-6">
+                      <div className="w-10 h-10 rounded-full bg-[hsl(var(--brand-red))/10] flex items-center justify-center mr-3">
+                        <BookOpen className="h-5 w-5 text-[hsl(var(--brand-red))]" />
+                      </div>
+                      <h2 className="text-2xl font-semibold text-gray-800">Helpful Resources</h2>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                      {profile.resources.map((resource, index) => (
+                        <motion.div
+                          key={index}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.7 + index * 0.1 }}
+                        >
+                          <Card 
+                            className="p-5 border border-gray-100 hover:border-[hsl(var(--brand-red))/30] hover:shadow-md transition-all group h-full flex flex-col"
+                          >
+                            <div className="w-12 h-12 mb-4 bg-[hsl(var(--brand-red))/10] rounded-full flex items-center justify-center text-[hsl(var(--brand-red))] group-hover:bg-[hsl(var(--brand-red))/20] transition-colors">
+                              {resource.icon}
+                            </div>
+                            <h3 className="font-semibold text-lg mb-1 text-gray-800">{resource.title}</h3>
+                            <p className="text-sm text-gray-600 flex-grow">{resource.description}</p>
+                            <div className="mt-4 pt-3 border-t border-gray-100 text-[hsl(var(--brand-red))] font-medium text-sm flex items-center">
+                              Learn More <ArrowRight className="h-3 w-3 ml-1 group-hover:translate-x-1 transition-transform" />
+                            </div>
+                          </Card>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </motion.div>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row justify-center gap-4 mt-8">
+              <Button 
+                onClick={() => navigate('/')}
+                variant="outline"
+                className="flex items-center gap-2 border-[hsl(var(--brand-red))/20] text-[hsl(var(--brand-red))] hover:bg-[hsl(var(--brand-red))/5]"
+              >
+                <Home className="h-4 w-4" />
+                Return Home
+              </Button>
+              
+              <Button 
+                onClick={() => navigate('/eq-navigator')}
+                className="bg-gradient-to-r from-[hsl(var(--brand-red))] to-[hsl(var(--brand-red-dark))] hover:from-[hsl(var(--brand-red-dark))] hover:to-[hsl(var(--brand-red))] text-white"
+              >
+                Take Another Assessment
+              </Button>
+            </div>
           </div>
         </div>
       </main>
