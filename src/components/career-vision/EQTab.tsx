@@ -29,7 +29,7 @@ const EQTab: React.FC<EQTabProps> = ({ eqScore }) => {
         className="mb-8"
       >
         <h2 className="text-2xl font-bold mb-4 flex items-center text-gray-800">
-          <div className="bg-gradient-to-br from-[hsl(var(--brand-red))] to-[hsl(var(--brand-red-dark))] w-10 h-10 rounded-full flex items-center justify-center mr-3 shadow-md">
+          <div className="bg-gradient-to-br from-purple-300 to-purple-400 w-10 h-10 rounded-full flex items-center justify-center mr-3 shadow-md">
             <Heart className="h-5 w-5 text-white" />
           </div>
           Your EQ Navigator Results
@@ -47,17 +47,17 @@ const EQTab: React.FC<EQTabProps> = ({ eqScore }) => {
           className="flex flex-col items-center justify-center bg-white p-8 rounded-2xl shadow-md border border-gray-100"
         >
           <div className="relative w-64 h-64 flex items-center justify-center">
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[hsl(var(--brand-red))/10] to-[hsl(var(--brand-pink))/20] animate-pulse"></div>
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-100 to-pink-100 animate-pulse"></div>
             <div className="w-56 h-56 relative">
               <svg className="w-full h-full" viewBox="0 0 100 100">
                 <circle 
-                  className="stroke-[hsl(var(--brand-red))/20]" 
+                  className="stroke-purple-200" 
                   cx="50" cy="50" r="40" 
                   strokeWidth="8" 
                   fill="none"
                 />
                 <circle 
-                  className="stroke-[hsl(var(--brand-red))]" 
+                  className="stroke-purple-400" 
                   cx="50" cy="50" r="40" 
                   strokeWidth="8" 
                   fill="none"
@@ -70,7 +70,7 @@ const EQTab: React.FC<EQTabProps> = ({ eqScore }) => {
                   x="50" y="43" 
                   dominantBaseline="middle" 
                   textAnchor="middle"
-                  className="fill-[hsl(var(--brand-red))] text-2xl font-bold"
+                  className="fill-purple-500 text-2xl font-bold"
                 >
                   {scorePercentage}%
                 </text>
@@ -91,7 +91,7 @@ const EQTab: React.FC<EQTabProps> = ({ eqScore }) => {
             transition={{ duration: 0.5, delay: 0.6 }}
             className="text-center mt-4 text-lg font-medium"
           >
-            EQ Score: <span className="text-xl text-[hsl(var(--brand-red))]">{eqScore}/40</span>
+            EQ Score: <span className="text-xl text-purple-500">{eqScore}/40</span>
           </motion.p>
           
           <div className="mt-6 w-full space-y-4">
@@ -103,7 +103,7 @@ const EQTab: React.FC<EQTabProps> = ({ eqScore }) => {
               <Progress 
                 value={scorePercentage * 0.9} 
                 className="h-2.5" 
-                indicatorClassName="bg-gradient-to-r from-[hsl(var(--brand-red))] to-[hsl(var(--brand-red-dark))]"
+                indicatorClassName="bg-gradient-to-r from-purple-300 to-purple-400"
               />
             </div>
             
@@ -115,7 +115,7 @@ const EQTab: React.FC<EQTabProps> = ({ eqScore }) => {
               <Progress 
                 value={scorePercentage * 0.95} 
                 className="h-2.5" 
-                indicatorClassName="bg-gradient-to-r from-[hsl(var(--brand-red))] to-[hsl(var(--brand-red-dark))]"
+                indicatorClassName="bg-gradient-to-r from-purple-300 to-purple-400"
               />
             </div>
           </div>
@@ -132,7 +132,7 @@ const EQTab: React.FC<EQTabProps> = ({ eqScore }) => {
             transition={{ type: "spring", stiffness: 300 }}
             className="relative overflow-hidden rounded-2xl shadow-lg w-full h-full"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--brand-red))] via-[hsl(var(--brand-red-dark))] to-[hsl(var(--brand-pink))] opacity-90"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-400 via-purple-300 to-pink-300 opacity-90"></div>
             <div className="absolute inset-0 bg-[url('/lovable-uploads/2a57ac38-c970-47f4-9845-ae1dfc4315f1.png')] bg-cover bg-center mix-blend-overlay opacity-30"></div>
             <div className="absolute inset-0 flex flex-col justify-between p-8 text-white z-20">
               <div className="flex items-start">
@@ -232,8 +232,8 @@ const EQTab: React.FC<EQTabProps> = ({ eqScore }) => {
         transition={{ duration: 0.6, delay: 0.8 }}
         className="text-xl font-semibold mb-4 flex items-center text-gray-800"
       >
-        <div className="bg-[hsl(var(--brand-red))/10] p-2 rounded-full mr-2">
-          <Heart className="h-5 w-5 text-[hsl(var(--brand-red))]" />
+        <div className="bg-purple-100 p-2 rounded-full mr-2">
+          <Heart className="h-5 w-5 text-purple-500" />
         </div>
         How EQ Benefits Your Career
       </motion.h3>
@@ -244,28 +244,28 @@ const EQTab: React.FC<EQTabProps> = ({ eqScore }) => {
             icon: <Users className="h-5 w-5 text-white" />,
             title: "Leadership Potential",
             description: "High emotional intelligence correlates with stronger leadership abilities, as it enables you to understand team dynamics, motivate others, and navigate workplace challenges.",
-            color: "from-[hsl(var(--brand-red))] to-[hsl(var(--brand-red-dark))]",
+            color: "from-purple-400 to-purple-500",
             delay: 1.0
           },
           {
             icon: <Heart className="h-5 w-5 text-white" />,
             title: "Team Collaboration",
             description: "EQ helps you work effectively in teams, resolve conflicts, and build positive relationships with colleagues, clients, and stakeholders.",
-            color: "from-[hsl(var(--brand-purple))] to-[hsl(var(--brand-purple-dark))]",
+            color: "from-blue-300 to-blue-400",
             delay: 1.1
           },
           {
             icon: <Star className="h-5 w-5 text-white" />,
             title: "Adaptability",
             description: "Strong emotional intelligence helps you adapt to change, manage stress, and remain resilient in the face of challenges and uncertainty.",
-            color: "from-[hsl(var(--brand-green))] to-[hsl(var(--brand-green-dark))]",
+            color: "from-green-300 to-green-400",
             delay: 1.2
           },
           {
             icon: <Brain className="h-5 w-5 text-white" />,
             title: "Decision Making",
             description: "EQ supports better decision-making by helping you understand others' perspectives and consider the emotional implications of different choices.",
-            color: "from-[hsl(var(--brand-orange))] to-[hsl(var(--brand-orange-dark))]",
+            color: "from-yellow-300 to-yellow-400",
             delay: 1.3
           }
         ].map((item, index) => (
@@ -280,7 +280,7 @@ const EQTab: React.FC<EQTabProps> = ({ eqScore }) => {
               transition: { duration: 0.2 }
             }}
           >
-            <Card className="p-5 hover:border-[hsl(var(--brand-red))/50] transition-all duration-300 overflow-hidden relative group h-full">
+            <Card className="p-5 hover:border-purple-300/50 transition-all duration-300 overflow-hidden relative group h-full">
               <div className="absolute top-0 left-0 w-2 h-full bg-gradient-to-b ${item.color}"></div>
               <div className="flex items-center mb-3">
                 <div className={`w-10 h-10 rounded-full bg-gradient-to-r ${item.color} flex items-center justify-center mr-3 shadow-md group-hover:scale-110 transition-transform duration-300`}>
@@ -291,7 +291,7 @@ const EQTab: React.FC<EQTabProps> = ({ eqScore }) => {
               <p className="text-sm text-gray-600 pl-3 border-l-2 border-gray-100">
                 {item.description}
               </p>
-              <div className="mt-3 pt-2 text-sm font-medium flex items-center justify-end text-[hsl(var(--brand-red))] opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <div className="mt-3 pt-2 text-sm font-medium flex items-center justify-end text-purple-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 Learn more <ArrowUpRight className="h-3 w-3 ml-1" />
               </div>
             </Card>

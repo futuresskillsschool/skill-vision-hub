@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Progress } from '@/components/ui/progress';
-import { Sparkles, Heart, ArrowRight, Brain, BookOpen, PenTool, Home, Download, Check, Share2, Award, ArrowLeft, Info } from 'lucide-react';
+import { Sparkles, Heart, ArrowRight, Brain, BookOpen, PenTool, Home, Download, Check, Award, ArrowLeft, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -52,7 +52,7 @@ const profiles: Record<string, EQProfile> = {
     subtitle: 'High Emotional Intelligence',
     description: "You demonstrate strong emotional intelligence! You're likely good at understanding and managing your own emotions, and you show empathy and consideration for others. You handle challenging situations with maturity and find healthy ways to cope with stress.",
     icon: <Sparkles className="h-8 w-8" />,
-    color: 'bg-brand-purple text-white',
+    color: 'bg-purple-400 text-white',
     strengthsIntro: "Here's what you're great at:",
     strengths: [
       'Understanding and processing your emotions in healthy ways',
@@ -94,7 +94,7 @@ const profiles: Record<string, EQProfile> = {
     subtitle: 'Growing Emotional Intelligence',
     description: "You have a good foundation in emotional intelligence, and you're developing your skills in several areas. You show some self-awareness and empathy, but there's room for growth in managing your emotions and navigating social situations.",
     icon: <PenTool className="h-8 w-8" />,
-    color: 'bg-brand-blue text-white',
+    color: 'bg-blue-300 text-white',
     strengthsIntro: "Your notable strengths:",
     strengths: [
       'Recognizing your own emotions in many situations',
@@ -140,7 +140,7 @@ const profiles: Record<string, EQProfile> = {
     subtitle: 'Developing Emotional Intelligence',
     description: "Emotional intelligence is a skill that can be learned and strengthened, and you're at the beginning of your journey. You might sometimes find it challenging to understand or manage your emotions, or to see things from others' perspectives. Don't be discouraged!",
     icon: <Heart className="h-8 w-8" />,
-    color: 'bg-brand-orange text-white',
+    color: 'bg-yellow-300 text-white',
     strengthsIntro: "Here's what you can build on:",
     strengths: [
       'Your willingness to learn and grow emotionally',
@@ -189,7 +189,7 @@ const profiles: Record<string, EQProfile> = {
     subtitle: 'Beginning Your EQ Journey',
     description: "It appears that you could benefit from additional support in developing your emotional intelligence. This assessment is just a starting point, and it's important to remember that everyone can learn and grow. With some guidance and practice, you can develop these important skills!",
     icon: <Brain className="h-8 w-8" />,
-    color: 'bg-brand-green text-white',
+    color: 'bg-green-300 text-white',
     strengthsIntro: "Remember that everyone has EQ strengths:",
     strengths: [
       'Taking this assessment shows your interest in self-improvement',
@@ -242,7 +242,6 @@ const EQNavigatorResults = () => {
   const [scoreRange, setScoreRange] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const reportRef = useRef<HTMLDivElement>(null);
-  const [activeSection, setActiveSection] = useState('profile');
   
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -381,12 +380,12 @@ const EQNavigatorResults = () => {
 
   if (isLoading || !profile) {
     return (
-      <div className="min-h-screen flex flex-col bg-gradient-to-br from-white via-red-50 to-pink-50">
+      <div className="min-h-screen flex flex-col bg-gradient-to-br from-white via-purple-50 to-blue-50">
         <Navbar />
         <div className="flex-grow flex items-center justify-center">
           <div className="flex flex-col items-center gap-4">
-            <div className="w-16 h-16 border-4 border-t-[hsl(var(--brand-red))] border-r-[hsl(var(--brand-red))/30] border-b-[hsl(var(--brand-red))/10] border-l-[hsl(var(--brand-red))/30] rounded-full animate-spin"></div>
-            <p className="text-[hsl(var(--brand-red))] font-medium">Loading your results...</p>
+            <div className="w-16 h-16 border-4 border-t-purple-400 border-r-purple-300/30 border-b-purple-300/10 border-l-purple-300/30 rounded-full animate-spin"></div>
+            <p className="text-purple-600 font-medium">Loading your results...</p>
           </div>
         </div>
         <Footer />
@@ -398,7 +397,7 @@ const EQNavigatorResults = () => {
   const scorePercentage = calculatePercentage(scoreData.totalScore);
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-white via-red-50 to-pink-50">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-white via-purple-50 to-blue-50">
       <Navbar />
       
       <main className="flex-grow pt-24 pb-16 px-4">
@@ -409,7 +408,7 @@ const EQNavigatorResults = () => {
                 <Button
                   variant="ghost"
                   onClick={() => navigate(-1)}
-                  className="mb-4 text-[hsl(var(--brand-red))] hover:text-[hsl(var(--brand-red-dark))] -ml-3"
+                  className="mb-4 text-purple-500 hover:text-purple-600 -ml-3"
                 >
                   <ArrowLeft className="mr-2 h-4 w-4" /> Back
                 </Button>
@@ -424,55 +423,12 @@ const EQNavigatorResults = () => {
                 <Button 
                   onClick={downloadAsPDF} 
                   variant="outline" 
-                  className="flex items-center gap-2 border-[hsl(var(--brand-red))/20] text-[hsl(var(--brand-red))] hover:bg-[hsl(var(--brand-red))/5]"
+                  className="flex items-center gap-2 border-purple-200 text-purple-600 hover:bg-purple-50"
                 >
                   <Download className="h-4 w-4" />
                   Download PDF
                 </Button>
-                
-                <Button
-                  variant="outline"
-                  className="flex items-center gap-2 border-[hsl(var(--brand-red))/20] text-[hsl(var(--brand-red))] hover:bg-[hsl(var(--brand-red))/5]"
-                >
-                  <Share2 className="h-4 w-4" />
-                  Share Results
-                </Button>
               </div>
-            </div>
-            
-            <div className="flex space-x-2 mb-6 bg-white/50 p-1 rounded-lg w-fit">
-              <Button
-                variant={activeSection === 'profile' ? 'default' : 'ghost'}
-                onClick={() => setActiveSection('profile')}
-                className={activeSection === 'profile' ? 'bg-[hsl(var(--brand-red))]' : 'text-gray-600 hover:text-[hsl(var(--brand-red))]'}
-                size="sm"
-              >
-                Overview
-              </Button>
-              <Button
-                variant={activeSection === 'strengths' ? 'default' : 'ghost'}
-                onClick={() => setActiveSection('strengths')}
-                className={activeSection === 'strengths' ? 'bg-[hsl(var(--brand-red))]' : 'text-gray-600 hover:text-[hsl(var(--brand-red))]'}
-                size="sm"
-              >
-                Strengths
-              </Button>
-              <Button
-                variant={activeSection === 'growth' ? 'default' : 'ghost'}
-                onClick={() => setActiveSection('growth')}
-                className={activeSection === 'growth' ? 'bg-[hsl(var(--brand-red))]' : 'text-gray-600 hover:text-[hsl(var(--brand-red))]'}
-                size="sm"
-              >
-                Growth
-              </Button>
-              <Button
-                variant={activeSection === 'resources' ? 'default' : 'ghost'}
-                onClick={() => setActiveSection('resources')}
-                className={activeSection === 'resources' ? 'bg-[hsl(var(--brand-red))]' : 'text-gray-600 hover:text-[hsl(var(--brand-red))]'}
-                size="sm"
-              >
-                Resources
-              </Button>
             </div>
 
             <div ref={reportRef}>
@@ -483,7 +439,7 @@ const EQNavigatorResults = () => {
               >
                 <div className={cn(
                   "rounded-2xl p-8 mb-8 text-center relative overflow-hidden",
-                  "bg-gradient-to-br from-[hsl(var(--brand-red))] to-[hsl(var(--brand-red-dark))] text-white shadow-lg"
+                  "bg-gradient-to-br from-purple-400 to-purple-500 text-white shadow-lg"
                 )}>
                   <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
                   <div className="absolute bottom-0 left-0 w-64 h-64 bg-black/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
@@ -557,205 +513,195 @@ const EQNavigatorResults = () => {
                   </div>
                 </div>
                 
-                {activeSection === 'profile' && (
-                  <>
-                    <motion.div 
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.3, duration: 0.5 }}
-                      className="bg-white rounded-2xl p-8 shadow-lg mb-8 border border-gray-100"
-                    >
-                      <h2 className="text-2xl font-semibold mb-4 flex items-center text-gray-800">
-                        <div className="w-10 h-10 rounded-full bg-[hsl(var(--brand-red))/10] flex items-center justify-center mr-3">
-                          <Award className="h-5 w-5 text-[hsl(var(--brand-red))]" />
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3, duration: 0.5 }}
+                  className="bg-white rounded-2xl p-8 shadow-lg mb-8 border border-gray-100"
+                >
+                  <h2 className="text-2xl font-semibold mb-4 flex items-center text-gray-800">
+                    <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-3">
+                      <Award className="h-5 w-5 text-purple-500" />
+                    </div>
+                    Your EQ Profile
+                  </h2>
+                  <p className="text-gray-600 text-lg leading-relaxed">{profile.description}</p>
+                  
+                  <div className="mt-8 pt-6 border-t border-gray-100">
+                    <h3 className="text-lg font-medium mb-4 text-gray-800">Emotional Intelligence Breakdown</h3>
+                    
+                    <div className="space-y-6">
+                      <div>
+                        <div className="flex justify-between mb-2">
+                          <span className="text-sm font-medium text-gray-700">Self-Awareness</span>
+                          <span className="text-sm font-medium text-gray-700">{Math.round(scorePercentage * 0.9)}%</span>
                         </div>
-                        Your EQ Profile
-                      </h2>
-                      <p className="text-gray-600 text-lg leading-relaxed">{profile.description}</p>
+                        <Progress 
+                          value={scorePercentage * 0.9} 
+                          className="h-3" 
+                          indicatorClassName="bg-gradient-to-r from-purple-300 to-purple-400"
+                        />
+                      </div>
                       
-                      <div className="mt-8 pt-6 border-t border-gray-100">
-                        <h3 className="text-lg font-medium mb-4 text-gray-800">Emotional Intelligence Breakdown</h3>
-                        
-                        <div className="space-y-6">
-                          <div>
-                            <div className="flex justify-between mb-2">
-                              <span className="text-sm font-medium text-gray-700">Self-Awareness</span>
-                              <span className="text-sm font-medium text-gray-700">{Math.round(scorePercentage * 0.9)}%</span>
-                            </div>
-                            <Progress 
-                              value={scorePercentage * 0.9} 
-                              className="h-3" 
-                              indicatorClassName="bg-gradient-to-r from-[hsl(var(--brand-red))] to-[hsl(var(--brand-red-dark))]"
-                            />
-                          </div>
-                          
-                          <div>
-                            <div className="flex justify-between mb-2">
-                              <span className="text-sm font-medium text-gray-700">Self-Regulation</span>
-                              <span className="text-sm font-medium text-gray-700">{Math.round(scorePercentage * 0.85)}%</span>
-                            </div>
-                            <Progress 
-                              value={scorePercentage * 0.85} 
-                              className="h-3" 
-                              indicatorClassName="bg-gradient-to-r from-[hsl(var(--brand-red))] to-[hsl(var(--brand-red-dark))]"
-                            />
-                          </div>
-                          
-                          <div>
-                            <div className="flex justify-between mb-2">
-                              <span className="text-sm font-medium text-gray-700">Empathy</span>
-                              <span className="text-sm font-medium text-gray-700">{Math.round(scorePercentage * 0.95)}%</span>
-                            </div>
-                            <Progress 
-                              value={scorePercentage * 0.95} 
-                              className="h-3" 
-                              indicatorClassName="bg-gradient-to-r from-[hsl(var(--brand-red))] to-[hsl(var(--brand-red-dark))]"
-                            />
-                          </div>
-                          
-                          <div>
-                            <div className="flex justify-between mb-2">
-                              <span className="text-sm font-medium text-gray-700">Social Skills</span>
-                              <span className="text-sm font-medium text-gray-700">{Math.round(scorePercentage * 0.8)}%</span>
-                            </div>
-                            <Progress 
-                              value={scorePercentage * 0.8} 
-                              className="h-3" 
-                              indicatorClassName="bg-gradient-to-r from-[hsl(var(--brand-red))] to-[hsl(var(--brand-red-dark))]"
-                            />
-                          </div>
+                      <div>
+                        <div className="flex justify-between mb-2">
+                          <span className="text-sm font-medium text-gray-700">Self-Regulation</span>
+                          <span className="text-sm font-medium text-gray-700">{Math.round(scorePercentage * 0.85)}%</span>
                         </div>
-                        
-                        <div className="mt-8 p-4 bg-[hsl(var(--brand-red))/5] border border-[hsl(var(--brand-red))/20] rounded-xl flex items-start">
-                          <div className="bg-[hsl(var(--brand-red))/10] text-[hsl(var(--brand-red))] p-2 rounded-full mr-3 flex-shrink-0">
-                            <Info className="h-5 w-5" />
-                          </div>
-                          <div>
-                            <h4 className="font-medium text-gray-800 mb-1">What This Means</h4>
-                            <p className="text-gray-600 text-sm">
-                              Your EQ score indicates your ability to recognize, understand, and manage emotions in yourself and others.
-                              A higher score suggests stronger emotional intelligence, which contributes to better relationships, decision-making, and overall well-being.
-                            </p>
-                          </div>
+                        <Progress 
+                          value={scorePercentage * 0.85} 
+                          className="h-3" 
+                          indicatorClassName="bg-gradient-to-r from-purple-300 to-purple-400"
+                        />
+                      </div>
+                      
+                      <div>
+                        <div className="flex justify-between mb-2">
+                          <span className="text-sm font-medium text-gray-700">Empathy</span>
+                          <span className="text-sm font-medium text-gray-700">{Math.round(scorePercentage * 0.95)}%</span>
                         </div>
+                        <Progress 
+                          value={scorePercentage * 0.95} 
+                          className="h-3" 
+                          indicatorClassName="bg-gradient-to-r from-purple-300 to-purple-400"
+                        />
                       </div>
-                    </motion.div>
-                  </>
-                )}
-                
-                {activeSection === 'strengths' && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4, duration: 0.5 }}
-                    className="bg-white rounded-2xl p-8 shadow-lg mb-8 border border-gray-100"
-                  >
-                    <div className="flex items-center mb-6">
-                      <div className="w-10 h-10 rounded-full bg-[hsl(var(--brand-red))/10] flex items-center justify-center mr-3">
-                        <Sparkles className="h-5 w-5 text-[hsl(var(--brand-red))]" />
+                      
+                      <div>
+                        <div className="flex justify-between mb-2">
+                          <span className="text-sm font-medium text-gray-700">Social Skills</span>
+                          <span className="text-sm font-medium text-gray-700">{Math.round(scorePercentage * 0.8)}%</span>
+                        </div>
+                        <Progress 
+                          value={scorePercentage * 0.8} 
+                          className="h-3" 
+                          indicatorClassName="bg-gradient-to-r from-purple-300 to-purple-400"
+                        />
                       </div>
-                      <h2 className="text-2xl font-semibold text-gray-800">Your Strengths</h2>
                     </div>
                     
-                    <p className="text-gray-600 mb-6">{profile.strengthsIntro}</p>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {profile.strengths.map((strength, index) => (
-                        <motion.div 
-                          key={index} 
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.5 + index * 0.1 }}
-                          className="bg-[hsl(var(--brand-red))/5] border border-[hsl(var(--brand-red))/10] rounded-xl p-4 flex items-start"
-                        >
-                          <div className="bg-[hsl(var(--brand-red))/20] text-[hsl(var(--brand-red))] rounded-full p-2 mr-3 mt-0.5 flex-shrink-0">
-                            <Check className="h-4 w-4" />
+                    <div className="mt-8 p-4 bg-purple-50 border border-purple-200 rounded-xl flex items-start">
+                      <div className="bg-purple-100 text-purple-600 p-2 rounded-full mr-3 flex-shrink-0">
+                        <Info className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-gray-800 mb-1">What This Means</h4>
+                        <p className="text-gray-600 text-sm">
+                          Your EQ score indicates your ability to recognize, understand, and manage emotions in yourself and others.
+                          A higher score suggests stronger emotional intelligence, which contributes to better relationships, decision-making, and overall well-being.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+                
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4, duration: 0.5 }}
+                  className="bg-white rounded-2xl p-8 shadow-lg mb-8 border border-gray-100"
+                >
+                  <div className="flex items-center mb-6">
+                    <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-3">
+                      <Sparkles className="h-5 w-5 text-purple-500" />
+                    </div>
+                    <h2 className="text-2xl font-semibold text-gray-800">Your Strengths</h2>
+                  </div>
+                  
+                  <p className="text-gray-600 mb-6">{profile.strengthsIntro}</p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {profile.strengths.map((strength, index) => (
+                      <motion.div 
+                        key={index} 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.5 + index * 0.1 }}
+                        className="bg-purple-50 border border-purple-100 rounded-xl p-4 flex items-start"
+                      >
+                        <div className="bg-purple-200 text-purple-700 rounded-full p-2 mr-3 mt-0.5 flex-shrink-0">
+                          <Check className="h-4 w-4" />
+                        </div>
+                        <p className="text-gray-700">{strength}</p>
+                      </motion.div>
+                    ))}
+                  </div>
+                </motion.div>
+                
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5, duration: 0.5 }}
+                  className="bg-white rounded-2xl p-8 shadow-lg mb-8 border border-gray-100"
+                >
+                  <div className="flex items-center mb-6">
+                    <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-3">
+                      <ArrowRight className="h-5 w-5 text-purple-500" />
+                    </div>
+                    <h2 className="text-2xl font-semibold text-gray-800">Growth Opportunities</h2>
+                  </div>
+                  
+                  <p className="text-gray-600 mb-6">{profile.growthIntro}</p>
+                  
+                  <div className="space-y-4">
+                    {profile.growthAreas.map((area, index) => (
+                      <motion.div
+                        key={index}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.6 + index * 0.1 }}
+                      >
+                        <Card className="p-5 border border-gray-100 hover:shadow-md transition-shadow bg-gradient-to-br from-white to-purple-50">
+                          <h3 className="font-semibold text-lg mb-3 text-gray-800">{area.area}</h3>
+                          <div className="flex items-start">
+                            <div className="bg-purple-100 text-purple-500 rounded-full p-2 mr-3 mt-0.5 flex-shrink-0">
+                              <ArrowRight className="h-4 w-4" />
+                            </div>
+                            <p className="text-gray-600">{area.tip}</p>
                           </div>
-                          <p className="text-gray-700">{strength}</p>
-                        </motion.div>
-                      ))}
-                    </div>
-                  </motion.div>
-                )}
+                        </Card>
+                      </motion.div>
+                    ))}
+                  </div>
+                </motion.div>
                 
-                {activeSection === 'growth' && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5, duration: 0.5 }}
-                    className="bg-white rounded-2xl p-8 shadow-lg mb-8 border border-gray-100"
-                  >
-                    <div className="flex items-center mb-6">
-                      <div className="w-10 h-10 rounded-full bg-[hsl(var(--brand-red))/10] flex items-center justify-center mr-3">
-                        <ArrowRight className="h-5 w-5 text-[hsl(var(--brand-red))]" />
-                      </div>
-                      <h2 className="text-2xl font-semibold text-gray-800">Growth Opportunities</h2>
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6, duration: 0.5 }}
+                  className="bg-white rounded-2xl p-8 shadow-lg mb-8 border border-gray-100"
+                >
+                  <div className="flex items-center mb-6">
+                    <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-3">
+                      <BookOpen className="h-5 w-5 text-purple-500" />
                     </div>
-                    
-                    <p className="text-gray-600 mb-6">{profile.growthIntro}</p>
-                    
-                    <div className="space-y-4">
-                      {profile.growthAreas.map((area, index) => (
-                        <motion.div
-                          key={index}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.6 + index * 0.1 }}
+                    <h2 className="text-2xl font-semibold text-gray-800">Helpful Resources</h2>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    {profile.resources.map((resource, index) => (
+                      <motion.div
+                        key={index}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.7 + index * 0.1 }}
+                      >
+                        <Card 
+                          className="p-5 border border-gray-100 hover:border-purple-300 hover:shadow-md transition-all group h-full flex flex-col"
                         >
-                          <Card className="p-5 border border-gray-100 hover:shadow-md transition-shadow bg-gradient-to-br from-white to-[hsl(var(--brand-red))/5]">
-                            <h3 className="font-semibold text-lg mb-3 text-gray-800">{area.area}</h3>
-                            <div className="flex items-start">
-                              <div className="bg-[hsl(var(--brand-red))/10] text-[hsl(var(--brand-red))] rounded-full p-2 mr-3 mt-0.5 flex-shrink-0">
-                                <ArrowRight className="h-4 w-4" />
-                              </div>
-                              <p className="text-gray-600">{area.tip}</p>
-                            </div>
-                          </Card>
-                        </motion.div>
-                      ))}
-                    </div>
-                  </motion.div>
-                )}
-                
-                {activeSection === 'resources' && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.6, duration: 0.5 }}
-                    className="bg-white rounded-2xl p-8 shadow-lg mb-8 border border-gray-100"
-                  >
-                    <div className="flex items-center mb-6">
-                      <div className="w-10 h-10 rounded-full bg-[hsl(var(--brand-red))/10] flex items-center justify-center mr-3">
-                        <BookOpen className="h-5 w-5 text-[hsl(var(--brand-red))]" />
-                      </div>
-                      <h2 className="text-2xl font-semibold text-gray-800">Helpful Resources</h2>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                      {profile.resources.map((resource, index) => (
-                        <motion.div
-                          key={index}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.7 + index * 0.1 }}
-                        >
-                          <Card 
-                            className="p-5 border border-gray-100 hover:border-[hsl(var(--brand-red))/30] hover:shadow-md transition-all group h-full flex flex-col"
-                          >
-                            <div className="w-12 h-12 mb-4 bg-[hsl(var(--brand-red))/10] rounded-full flex items-center justify-center text-[hsl(var(--brand-red))] group-hover:bg-[hsl(var(--brand-red))/20] transition-colors">
-                              {resource.icon}
-                            </div>
-                            <h3 className="font-semibold text-lg mb-1 text-gray-800">{resource.title}</h3>
-                            <p className="text-sm text-gray-600 flex-grow">{resource.description}</p>
-                            <div className="mt-4 pt-3 border-t border-gray-100 text-[hsl(var(--brand-red))] font-medium text-sm flex items-center">
-                              Learn More <ArrowRight className="h-3 w-3 ml-1 group-hover:translate-x-1 transition-transform" />
-                            </div>
-                          </Card>
-                        </motion.div>
-                      ))}
-                    </div>
-                  </motion.div>
-                )}
+                          <div className="w-12 h-12 mb-4 bg-purple-100 rounded-full flex items-center justify-center text-purple-500 group-hover:bg-purple-200 transition-colors">
+                            {resource.icon}
+                          </div>
+                          <h3 className="font-semibold text-lg mb-1 text-gray-800">{resource.title}</h3>
+                          <p className="text-sm text-gray-600 flex-grow">{resource.description}</p>
+                          <div className="mt-4 pt-3 border-t border-gray-100 text-purple-500 font-medium text-sm flex items-center">
+                            Learn More <ArrowRight className="h-3 w-3 ml-1 group-hover:translate-x-1 transition-transform" />
+                          </div>
+                        </Card>
+                      </motion.div>
+                    ))}
+                  </div>
+                </motion.div>
               </motion.div>
             </div>
             
@@ -763,15 +709,15 @@ const EQNavigatorResults = () => {
               <Button 
                 onClick={() => navigate('/')}
                 variant="outline"
-                className="flex items-center gap-2 border-[hsl(var(--brand-red))/20] text-[hsl(var(--brand-red))] hover:bg-[hsl(var(--brand-red))/5]"
+                className="flex items-center gap-2 border-purple-200 text-purple-500 hover:bg-purple-50"
               >
                 <Home className="h-4 w-4" />
                 Return Home
               </Button>
               
               <Button 
-                onClick={() => navigate('/eq-navigator')}
-                className="bg-gradient-to-r from-[hsl(var(--brand-red))] to-[hsl(var(--brand-red-dark))] hover:from-[hsl(var(--brand-red-dark))] hover:to-[hsl(var(--brand-red))] text-white"
+                onClick={() => navigate('/assessment/eq-navigator')}
+                className="bg-gradient-to-r from-purple-400 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white"
               >
                 Take Another Assessment
               </Button>

@@ -15,7 +15,7 @@ interface ProgressProps extends React.ComponentPropsWithoutRef<typeof ProgressPr
 const Progress = React.forwardRef<
   React.ElementRef<typeof ProgressPrimitive.Root>,
   ProgressProps
->(({ className, value, indicatorClassName, showValue = false, max = 100, format, ...props }, ref) => {
+>(({ className, value = 0, indicatorClassName, showValue = false, max = 100, format, ...props }, ref) => {
   const percentage = Math.round(((value || 0) / max) * 100);
   
   const defaultFormat = (value: number, max: number) => `${value}/${max}`;
