@@ -12,7 +12,7 @@ const LeadFormSubmitButton = ({ isSubmitting }: LeadFormSubmitButtonProps) => {
     <div className="pt-4">
       <Button 
         type="submit" 
-        className="bg-gradient-to-r from-brand-purple to-purple-700 hover:from-purple-600 hover:to-brand-purple text-white w-full md:w-auto shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5"
+        className="bg-gradient-to-r from-brand-purple to-purple-700 hover:from-purple-600 hover:to-brand-purple text-white w-full md:w-auto shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5"
         disabled={isSubmitting}
       >
         {isSubmitting ? (

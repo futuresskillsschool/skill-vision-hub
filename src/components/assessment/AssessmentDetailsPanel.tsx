@@ -52,11 +52,8 @@ const AssessmentDetailsPanel = ({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.1 }}
-        className="bg-gradient-to-br from-brand-purple/20 to-purple-100 rounded-xl p-6 md:p-8 border border-brand-purple/20 shadow-md overflow-hidden relative"
+        className="bg-gradient-to-br from-brand-purple/20 to-purple-100 rounded-xl p-6 md:p-8 border border-brand-purple/20 shadow-md"
       >
-        <div className="absolute -top-12 -right-12 h-24 w-24 bg-brand-purple/20 rounded-full blur-2xl"></div>
-        <div className="absolute -bottom-12 -left-12 h-24 w-24 bg-brand-purple/10 rounded-full blur-2xl"></div>
-        
         <h3 className="text-xl font-semibold mb-4 flex items-center">
           <Sparkles className="h-5 w-5 text-brand-purple mr-2" />
           Ready to Begin?
@@ -66,7 +63,7 @@ const AssessmentDetailsPanel = ({
         </p>
         <Button 
           onClick={onStartAssessment} 
-          className="w-full bg-gradient-to-r from-brand-purple to-purple-700 hover:from-purple-700 hover:to-brand-purple text-white shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5"
+          className="w-full bg-brand-purple hover:bg-brand-purple/90 text-white shadow-md hover:shadow-lg transition-all duration-300"
           size="lg"
         >
           <Sparkles className="h-4 w-4 mr-2" />
