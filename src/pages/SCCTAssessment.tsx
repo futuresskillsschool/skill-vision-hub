@@ -412,7 +412,8 @@ const questions: Question[] = [
 
 const SCCTAssessment = () => {
   const navigate = useNavigate();
-  const { handleSubmit, control, watch, setValue, formState: { errors } } = useForm();
+  const form = useForm();
+  const { handleSubmit, control, watch, setValue, formState: { errors } } = form;
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [assessmentStarted, setAssessmentStarted] = useState<boolean>(false);
   const [answers, setAnswers] = useState<Answer[]>([]);
@@ -682,71 +683,73 @@ const SCCTAssessment = () => {
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.3 }}
             >
-              <Form {...{ control, handleSubmit: handleSubmit(handleNext) }}>
-                <Card className="border border-brand-orange/20 shadow-lg">
-                  <div className="p-6 md:p-8">
-                    <div className="mb-6">
-                      <div className="inline-block bg-brand-orange/10 text-brand-orange text-sm font-medium px-3 py-1 rounded-md mb-3">
-                        {sections.find(s => s.id === questions[currentStep].section)?.title}
+              <Form {...form}>
+                <form onSubmit={handleSubmit(handleNext)}>
+                  <Card className="border border-brand-orange/20 shadow-lg">
+                    <div className="p-6 md:p-8">
+                      <div className="mb-6">
+                        <div className="inline-block bg-brand-orange/10 text-brand-orange text-sm font-medium px-3 py-1 rounded-md mb-3">
+                          {sections.find(s => s.id === questions[currentStep].section)?.title}
+                        </div>
+                        <h2 className="text-xl font-semibold text-gray-800">{questions[currentStep].scenario}</h2>
                       </div>
-                      <h2 className="text-xl font-semibold text-gray-800">{questions[currentStep].scenario}</h2>
-                    </div>
-                    
-                    <FormField
-                      control={control}
-                      name={`question_${questions[currentStep].id}`}
-                      rules={{ required: "Please select an option" }}
-                      render={({ field }) => (
-                        <FormItem className="space-y-1">
-                          <FormControl>
-                            <RadioGroup
-                              onValueChange={(value) => field.onChange(parseInt(value))}
-                              value={field.value?.toString()}
-                              className="space-y-3"
-                            >
-                              {questions[currentStep].options.map((option) => (
-                                <div
-                                  key={option.id}
-                                  className="flex items-center space-x-3 border border-gray-200 rounded-lg p-4 transition-colors hover:bg-brand-orange/5"
-                                >
-                                  <RadioGroupItem 
-                                    value={option.score.toString()} 
-                                    id={option.id} 
-                                    className="text-brand-orange"
-                                  />
-                                  <label
-                                    htmlFor={option.id}
-                                    className="flex-1 text-base cursor-pointer"
+                      
+                      <FormField
+                        control={control}
+                        name={`question_${questions[currentStep].id}`}
+                        rules={{ required: "Please select an option" }}
+                        render={({ field }) => (
+                          <FormItem className="space-y-1">
+                            <FormControl>
+                              <RadioGroup
+                                onValueChange={(value) => field.onChange(parseInt(value))}
+                                value={field.value?.toString()}
+                                className="space-y-3"
+                              >
+                                {questions[currentStep].options.map((option) => (
+                                  <div
+                                    key={option.id}
+                                    className="flex items-center space-x-3 border border-gray-200 rounded-lg p-4 transition-colors hover:bg-brand-orange/5"
                                   >
-                                    {option.text}
-                                  </label>
+                                    <RadioGroupItem 
+                                      value={option.score.toString()} 
+                                      id={option.id} 
+                                      className="text-brand-orange"
+                                    />
+                                    <label
+                                      htmlFor={option.id}
+                                      className="flex-1 text-base cursor-pointer"
+                                    >
+                                      {option.text}
+                                    </label>
+                                  </div>
+                                ))}
+                              </RadioGroup>
+                            </FormControl>
+                            {errors[`question_${questions[currentStep].id}`] && (
+                              <FormMessage>
+                                <div className="flex items-center mt-2 text-red-500">
+                                  <AlertCircle className="h-4 w-4 mr-1" />
+                                  <span>Please select an option</span>
                                 </div>
-                              ))}
-                            </RadioGroup>
-                          </FormControl>
-                          {errors[`question_${questions[currentStep].id}`] && (
-                            <FormMessage>
-                              <div className="flex items-center mt-2 text-red-500">
-                                <AlertCircle className="h-4 w-4 mr-1" />
-                                <span>Please select an option</span>
-                              </div>
-                            </FormMessage>
-                          )}
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <div className="flex justify-end mt-6">
-                      <Button 
-                        type="submit" 
-                        className="bg-brand-orange hover:bg-brand-orange/90 text-white"
-                      >
-                        {currentStep === questions.length - 1 ? 'Submit' : 'Next'}
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </Button>
+                              </FormMessage>
+                            )}
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <div className="flex justify-end mt-6">
+                        <Button 
+                          type="submit" 
+                          className="bg-brand-orange hover:bg-brand-orange/90 text-white"
+                        >
+                          {currentStep === questions.length - 1 ? 'Submit' : 'Next'}
+                          <ArrowRight className="ml-2 h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                </Card>
+                  </Card>
+                </form>
               </Form>
             </motion.div>
           </div>

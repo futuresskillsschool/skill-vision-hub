@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -145,7 +144,8 @@ const totalQuestions = questions.length;
 
 const EQNavigatorAssessment = () => {
   const navigate = useNavigate();
-  const { handleSubmit, control, watch, setValue, formState: { errors } } = useForm<FormValues>();
+  const form = useForm<FormValues>();
+  const { control, handleSubmit, watch, setValue, formState: { errors } } = form;
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [assessmentStarted, setAssessmentStarted] = useState<boolean>(false);
   const [selectedOptions, setSelectedOptions] = useState<string[]>(Array(totalQuestions).fill(''));
@@ -415,62 +415,64 @@ const EQNavigatorAssessment = () => {
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.3 }}
             >
-              <Form {...{ control, handleSubmit: handleSubmit(handleNext) }}>
-                <Card className="border border-purple-200/30 shadow-lg">
-                  <div className="p-6 md:p-8">
-                    <h2 className="text-xl font-semibold mb-6 text-gray-800">{questions[currentStep].scenario}</h2>
-                    
-                    <FormField
-                      control={control}
-                      name={`question_${questions[currentStep].id}`}
-                      rules={{ required: "Please select an option" }}
-                      render={({ field }) => (
-                        <FormItem className="space-y-1">
-                          <FormControl>
-                            <RadioGroup
-                              onValueChange={field.onChange}
-                              value={field.value}
-                              className="space-y-3"
-                            >
-                              {questions[currentStep].options.map((option) => (
-                                <div
-                                  key={option.id}
-                                  className="flex items-center space-x-3 border border-gray-200 rounded-lg p-4 transition-colors hover:bg-purple-50"
-                                >
-                                  <RadioGroupItem value={option.id} id={option.id} />
-                                  <label
-                                    htmlFor={option.id}
-                                    className="flex-1 text-base cursor-pointer"
+              <Form {...form}>
+                <form onSubmit={handleSubmit(handleNext)}>
+                  <Card className="border border-purple-200/30 shadow-lg">
+                    <div className="p-6 md:p-8">
+                      <h2 className="text-xl font-semibold mb-6 text-gray-800">{questions[currentStep].scenario}</h2>
+                      
+                      <FormField
+                        control={control}
+                        name={`question_${questions[currentStep].id}`}
+                        rules={{ required: "Please select an option" }}
+                        render={({ field }) => (
+                          <FormItem className="space-y-1">
+                            <FormControl>
+                              <RadioGroup
+                                onValueChange={field.onChange}
+                                value={field.value}
+                                className="space-y-3"
+                              >
+                                {questions[currentStep].options.map((option) => (
+                                  <div
+                                    key={option.id}
+                                    className="flex items-center space-x-3 border border-gray-200 rounded-lg p-4 transition-colors hover:bg-purple-50"
                                   >
-                                    {option.text}
-                                  </label>
+                                    <RadioGroupItem value={option.id} id={option.id} />
+                                    <label
+                                      htmlFor={option.id}
+                                      className="flex-1 text-base cursor-pointer"
+                                    >
+                                      {option.text}
+                                    </label>
+                                  </div>
+                                ))}
+                              </RadioGroup>
+                            </FormControl>
+                            {errors[`question_${questions[currentStep].id}`] && (
+                              <FormMessage>
+                                <div className="flex items-center mt-2 text-red-500">
+                                  <AlertCircle className="h-4 w-4 mr-1" />
+                                  <span>Please select an option</span>
                                 </div>
-                              ))}
-                            </RadioGroup>
-                          </FormControl>
-                          {errors[`question_${questions[currentStep].id}`] && (
-                            <FormMessage>
-                              <div className="flex items-center mt-2 text-red-500">
-                                <AlertCircle className="h-4 w-4 mr-1" />
-                                <span>Please select an option</span>
-                              </div>
-                            </FormMessage>
-                          )}
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <div className="flex justify-end mt-6">
-                      <Button 
-                        type="submit" 
-                        className="bg-gradient-to-r from-purple-400 to-blue-400 hover:from-purple-500 hover:to-blue-500 text-white"
-                      >
-                        {currentStep === totalQuestions - 1 ? 'Complete' : 'Next'}
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </Button>
+                              </FormMessage>
+                            )}
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <div className="flex justify-end mt-6">
+                        <Button 
+                          type="submit" 
+                          className="bg-gradient-to-r from-purple-400 to-blue-400 hover:from-purple-500 hover:to-blue-500 text-white"
+                        >
+                          {currentStep === totalQuestions - 1 ? 'Complete' : 'Next'}
+                          <ArrowRight className="ml-2 h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                </Card>
+                  </Card>
+                </form>
               </Form>
             </motion.div>
           </div>
