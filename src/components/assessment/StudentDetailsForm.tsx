@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
 import { ArrowRight, User, School, BookOpen, UsersRound } from "lucide-react";
@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -18,6 +17,8 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
 interface StudentDetailsFormProps {
   assessmentType: string;
@@ -25,12 +26,15 @@ interface StudentDetailsFormProps {
   onSubmitSuccess: (studentId: string) => void;
 }
 
-interface FormValues {
-  name: string;
-  class: string;
-  section: string;
-  school: string;
-}
+// Create a schema for form validation
+const formSchema = z.object({
+  name: z.string().min(1, { message: "Name is required" }),
+  class: z.string().min(1, { message: "Class is required" }),
+  section: z.string().min(1, { message: "Section is required" }),
+  school: z.string().min(1, { message: "School name is required" }),
+});
+
+type FormValues = z.infer<typeof formSchema>;
 
 const StudentDetailsForm = ({ 
   assessmentType, 
@@ -38,11 +42,11 @@ const StudentDetailsForm = ({
   onSubmitSuccess 
 }: StudentDetailsFormProps) => {
   const { user } = useAuth();
-  const navigate = useNavigate();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
       class: "",

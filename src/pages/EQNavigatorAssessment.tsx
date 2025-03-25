@@ -18,7 +18,6 @@ import { Progress } from '@/components/ui/progress';
 import { ArrowLeft, ArrowRight, AlertCircle } from 'lucide-react';
 import AssessmentDetailsPanel from '@/components/assessment/AssessmentDetailsPanel';
 
-// Types
 type Question = {
   id: number;
   scenario: string;
@@ -35,7 +34,6 @@ type FormValues = {
   [key: string]: string;
 };
 
-// Questions for the EQ Navigator assessment
 const questions: Question[] = [
   {
     id: 1,
@@ -139,29 +137,26 @@ const questions: Question[] = [
   }
 ];
 
-// Total questions in the assessment
 const totalQuestions = questions.length;
 
 const EQNavigatorAssessment = () => {
   const navigate = useNavigate();
   const form = useForm<FormValues>();
-  const { control, handleSubmit, watch, setValue, formState: { errors } } = form;
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [assessmentStarted, setAssessmentStarted] = useState<boolean>(false);
   const [selectedOptions, setSelectedOptions] = useState<string[]>(Array(totalQuestions).fill(''));
   
-  // Reset form when questions change
   useEffect(() => {
     if (assessmentStarted && currentStep < totalQuestions) {
       const questionId = questions[currentStep].id;
       const existingSelection = selectedOptions[currentStep];
       if (existingSelection) {
-        setValue(`question_${questionId}`, existingSelection);
+        form.setValue(`question_${questionId}`, existingSelection);
       } else {
-        setValue(`question_${questionId}`, '');
+        form.setValue(`question_${questionId}`, '');
       }
     }
-  }, [currentStep, assessmentStarted, setValue, selectedOptions]);
+  }, [currentStep, assessmentStarted, form.setValue, selectedOptions]);
   
   const startAssessment = () => {
     setAssessmentStarted(true);
@@ -172,16 +167,13 @@ const EQNavigatorAssessment = () => {
     const questionId = questions[currentStep].id;
     const selectedOption = data[`question_${questionId}`];
     
-    // Update selected options
     const newSelectedOptions = [...selectedOptions];
     newSelectedOptions[currentStep] = selectedOption;
     setSelectedOptions(newSelectedOptions);
     
-    // If this is the last question, calculate score and navigate to results
     if (currentStep === totalQuestions - 1) {
       const totalScore = calculateTotalScore(newSelectedOptions);
       
-      // Navigate to student details page first before showing results
       navigate('/assessment/eq-navigator/student-details', { 
         state: { 
           totalScore,
@@ -190,7 +182,6 @@ const EQNavigatorAssessment = () => {
         } 
       });
     } else {
-      // Move to next question
       setCurrentStep(currentStep + 1);
     }
   };
@@ -216,12 +207,10 @@ const EQNavigatorAssessment = () => {
     return score;
   };
   
-  // Calculate progress percentage
   const progressPercentage = assessmentStarted 
     ? Math.round(((currentStep + 1) / totalQuestions) * 100) 
     : 0;
   
-  // If assessment has not yet started, show introduction
   if (!assessmentStarted) {
     return (
       <div className="min-h-screen flex flex-col bg-gradient-to-br from-white via-purple-50 to-blue-50">
@@ -416,13 +405,13 @@ const EQNavigatorAssessment = () => {
               transition={{ duration: 0.3 }}
             >
               <Form {...form}>
-                <form onSubmit={handleSubmit(handleNext)}>
+                <form onSubmit={form.handleSubmit(handleNext)}>
                   <Card className="border border-purple-200/30 shadow-lg">
                     <div className="p-6 md:p-8">
                       <h2 className="text-xl font-semibold mb-6 text-gray-800">{questions[currentStep].scenario}</h2>
                       
                       <FormField
-                        control={control}
+                        control={form.control}
                         name={`question_${questions[currentStep].id}`}
                         rules={{ required: "Please select an option" }}
                         render={({ field }) => (
@@ -449,14 +438,7 @@ const EQNavigatorAssessment = () => {
                                 ))}
                               </RadioGroup>
                             </FormControl>
-                            {errors[`question_${questions[currentStep].id}`] && (
-                              <FormMessage>
-                                <div className="flex items-center mt-2 text-red-500">
-                                  <AlertCircle className="h-4 w-4 mr-1" />
-                                  <span>Please select an option</span>
-                                </div>
-                              </FormMessage>
-                            )}
+                            <FormMessage />
                           </FormItem>
                         )}
                       />
