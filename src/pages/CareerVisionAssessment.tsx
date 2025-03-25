@@ -31,7 +31,7 @@ interface QuestionnaireSection {
 const RIASEC_QUESTIONS: QuestionnaireSection = {
   id: 'riasec',
   title: 'RIASEC Profile',
-  description: 'Indicate how much you'd enjoy doing each of the following activities:',
+  description: 'Indicate how much you\'d enjoy doing each of the following activities:',
   questions: [
     { id: 'R1', text: 'Build something with tools and materials', tooltip: 'Activities involving hands-on work with physical objects' },
     { id: 'I1', text: 'Solve puzzles or complex problems', tooltip: 'Activities that involve analysis and critical thinking' },
@@ -71,7 +71,7 @@ const EQ_QUESTIONS: QuestionnaireSection = {
     { id: 'eq3', text: 'I can calm myself when upset or stressed', tooltip: 'Self-regulation and managing negative emotions' },
     { id: 'eq4', text: 'I can understand how others feel based on their expressions', tooltip: 'Reading non-verbal cues and expressions' },
     { id: 'eq5', text: 'I am able to maintain positive relationships', tooltip: 'Building and sustaining healthy connections with others' },
-    { id: 'eq6', text: 'I can adapt my communication style based on who I'm talking to', tooltip: 'Adjusting how you communicate for different audiences' },
+    { id: 'eq6', text: 'I can adapt my communication style based on who I\'m talking to', tooltip: 'Adjusting how you communicate for different audiences' },
     { id: 'eq7', text: 'I can motivate myself to achieve goals despite setbacks', tooltip: 'Persevering through challenges toward your objectives' },
     { id: 'eq8', text: 'I consider multiple perspectives when making decisions', tooltip: 'Taking various viewpoints into account when deciding' },
   ],
