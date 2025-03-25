@@ -82,6 +82,7 @@ const App = () => (
               {/* SCCT Assessment Flow - Updated Routes */}
               <Route path="/assessment/scct" element={<SCCTLanding />} />
               <Route path="/assessment/scct/take" element={<SCCTAssessment />} />
+              <Route path="/assessment/scct/student-details" element={<StudentDetailsPage />} />
               <Route path="/assessment/scct/results" element={<SCCTResults />} />
               {/* Remove duplicate routes - redirect to new path structure */}
               <Route path="/scct" element={<Navigate to="/assessment/scct" replace />} />
