@@ -179,7 +179,8 @@ const RIASECResults = () => {
   const { user, storeAssessmentResult } = useAuth();
   const [isDownloading, setIsDownloading] = useState(false);
   
-  const scores = location.state?.scores || { R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 };
+  // Type the scores properly with a default value
+  const scores: RIASECScores = location.state?.scores || { R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 };
   const studentId = location.state?.studentId;
   const [studentDetails, setStudentDetails] = useState<any>(null);
   
@@ -219,10 +220,11 @@ const RIASECResults = () => {
   const secondaryType = sortedTypes[1];
   const tertiaryType = sortedTypes[2];
   
+  // Ensure totalQuestions is always a number
   const totalQuestions = Object.values(scores).reduce((a, b) => Number(a) + Number(b), 0);
   
   const getPercentage = (score: number) => {
-    return Math.round((score / Number(totalQuestions)) * 100);
+    return Math.round((score / totalQuestions) * 100);
   };
   
   const downloadResults = async () => {
@@ -338,15 +340,15 @@ const RIASECResults = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="flex items-center">
                     <User className="h-5 w-5 text-brand-purple mr-2" />
-                    <span className="font-medium mr-2">Name:</span> {studentDetails.name}
+                    <span className="font-medium mr-2">Name:</span> {studentDetails.name || 'N/A'}
                   </div>
                   <div className="flex items-center">
                     <BookOpen className="h-5 w-5 text-brand-purple mr-2" />
-                    <span className="font-medium mr-2">Class:</span> {studentDetails.class} {studentDetails.section && `- ${studentDetails.section}`}
+                    <span className="font-medium mr-2">Class:</span> {studentDetails.class || 'N/A'} {studentDetails.section && `- ${studentDetails.section}`}
                   </div>
                   <div className="flex items-center col-span-1 md:col-span-2">
                     <School className="h-5 w-5 text-brand-purple mr-2" />
-                    <span className="font-medium mr-2">School:</span> {studentDetails.school}
+                    <span className="font-medium mr-2">School:</span> {studentDetails.school || 'N/A'}
                   </div>
                 </div>
               </div>
@@ -399,16 +401,19 @@ const RIASECResults = () => {
                 <div className="space-y-4">
                   {Object.entries(scores).map(([type, score]) => {
                     const typeKey = type as keyof typeof riasecTypes;
+                    const scoreValue = Number(score);
+                    const percentage = getPercentage(scoreValue);
+                    
                     return (
                       <div key={type}>
                         <div className="flex justify-between mb-1">
                           <span className="font-medium">{riasecTypes[typeKey].name}</span>
-                          <span>{score}/{totalQuestions} ({getPercentage(Number(score))}%)</span>
+                          <span>{scoreValue}/{totalQuestions} ({percentage}%)</span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2.5">
                           <div 
                             className={`h-2.5 rounded-full ${riasecTypes[typeKey].color}`}
-                            style={{ width: `${getPercentage(Number(score))}%` }}
+                            style={{ width: `${percentage}%` }}
                           ></div>
                         </div>
                       </div>
