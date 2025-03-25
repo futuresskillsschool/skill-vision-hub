@@ -87,9 +87,9 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
           </div>
         </Card>
         
-        <Card className="p-6 bg-brand-red/5">
+        <Card className="p-6 bg-brand-green/5">
           <div className="flex items-center mb-4">
-            <Heart className="h-5 w-5 text-brand-red mr-2" />
+            <Heart className="h-5 w-5 text-brand-green mr-2" />
             <h3 className="font-semibold">EQ Navigator</h3>
           </div>
           <p className="text-sm text-muted-foreground mb-4">
