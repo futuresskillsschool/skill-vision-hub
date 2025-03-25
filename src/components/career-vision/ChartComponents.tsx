@@ -159,7 +159,7 @@ export const RadarChartCard: React.FC<RadarChartCardProps> = ({ data, title, des
         <ResponsiveContainer width="100%" height="100%">
           <RadarChart outerRadius="80%" data={data}>
             <PolarGrid stroke="#e0e0e0" />
-            <PolarAngleAxis dataKey="name" tick={{ fill: '#666', fontSize: 12 }} />
+            <PolarAngleAxis dataKey="name" tick={{ fill: '#666', fontSize: 8 }} />
             <Radar 
               name="Score" 
               dataKey="score" 
