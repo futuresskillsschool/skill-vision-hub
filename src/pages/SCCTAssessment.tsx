@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -93,7 +92,7 @@ const sections: Section[] = [
     description: 'The obstacles you perceive that may interfere with your career development and choices.',
     interpretation: {
       high: 'You perceive significant barriers to your career development. Identifying specific barriers and developing strategies to address them can help you navigate challenges more effectively.',
-      low: 'You perceive relatively few barriers to your career development. This perception can make it easier to pursue your goals, but it's still important to prepare for potential challenges.'
+      low: 'You perceive relatively few barriers to your career development. This perception can make it easier to pursue your goals, but it is still important to prepare for potential challenges.'
     }
   }
 ];
