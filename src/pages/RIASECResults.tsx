@@ -1,8 +1,7 @@
-
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Download, Star, User, School, BookOpen } from 'lucide-react';
+import { ArrowLeft, Download, Star } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import html2canvas from 'html2canvas';
@@ -179,10 +178,7 @@ const RIASECResults = () => {
   const { user, storeAssessmentResult } = useAuth();
   const [isDownloading, setIsDownloading] = useState(false);
   
-  // Type the scores properly with a default value
   const scores: RIASECScores = location.state?.scores || { R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 };
-  const studentId = location.state?.studentId;
-  const [studentDetails, setStudentDetails] = useState<any>(null);
   
   useEffect(() => {
     if (!location.state) {
@@ -191,37 +187,17 @@ const RIASECResults = () => {
     }
     
     window.scrollTo(0, 0);
-    
-    if (studentId) {
-      const fetchStudentDetails = async () => {
-        try {
-          const { data, error } = await supabase
-            .from('student_details')
-            .select('*')
-            .eq('id', studentId)
-            .single();
-            
-          if (error) throw error;
-          setStudentDetails(data);
-        } catch (error) {
-          console.error('Error fetching student details:', error);
-        }
-      };
-      
-      fetchStudentDetails();
-    }
-  }, [location.state, navigate, studentId]);
+  }, [location.state, navigate]);
   
   const sortedTypes = Object.entries(scores)
-    .sort(([, scoreA], [, scoreB]) => Number(scoreB) - Number(scoreA))
+    .sort(([, scoreA], [, scoreB]) => scoreB - scoreA)
     .map(([type]) => type as keyof typeof riasecTypes);
   
   const primaryType = sortedTypes[0];
   const secondaryType = sortedTypes[1];
   const tertiaryType = sortedTypes[2];
   
-  // Ensure totalQuestions is always a number
-  const totalQuestions = Object.values(scores).reduce((a, b) => Number(a) + Number(b), 0);
+  const totalQuestions = Object.values(scores).reduce((a, b) => a + b, 0);
   
   const getPercentage = (score: number) => {
     return Math.round((score / totalQuestions) * 100);
@@ -334,26 +310,6 @@ const RIASECResults = () => {
               </div>
             </div>
             
-            {studentDetails && (
-              <div className="p-6 md:p-8 bg-purple-50 border-b border-gray-200">
-                <h3 className="text-lg font-semibold mb-4">Student Information</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="flex items-center">
-                    <User className="h-5 w-5 text-brand-purple mr-2" />
-                    <span className="font-medium mr-2">Name:</span> {studentDetails.name || 'N/A'}
-                  </div>
-                  <div className="flex items-center">
-                    <BookOpen className="h-5 w-5 text-brand-purple mr-2" />
-                    <span className="font-medium mr-2">Class:</span> {studentDetails.class || 'N/A'} {studentDetails.section && `- ${studentDetails.section}`}
-                  </div>
-                  <div className="flex items-center col-span-1 md:col-span-2">
-                    <School className="h-5 w-5 text-brand-purple mr-2" />
-                    <span className="font-medium mr-2">School:</span> {studentDetails.school || 'N/A'}
-                  </div>
-                </div>
-              </div>
-            )}
-            
             <div className="p-6 md:p-8">
               <div className="mb-8">
                 <h3 className="text-xl font-semibold mb-4 flex items-center">
@@ -399,26 +355,20 @@ const RIASECResults = () => {
                 <h3 className="text-xl font-semibold mb-4">Your RIASEC Profile</h3>
                 
                 <div className="space-y-4">
-                  {Object.entries(scores).map(([type, score]) => {
-                    const typeKey = type as keyof typeof riasecTypes;
-                    const scoreValue = Number(score);
-                    const percentage = getPercentage(scoreValue);
-                    
-                    return (
-                      <div key={type}>
-                        <div className="flex justify-between mb-1">
-                          <span className="font-medium">{riasecTypes[typeKey].name}</span>
-                          <span>{scoreValue}/{totalQuestions} ({percentage}%)</span>
-                        </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2.5">
-                          <div 
-                            className={`h-2.5 rounded-full ${riasecTypes[typeKey].color}`}
-                            style={{ width: `${percentage}%` }}
-                          ></div>
-                        </div>
+                  {Object.entries(scores).map(([type, score]) => (
+                    <div key={type}>
+                      <div className="flex justify-between mb-1">
+                        <span className="font-medium">{riasecTypes[type as keyof typeof riasecTypes].name}</span>
+                        <span>{score}/{totalQuestions} ({getPercentage(score)}%)</span>
                       </div>
-                    );
-                  })}
+                      <div className="w-full bg-gray-200 rounded-full h-2.5">
+                        <div 
+                          className={`h-2.5 rounded-full ${riasecTypes[type as keyof typeof riasecTypes].color}`}
+                          style={{ width: `${getPercentage(score)}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
               

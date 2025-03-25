@@ -558,17 +558,9 @@ const CareerVisionAssessment = () => {
       });
     }
     
-    // Navigate to student details form instead of directly to results
-    navigate('/assessment/career-vision/student-details', { 
-      state: { 
-        assessmentType: 'career-vision',
-        results: combinedResults,
-        userResponses: {
-          riasec: riasecAnswers,
-          pathways: pathwaysAnswers,
-          eq: eqAnswers
-        }
-      } 
+    // Navigate to results page
+    navigate('/assessment/career-vision/results', {
+      state: combinedResults
     });
   };
   
@@ -920,4 +912,3 @@ const CareerVisionAssessment = () => {
 };
 
 export default CareerVisionAssessment;
-

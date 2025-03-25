@@ -52,13 +52,11 @@ const App = () => (
               {/* Career Vision Assessment Flow */}
               <Route path="/assessment/career-vision" element={<CareerVisionLanding />} />
               <Route path="/assessment/career-vision/take" element={<CareerVisionAssessment />} />
-              <Route path="/assessment/career-vision/student-details" element={<StudentDetailsPage />} />
               <Route path="/assessment/career-vision/results" element={<CareerVisionResults />} />
               
               {/* EQ Navigator Assessment Flow */}
               <Route path="/assessment/eq-navigator" element={<EQNavigatorLanding />} />
               <Route path="/assessment/eq-navigator/take" element={<EQNavigatorAssessment />} />
-              <Route path="/assessment/eq-navigator/student-details" element={<StudentDetailsPage />} />
               <Route path="/assessment/eq-navigator/results" element={<EQNavigatorResults />} />
               <Route path="/eq-navigator" element={<Navigate to="/assessment/eq-navigator" replace />} />
               <Route path="/eq-navigator/take" element={<Navigate to="/assessment/eq-navigator/take" replace />} />
@@ -67,7 +65,6 @@ const App = () => (
               {/* Future Pathways Assessment Flow */}
               <Route path="/assessment/future-pathways" element={<FuturePathwaysLanding />} />
               <Route path="/assessment/future-pathways/take" element={<FuturePathwaysAssessment />} />
-              <Route path="/assessment/future-pathways/student-details" element={<StudentDetailsPage />} />
               <Route path="/assessment/future-pathways/results" element={<FuturePathwaysResults />} />
               <Route path="/future-pathways" element={<Navigate to="/assessment/future-pathways" replace />} />
               <Route path="/future-pathways/take" element={<Navigate to="/assessment/future-pathways/take" replace />} />
@@ -76,7 +73,6 @@ const App = () => (
               {/* RIASEC Assessment Flow */}
               <Route path="/assessment/riasec" element={<RIASECLanding />} />
               <Route path="/assessment/riasec/take" element={<RIASECAssessment />} />
-              <Route path="/assessment/riasec/student-details" element={<StudentDetailsPage />} />
               <Route path="/assessment/riasec/results" element={<RIASECResults />} />
               <Route path="/riasec" element={<Navigate to="/assessment/riasec" replace />} />
               <Route path="/riasec/take" element={<Navigate to="/assessment/riasec/take" replace />} />
