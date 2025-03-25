@@ -21,19 +21,10 @@ const StudentDetailsPage = () => {
   
   // Determine which assessment type based on the URL or the results data
   let assessmentType = id || '';
-  if (assessmentType === 'career-vision') {
-    assessmentType = 'career-vision';
-  } else if (assessmentType === 'eq-navigator') {
-    assessmentType = 'eq-navigator';
-  } else if (assessmentType === 'future-pathways') {
-    assessmentType = 'future-pathways';
-  } else if (assessmentType === 'riasec') {
-    assessmentType = 'riasec';
-  } else if (assessmentType === 'scct') {
-    assessmentType = 'scct';
-  }
   
   const handleSubmitSuccess = (studentId: string) => {
+    console.log("Student details submitted, navigating to results page with:", { ...resultsData, studentId });
+    
     // Navigate to the results page with the results data
     navigate(`/assessment/${id}/results`, {
       state: {

@@ -1,6 +1,4 @@
-
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
 import { ArrowRight, User, School, BookOpen, UsersRound } from "lucide-react";
@@ -59,6 +57,9 @@ const StudentDetailsForm = ({
     setIsSubmitting(true);
     
     try {
+      console.log("Submitting student details:", data);
+      console.log("Assessment type:", assessmentType);
+      
       // Save student details to Supabase
       const { data: studentData, error } = await supabase
         .from("student_details")
@@ -74,9 +75,12 @@ const StudentDetailsForm = ({
         .single();
 
       if (error) {
+        console.error("Supabase error:", error);
         throw error;
       }
 
+      console.log("Student details saved, ID:", studentData.id);
+      
       toast({
         title: "Information saved",
         description: "Your details have been saved successfully.",

@@ -48,14 +48,13 @@ const App = () => (
               <Route path="/assessment/:id" element={<AssessmentDetail />} />
               <Route path="/assessment/:id/lead-form" element={<LeadForm />} />
               <Route path="/assessment/:id/student-details" element={<StudentDetailsPage />} />
-              <Route path="/assessment/:id/results" element={<Navigate to="/" replace />} />
               
               {/* Career Vision Assessment Flow */}
               <Route path="/assessment/career-vision" element={<CareerVisionLanding />} />
               <Route path="/assessment/career-vision/take" element={<CareerVisionAssessment />} />
               <Route path="/assessment/career-vision/results" element={<CareerVisionResults />} />
               
-              {/* EQ Navigator Assessment Flow - Updated Routes */}
+              {/* EQ Navigator Assessment Flow */}
               <Route path="/assessment/eq-navigator" element={<EQNavigatorLanding />} />
               <Route path="/assessment/eq-navigator/take" element={<EQNavigatorAssessment />} />
               <Route path="/assessment/eq-navigator/results" element={<EQNavigatorResults />} />
@@ -79,7 +78,7 @@ const App = () => (
               <Route path="/riasec/take" element={<Navigate to="/assessment/riasec/take" replace />} />
               <Route path="/riasec/results" element={<Navigate to="/assessment/riasec/results" replace />} />
               
-              {/* SCCT Assessment Flow - Updated Routes */}
+              {/* SCCT Assessment Flow */}
               <Route path="/assessment/scct" element={<SCCTLanding />} />
               <Route path="/assessment/scct/take" element={<SCCTAssessment />} />
               <Route path="/assessment/scct/student-details" element={<StudentDetailsPage />} />

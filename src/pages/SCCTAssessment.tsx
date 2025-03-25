@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -312,7 +311,7 @@ const SCCTAssessment = () => {
           });
       }
       
-      // Redirect to student details form before showing results
+      // Navigate to student details form with results data
       navigate('/assessment/scct/student-details', {
         state: {
           scores,

@@ -220,16 +220,25 @@ const SCCTResults = () => {
   const scores: SCCTScores = location.state?.scores || {};
   const sections: Section[] = location.state?.sections || [];
   const answers: Answer[] = location.state?.answers || [];
+  const studentId = location.state?.studentId;
   
   useEffect(() => {
+    console.log("SCCTResults - Location state:", location.state);
+    console.log("Scores:", scores);
+    console.log("Sections:", sections);
+    console.log("Answers:", answers);
+    console.log("Student ID:", studentId);
+    
     // If no location state data, redirect to the assessment page
     if (!location.state) {
+      console.log("No state data, redirecting to assessment page");
       navigate('/assessment/scct');
       return;
     }
     
     // If no student ID in the state, redirect to student details form
     if (!location.state.studentId) {
+      console.log("No student ID, redirecting to student details form");
       navigate('/assessment/scct/student-details', { state: location.state });
       return;
     }
@@ -248,7 +257,7 @@ const SCCTResults = () => {
       
       saveResult();
     }
-  }, [location.state, navigate, user, storeAssessmentResult, scores, sections, answers]);
+  }, [location.state, navigate, user, storeAssessmentResult, scores, sections, answers, studentId]);
   
   // Calculate max possible score for each section (5 questions per section, max 5 points each)
   const maxSectionScore = 25; // 5 questions × 5 points
@@ -545,8 +554,28 @@ const SCCTResults = () => {
     }
   };
   
-  // If no data, redirect back to assessment
-  if (Object.keys(scores).length === 0) return null;
+  // Check if we have data to display
+  if (Object.keys(scores).length === 0 || sections.length === 0) {
+    console.log("No scores or sections data available");
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <main className="flex-grow pt-24 pb-16">
+          <div className="container mx-auto px-4 text-center">
+            <h1 className="text-3xl font-bold mb-4">No Results Available</h1>
+            <p className="mb-8">No assessment results were found. Please complete the assessment first.</p>
+            <Button 
+              onClick={() => navigate('/assessment/scct/take')}
+              className="bg-brand-orange hover:bg-brand-orange/90"
+            >
+              Take SCCT Assessment
+            </Button>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -758,3 +787,4 @@ const SCCTResults = () => {
 };
 
 export default SCCTResults;
+
