@@ -100,7 +100,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
           <div className="flex items-center justify-center h-[120px]">
             {/* <CircularProgressIndicator value={eqScore} max={40} size="lg" /> */}
             <div className="w-56 h-56 relative">
-              <svg className="w-full h-full" viewBox="0 0 100 100">
+              <svg className="w-100% h-100%" viewBox="0 0 100 100">
                 <circle 
                   className="stroke-purple-200" 
                   cx="50" cy="50" r="40" 
