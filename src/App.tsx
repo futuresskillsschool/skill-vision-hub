@@ -48,21 +48,46 @@ const App = () => (
               <Route path="/assessment/:id" element={<AssessmentDetail />} />
               <Route path="/assessment/:id/lead-form" element={<LeadForm />} />
               <Route path="/assessment/:id/student-details" element={<StudentDetailsPage />} />
+              <Route path="/assessment/:id/results" element={<Navigate to="/" replace />} />
+              
+              {/* Career Vision Assessment Flow */}
               <Route path="/assessment/career-vision" element={<CareerVisionLanding />} />
               <Route path="/assessment/career-vision/take" element={<CareerVisionAssessment />} />
               <Route path="/assessment/career-vision/results" element={<CareerVisionResults />} />
-              <Route path="/eq-navigator" element={<EQNavigatorLanding />} />
-              <Route path="/eq-navigator/take" element={<EQNavigatorAssessment />} />
-              <Route path="/eq-navigator/results" element={<EQNavigatorResults />} />
-              <Route path="/future-pathways" element={<FuturePathwaysLanding />} />
-              <Route path="/future-pathways/take" element={<FuturePathwaysAssessment />} />
-              <Route path="/future-pathways/results" element={<FuturePathwaysResults />} />
-              <Route path="/riasec" element={<RIASECLanding />} />
-              <Route path="/riasec/take" element={<RIASECAssessment />} />
-              <Route path="/riasec/results" element={<RIASECResults />} />
-              <Route path="/scct" element={<SCCTLanding />} />
-              <Route path="/scct/take" element={<SCCTAssessment />} />
-              <Route path="/scct/results" element={<SCCTResults />} />
+              
+              {/* EQ Navigator Assessment Flow - Updated Routes */}
+              <Route path="/assessment/eq-navigator" element={<EQNavigatorLanding />} />
+              <Route path="/assessment/eq-navigator/take" element={<EQNavigatorAssessment />} />
+              <Route path="/assessment/eq-navigator/results" element={<EQNavigatorResults />} />
+              <Route path="/eq-navigator" element={<Navigate to="/assessment/eq-navigator" replace />} />
+              <Route path="/eq-navigator/take" element={<Navigate to="/assessment/eq-navigator/take" replace />} />
+              <Route path="/eq-navigator/results" element={<Navigate to="/assessment/eq-navigator/results" replace />} />
+              
+              {/* Future Pathways Assessment Flow */}
+              <Route path="/assessment/future-pathways" element={<FuturePathwaysLanding />} />
+              <Route path="/assessment/future-pathways/take" element={<FuturePathwaysAssessment />} />
+              <Route path="/assessment/future-pathways/results" element={<FuturePathwaysResults />} />
+              <Route path="/future-pathways" element={<Navigate to="/assessment/future-pathways" replace />} />
+              <Route path="/future-pathways/take" element={<Navigate to="/assessment/future-pathways/take" replace />} />
+              <Route path="/future-pathways/results" element={<Navigate to="/assessment/future-pathways/results" replace />} />
+              
+              {/* RIASEC Assessment Flow */}
+              <Route path="/assessment/riasec" element={<RIASECLanding />} />
+              <Route path="/assessment/riasec/take" element={<RIASECAssessment />} />
+              <Route path="/assessment/riasec/results" element={<RIASECResults />} />
+              <Route path="/riasec" element={<Navigate to="/assessment/riasec" replace />} />
+              <Route path="/riasec/take" element={<Navigate to="/assessment/riasec/take" replace />} />
+              <Route path="/riasec/results" element={<Navigate to="/assessment/riasec/results" replace />} />
+              
+              {/* SCCT Assessment Flow */}
+              <Route path="/assessment/scct" element={<SCCTLanding />} />
+              <Route path="/assessment/scct/take" element={<SCCTAssessment />} />
+              <Route path="/assessment/scct/results" element={<SCCTResults />} />
+              <Route path="/scct" element={<Navigate to="/assessment/scct" replace />} />
+              <Route path="/scct/take" element={<Navigate to="/assessment/scct/take" replace />} />
+              <Route path="/scct/results" element={<Navigate to="/assessment/scct/results" replace />} />
+              
+              {/* Auth Routes */}
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<SignUp />} />
               <Route path="/dashboard" element={
@@ -70,7 +95,8 @@ const App = () => (
                   <Dashboard />
                 </PrivateRoute>
               } />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              
+              {/* Catch-all Route */}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AnimatePresence>

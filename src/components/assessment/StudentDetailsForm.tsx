@@ -102,10 +102,10 @@ const StudentDetailsForm = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="bg-white rounded-xl shadow-lg p-6 md:p-8 max-w-3xl mx-auto border border-brand-orange/20"
+      className="bg-white rounded-xl shadow-lg p-6 md:p-8 max-w-2xl mx-auto"
     >
       <div className="text-center mb-8">
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">
           Student Information
         </h2>
         <p className="text-gray-600">
@@ -120,7 +120,7 @@ const StudentDetailsForm = ({
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="flex items-center">
+                <FormLabel className="flex items-center text-base">
                   <User className="h-4 w-4 mr-2 text-brand-orange" />
                   Full Name
                 </FormLabel>
@@ -128,7 +128,7 @@ const StudentDetailsForm = ({
                   <Input
                     placeholder="Enter your full name"
                     {...field}
-                    className="border-brand-orange/20 focus-visible:ring-brand-orange/50"
+                    className="border-gray-300 focus-visible:ring-brand-orange/50"
                   />
                 </FormControl>
                 <FormMessage />
@@ -142,7 +142,7 @@ const StudentDetailsForm = ({
               name="class"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="flex items-center">
+                  <FormLabel className="flex items-center text-base">
                     <BookOpen className="h-4 w-4 mr-2 text-brand-orange" />
                     Class
                   </FormLabel>
@@ -150,7 +150,7 @@ const StudentDetailsForm = ({
                     <Input
                       placeholder="e.g., 10th, 11th, 12th"
                       {...field}
-                      className="border-brand-orange/20 focus-visible:ring-brand-orange/50"
+                      className="border-gray-300 focus-visible:ring-brand-orange/50"
                     />
                   </FormControl>
                   <FormMessage />
@@ -163,7 +163,7 @@ const StudentDetailsForm = ({
               name="section"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="flex items-center">
+                  <FormLabel className="flex items-center text-base">
                     <UsersRound className="h-4 w-4 mr-2 text-brand-orange" />
                     Section
                   </FormLabel>
@@ -171,7 +171,7 @@ const StudentDetailsForm = ({
                     <Input
                       placeholder="e.g., A, B, C"
                       {...field}
-                      className="border-brand-orange/20 focus-visible:ring-brand-orange/50"
+                      className="border-gray-300 focus-visible:ring-brand-orange/50"
                     />
                   </FormControl>
                   <FormMessage />
@@ -185,7 +185,7 @@ const StudentDetailsForm = ({
             name="school"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="flex items-center">
+                <FormLabel className="flex items-center text-base">
                   <School className="h-4 w-4 mr-2 text-brand-orange" />
                   School Name
                 </FormLabel>
@@ -193,7 +193,7 @@ const StudentDetailsForm = ({
                   <Input
                     placeholder="Enter your school name"
                     {...field}
-                    className="border-brand-orange/20 focus-visible:ring-brand-orange/50"
+                    className="border-gray-300 focus-visible:ring-brand-orange/50"
                   />
                 </FormControl>
                 <FormMessage />

@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { CircularProgressIndicator } from './ChartComponents';
@@ -168,48 +169,29 @@ const EQTab: React.FC<EQTabProps> = ({ eqScore }) => {
         </motion.div>
       </div>
       
-      <motion.div
+      <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.6 }}
+        transition={{ delay: 0.8, duration: 0.5 }}
+        className="bg-white rounded-2xl p-6 shadow-md border border-purple-100"
       >
-        <Card className="p-6 border-2 overflow-hidden relative border-purple-300 shadow-[0_0_20px_rgba(160,128,240,0.15)] mb-8 rounded-xl">
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-50 to-blue-50/50 opacity-70"></div>
-          
-          <div className="relative z-10">
-            <div className="flex items-center">
-              <div className="w-12 h-12 rounded-full flex items-center justify-center mr-4 bg-purple-100 text-purple-700">
-                {eqLevel === "high" ? <Shield className="h-6 w-6" /> : 
-                 eqLevel === "medium" ? <Star className="h-6 w-6" /> : 
-                 <Brain className="h-6 w-6" />}
-              </div>
-              <h3 className="text-xl font-semibold text-purple-700">
-                {eqLevelDescriptions[eqLevel as keyof typeof eqLevelDescriptions].title}
-              </h3>
-            </div>
-            
-            <p className="mb-4 mt-4 text-gray-700 text-lg">
-              {eqLevelDescriptions[eqLevel as keyof typeof eqLevelDescriptions].description}
-            </p>
-            
-            <div className="mt-6 bg-white/60 p-4 rounded-lg backdrop-blur-sm border border-purple-100">
-              <h4 className="font-medium mb-3 flex items-center text-gray-800">
-                <Star className="h-5 w-5 mr-2 text-purple-500" /> 
-                Development Tips:
-              </h4>
-              <p className="text-base text-gray-600">
-                {eqLevelDescriptions[eqLevel as keyof typeof eqLevelDescriptions].tips}
-              </p>
-            </div>
+        <div className="flex items-center mb-4">
+          <div className="bg-purple-100 p-2 rounded-full mr-3">
+            <Heart className="h-5 w-5 text-purple-500" />
           </div>
-        </Card>
+          <h3 className="text-xl font-semibold">How EQ Benefits Your Career</h3>
+        </div>
+        <p className="text-gray-600">
+          Your emotional intelligence score indicates your ability to understand emotions and use them effectively in various situations.
+          Strong EQ skills help with leadership, teamwork, communication, and adapting to workplace challenges.
+        </p>
       </motion.div>
       
       <motion.h3 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.8 }}
-        className="text-xl font-semibold mb-4 flex items-center text-gray-800"
+        className="text-xl font-semibold mb-4 flex items-center text-gray-800 mt-8"
       >
         <div className="bg-purple-100 p-2 rounded-full mr-2">
           <Heart className="h-5 w-5 text-purple-500" />
