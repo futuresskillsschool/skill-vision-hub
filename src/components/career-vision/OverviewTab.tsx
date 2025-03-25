@@ -54,8 +54,8 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
             }).join(", ")} areas.
           </p>
           <div className="h-[120px]">
-            <ResponsiveContainer width="80%" height="100%">
-              <RadarChart cx="50%" cy="50%" outerRadius="80%" data={riasecChartData}>
+            <ResponsiveContainer width="100%" height="100%">
+              <RadarChart cx="50%" cy="50%" outerRadius="100%" data={riasecChartData}>
                 <PolarGrid />
                 <PolarAngleAxis dataKey="name" />
                 <Radar name="Score" dataKey="score" fill="#9b87f5" fillOpacity={0.5} />
