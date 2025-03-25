@@ -16,7 +16,7 @@ import { useAuth } from '@/contexts/AuthContext';
 const sections = [
   {
     id: 'self_efficacy',
-    title: 'Self-Efficacy Beliefs',
+    title: 'Self-Efficacy (Confidence in Abilities)',
     description: 'How confident you feel in your ability to perform career-related tasks',
     interpretation: {
       high: 'You have strong confidence in your ability to succeed in career-related tasks. This confidence can help you set challenging goals and persist through obstacles.',
@@ -25,34 +25,34 @@ const sections = [
     questions: [
       {
         id: 1,
-        text: 'I am confident in my ability to succeed in my chosen career path.',
+        text: 'I believe I can improve my skills if I work hard.',
         options: ['Strongly Disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly Agree']
       },
       {
         id: 2,
-        text: 'When faced with career challenges, I believe I can overcome them.',
+        text: 'I feel confident speaking in front of a group.',
         options: ['Strongly Disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly Agree']
       },
       {
         id: 3,
-        text: 'I can master the skills necessary for my desired profession.',
+        text: 'I can solve problems even when things get difficult.',
         options: ['Strongly Disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly Agree']
       },
       {
         id: 4,
-        text: 'I am capable of performing well in job interviews.',
+        text: 'I feel comfortable using technology for learning.',
         options: ['Strongly Disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly Agree']
       },
       {
         id: 5,
-        text: 'I can effectively balance my career goals with other life priorities.',
+        text: 'I can work well in a team to complete tasks.',
         options: ['Strongly Disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly Agree']
       }
     ]
   },
   {
     id: 'outcome_expectations',
-    title: 'Outcome Expectations',
+    title: 'Outcome Expectations (Belief in Future Success)',
     description: 'Your beliefs about the outcomes of pursuing particular career paths',
     interpretation: {
       high: 'You have positive expectations about the outcomes of your career choices. This can motivate you to pursue your goals with enthusiasm.',
@@ -61,34 +61,34 @@ const sections = [
     questions: [
       {
         id: 6,
-        text: 'My career will provide me with financial security.',
+        text: 'I believe my efforts in school will help me succeed in my career.',
         options: ['Strongly Disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly Agree']
       },
       {
         id: 7,
-        text: 'I expect my career will give me personal satisfaction.',
+        text: 'I feel that learning new skills outside school will benefit my future.',
         options: ['Strongly Disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly Agree']
       },
       {
         id: 8,
-        text: 'My career choice will allow me to make a positive impact on society.',
+        text: 'I believe networking and making connections will help my career.',
         options: ['Strongly Disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly Agree']
       },
       {
         id: 9,
-        text: 'I believe my career will provide good work-life balance.',
+        text: 'I think I can achieve my dream career if I stay dedicated.',
         options: ['Strongly Disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly Agree']
       },
       {
         id: 10,
-        text: 'My career path will offer opportunities for advancement and growth.',
+        text: 'I believe creative and problem-solving skills are important for success.',
         options: ['Strongly Disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly Agree']
       }
     ]
   },
   {
     id: 'career_interests',
-    title: 'Career Interests and Goals',
+    title: 'Career Interests & Exploration',
     description: 'Your interests in various career areas and your career goals',
     interpretation: {
       high: 'You have well-defined career interests and goals. This clarity can help you make focused career decisions.',
@@ -97,34 +97,34 @@ const sections = [
     questions: [
       {
         id: 11,
-        text: 'I am interested in careers that involve research, analysis, or scientific investigation.',
-        options: ['Not at all', 'Slightly', 'Moderately', 'Very', 'Extremely']
+        text: 'I enjoy solving puzzles, experiments, or research.',
+        options: ['Strongly Disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly Agree']
       },
       {
         id: 12,
-        text: 'I am interested in careers that involve creativity, artistic expression, or design.',
-        options: ['Not at all', 'Slightly', 'Moderately', 'Very', 'Extremely']
+        text: 'I like designing, drawing, or creating content.',
+        options: ['Strongly Disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly Agree']
       },
       {
         id: 13,
-        text: 'I am interested in careers that involve business, leadership, or entrepreneurship.',
-        options: ['Not at all', 'Slightly', 'Moderately', 'Very', 'Extremely']
+        text: 'I enjoy leading discussions, debates, or group activities.',
+        options: ['Strongly Disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly Agree']
       },
       {
         id: 14,
-        text: 'I am interested in careers that involve helping, teaching, or counseling others.',
-        options: ['Not at all', 'Slightly', 'Moderately', 'Very', 'Extremely']
+        text: 'I like helping others and giving advice.',
+        options: ['Strongly Disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly Agree']
       },
       {
         id: 15,
-        text: 'I am interested in careers that involve organization, data management, or attention to detail.',
-        options: ['Not at all', 'Slightly', 'Moderately', 'Very', 'Extremely']
+        text: 'I enjoy organizing things, keeping records, or managing schedules.',
+        options: ['Strongly Disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly Agree']
       }
     ]
   },
   {
     id: 'environmental_support',
-    title: 'Environmental Supports',
+    title: 'Environmental & Social Support',
     description: 'The support you perceive from your environment for your career development',
     interpretation: {
       high: 'You perceive strong support from your environment for your career goals. This support can be a valuable resource as you pursue your career.',
@@ -133,34 +133,34 @@ const sections = [
     questions: [
       {
         id: 16,
-        text: 'My family supports my career goals.',
+        text: 'My family encourages me to explore different career options.',
         options: ['Strongly Disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly Agree']
       },
       {
         id: 17,
-        text: 'I have role models or mentors in my field of interest.',
+        text: 'I have teachers or mentors who guide me about my future.',
         options: ['Strongly Disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly Agree']
       },
       {
         id: 18,
-        text: 'I have access to the resources I need for my career development.',
+        text: 'I feel supported when I try new things.',
         options: ['Strongly Disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly Agree']
       },
       {
         id: 19,
-        text: 'My educational environment prepares me well for my career goals.',
+        text: 'My school provides enough career exploration opportunities.',
         options: ['Strongly Disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly Agree']
       },
       {
         id: 20,
-        text: 'I have a network of people who can help me with my career goals.',
+        text: 'I have access to resources (books, online courses, workshops) to explore careers.',
         options: ['Strongly Disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly Agree']
       }
     ]
   },
   {
     id: 'perceived_barriers',
-    title: 'Perceived Barriers',
+    title: 'Perceived Barriers (Challenges in Career Pursuit)',
     description: 'The barriers you perceive to achieving your career goals',
     interpretation: {
       high: 'You perceive significant barriers to achieving your career goals. It may be helpful to develop strategies for overcoming these barriers.',
@@ -169,27 +169,27 @@ const sections = [
     questions: [
       {
         id: 21,
-        text: 'Financial constraints will limit my career options.',
+        text: 'I worry about financial limitations affecting my education.',
         options: ['Strongly Disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly Agree']
       },
       {
         id: 22,
-        text: 'Discrimination or bias may hinder my career progress.',
+        text: 'I feel nervous about failing when trying something new.',
         options: ['Strongly Disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly Agree']
       },
       {
         id: 23,
-        text: 'I will face significant competition in my chosen field.',
+        text: 'I believe some careers are not for me because of my background or gender.',
         options: ['Strongly Disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly Agree']
       },
       {
         id: 24,
-        text: 'Work-life balance will be difficult to achieve in my career.',
+        text: 'I feel that competition in my dream career is too tough.',
         options: ['Strongly Disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly Agree']
       },
       {
         id: 25,
-        text: 'I lack some of the abilities needed for success in my desired career.',
+        text: 'I sometimes feel uncertain about what career suits me.',
         options: ['Strongly Disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly Agree']
       }
     ]
