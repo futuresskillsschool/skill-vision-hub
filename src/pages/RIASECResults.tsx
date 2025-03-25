@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Download, Star } from 'lucide-react';
+import { ArrowLeft, Download, Star, User, School, BookOpen } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import html2canvas from 'html2canvas';
@@ -178,7 +178,9 @@ const RIASECResults = () => {
   const { user, storeAssessmentResult } = useAuth();
   const [isDownloading, setIsDownloading] = useState(false);
   
-  const scores: RIASECScores = location.state?.scores || { R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 };
+  const scores = location.state?.scores || { R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 };
+  const studentId = location.state?.studentId;
+  const [studentDetails, setStudentDetails] = useState<any>(null);
   
   useEffect(() => {
     if (!location.state) {
@@ -187,7 +189,26 @@ const RIASECResults = () => {
     }
     
     window.scrollTo(0, 0);
-  }, [location.state, navigate]);
+    
+    if (studentId) {
+      const fetchStudentDetails = async () => {
+        try {
+          const { data, error } = await supabase
+            .from('student_details')
+            .select('*')
+            .eq('id', studentId)
+            .single();
+            
+          if (error) throw error;
+          setStudentDetails(data);
+        } catch (error) {
+          console.error('Error fetching student details:', error);
+        }
+      };
+      
+      fetchStudentDetails();
+    }
+  }, [location.state, navigate, studentId]);
   
   const sortedTypes = Object.entries(scores)
     .sort(([, scoreA], [, scoreB]) => scoreB - scoreA)
@@ -309,6 +330,26 @@ const RIASECResults = () => {
                 </div>
               </div>
             </div>
+            
+            {studentDetails && (
+              <div className="p-6 md:p-8 bg-purple-50 border-b border-gray-200">
+                <h3 className="text-lg font-semibold mb-4">Student Information</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex items-center">
+                    <User className="h-5 w-5 text-brand-purple mr-2" />
+                    <span className="font-medium mr-2">Name:</span> {studentDetails.name}
+                  </div>
+                  <div className="flex items-center">
+                    <BookOpen className="h-5 w-5 text-brand-purple mr-2" />
+                    <span className="font-medium mr-2">Class:</span> {studentDetails.class} {studentDetails.section && `- ${studentDetails.section}`}
+                  </div>
+                  <div className="flex items-center col-span-1 md:col-span-2">
+                    <School className="h-5 w-5 text-brand-purple mr-2" />
+                    <span className="font-medium mr-2">School:</span> {studentDetails.school}
+                  </div>
+                </div>
+              </div>
+            )}
             
             <div className="p-6 md:p-8">
               <div className="mb-8">

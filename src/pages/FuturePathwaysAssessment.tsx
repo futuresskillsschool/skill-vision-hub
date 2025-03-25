@@ -201,8 +201,10 @@ const FuturePathwaysAssessment = () => {
   };
 
   const handleViewResults = () => {
-    navigate('/future-pathways/results', { 
+    // Navigate to student details form instead of directly to results
+    navigate('/assessment/future-pathways/student-details', { 
       state: { 
+        assessmentType: 'future-pathways',
         clusterScores,
         selectedOptions
       } 
