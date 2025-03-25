@@ -97,7 +97,7 @@ const SCCTLanding = () => {
                   </div>
                   
                   <Button 
-                    onClick={() => navigate('/scct/take')}
+                    onClick={() => navigate('/assessment/scct/take')}
                     className="w-full bg-brand-orange hover:bg-brand-orange/90"
                     size="lg"
                   >
@@ -155,7 +155,7 @@ const SCCTLanding = () => {
               className="text-center"
             >
               <Button 
-                onClick={() => navigate('/scct/take')}
+                onClick={() => navigate('/assessment/scct/take')}
                 size="lg"
                 className="bg-brand-orange hover:bg-brand-orange/90"
               >

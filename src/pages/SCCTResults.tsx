@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -223,8 +222,15 @@ const SCCTResults = () => {
   const answers: Answer[] = location.state?.answers || [];
   
   useEffect(() => {
+    // If no location state data, redirect to the assessment page
     if (!location.state) {
       navigate('/assessment/scct');
+      return;
+    }
+    
+    // If no student ID in the state, redirect to student details form
+    if (!location.state.studentId) {
+      navigate('/assessment/scct/student-details', { state: location.state });
       return;
     }
     

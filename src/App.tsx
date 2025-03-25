@@ -79,10 +79,11 @@ const App = () => (
               <Route path="/riasec/take" element={<Navigate to="/assessment/riasec/take" replace />} />
               <Route path="/riasec/results" element={<Navigate to="/assessment/riasec/results" replace />} />
               
-              {/* SCCT Assessment Flow */}
+              {/* SCCT Assessment Flow - Updated Routes */}
               <Route path="/assessment/scct" element={<SCCTLanding />} />
               <Route path="/assessment/scct/take" element={<SCCTAssessment />} />
               <Route path="/assessment/scct/results" element={<SCCTResults />} />
+              {/* Remove duplicate routes - redirect to new path structure */}
               <Route path="/scct" element={<Navigate to="/assessment/scct" replace />} />
               <Route path="/scct/take" element={<Navigate to="/assessment/scct/take" replace />} />
               <Route path="/scct/results" element={<Navigate to="/assessment/scct/results" replace />} />
