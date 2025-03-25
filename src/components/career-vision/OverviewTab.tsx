@@ -103,13 +103,13 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
               <svg className="w-FULL h-FULL" viewBox="0 0 100 100">
                 <circle 
                   className="stroke-purple-200" 
-                  cx="50" cy="50" r="40" 
+                  cx="50" cy="50" r="20" 
                   strokeWidth="8" 
                   fill="none"
                 />
                 <circle 
                   className="stroke-purple-400" 
-                  cx="50" cy="50" r="40" 
+                  cx="50" cy="50" r="20" 
                   strokeWidth="8" 
                   fill="none"
                   strokeLinecap="round"
