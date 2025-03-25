@@ -1,3 +1,4 @@
+
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -211,17 +212,17 @@ const RIASECResults = () => {
   }, [location.state, navigate, studentId]);
   
   const sortedTypes = Object.entries(scores)
-    .sort(([, scoreA], [, scoreB]) => scoreB - scoreA)
+    .sort(([, scoreA], [, scoreB]) => Number(scoreB) - Number(scoreA))
     .map(([type]) => type as keyof typeof riasecTypes);
   
   const primaryType = sortedTypes[0];
   const secondaryType = sortedTypes[1];
   const tertiaryType = sortedTypes[2];
   
-  const totalQuestions = Object.values(scores).reduce((a, b) => a + b, 0);
+  const totalQuestions = Object.values(scores).reduce((a, b) => Number(a) + Number(b), 0);
   
   const getPercentage = (score: number) => {
-    return Math.round((score / totalQuestions) * 100);
+    return Math.round((score / Number(totalQuestions)) * 100);
   };
   
   const downloadResults = async () => {
@@ -396,20 +397,23 @@ const RIASECResults = () => {
                 <h3 className="text-xl font-semibold mb-4">Your RIASEC Profile</h3>
                 
                 <div className="space-y-4">
-                  {Object.entries(scores).map(([type, score]) => (
-                    <div key={type}>
-                      <div className="flex justify-between mb-1">
-                        <span className="font-medium">{riasecTypes[type as keyof typeof riasecTypes].name}</span>
-                        <span>{score}/{totalQuestions} ({getPercentage(score)}%)</span>
+                  {Object.entries(scores).map(([type, score]) => {
+                    const typeKey = type as keyof typeof riasecTypes;
+                    return (
+                      <div key={type}>
+                        <div className="flex justify-between mb-1">
+                          <span className="font-medium">{riasecTypes[typeKey].name}</span>
+                          <span>{score}/{totalQuestions} ({getPercentage(Number(score))}%)</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2.5">
+                          <div 
+                            className={`h-2.5 rounded-full ${riasecTypes[typeKey].color}`}
+                            style={{ width: `${getPercentage(Number(score))}%` }}
+                          ></div>
+                        </div>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2.5">
-                        <div 
-                          className={`h-2.5 rounded-full ${riasecTypes[type as keyof typeof riasecTypes].color}`}
-                          style={{ width: `${getPercentage(score)}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
               

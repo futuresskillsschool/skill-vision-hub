@@ -1,10 +1,13 @@
+
 import { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { BarChart, LineChart, PieChart, User, School, BookOpen } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button";
+import { supabase } from '@/integrations/supabase/client';
 
 const CareerVisionResults = () => {
   const location = useLocation();
@@ -125,7 +128,7 @@ const CareerVisionResults = () => {
                     </CardHeader>
                     <CardContent>
                       <ul className="list-disc pl-5">
-                        {(overviewData.recommendedIndustries || []).map((industry, index) => (
+                        {(overviewData.recommendedIndustries || []).map((industry: string, index: number) => (
                           <li key={index}>{industry}</li>
                         ))}
                       </ul>
@@ -137,7 +140,7 @@ const CareerVisionResults = () => {
               <TabsContent value="strengths" className="p-6 md:p-8">
                 <h3 className="text-xl font-semibold mb-4">Your Key Strengths</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {strengthsData.map((strength, index) => (
+                  {strengthsData.map((strength: any, index: number) => (
                     <Card key={index}>
                       <CardHeader>
                         <CardTitle>{strength.name}</CardTitle>
@@ -154,7 +157,7 @@ const CareerVisionResults = () => {
               <TabsContent value="interests" className="p-6 md:p-8">
                 <h3 className="text-xl font-semibold mb-4">Your Interests</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {interestsData.map((interest, index) => (
+                  {interestsData.map((interest: any, index: number) => (
                     <Card key={index}>
                       <CardHeader>
                         <CardTitle>{interest.name}</CardTitle>
@@ -171,7 +174,7 @@ const CareerVisionResults = () => {
                <TabsContent value="skills" className="p-6 md:p-8">
                 <h3 className="text-xl font-semibold mb-4">Your Skills</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {skillsData.map((skill, index) => (
+                  {skillsData.map((skill: any, index: number) => (
                     <Card key={index}>
                       <CardHeader>
                         <CardTitle>{skill.name}</CardTitle>
@@ -211,6 +214,3 @@ const CareerVisionResults = () => {
 };
 
 export default CareerVisionResults;
-import { supabase } from '@/integrations/supabase/client';
-import { Button } from "@/components/ui/button";
-import { Link } from 'react-router-dom';

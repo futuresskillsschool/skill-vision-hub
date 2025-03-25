@@ -1,9 +1,12 @@
+
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { User, School, BookOpen } from 'lucide-react';
+import { User, School, BookOpen, ArrowLeft } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 
 const FuturePathwaysResults = () => {
   const location = useLocation();
@@ -62,7 +65,7 @@ const FuturePathwaysResults = () => {
     if (clusterScores) {
       // Sort the cluster scores and get the top 3 clusters
       const sortedClusters = Object.entries(clusterScores)
-        .sort(([, scoreA], [, scoreB]) => scoreB - scoreA)
+        .sort(([, scoreA], [, scoreB]) => Number(scoreB) - Number(scoreA))
         .slice(0, 3)
         .map(([cluster]) => cluster);
       setTopClusters(sortedClusters);
@@ -245,11 +248,11 @@ const FuturePathwaysResults = () => {
                   {topClusters.map((cluster, index) => (
                     <div key={cluster} className="rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                       <div className="bg-gray-50 p-5">
-                        <h3 className="text-xl font-semibold text-brand-green mb-2">{careerClusters[cluster]}</h3>
+                        <h3 className="text-xl font-semibold text-brand-green mb-2">{careerClusters[cluster as keyof typeof careerClusters]}</h3>
                         <p className="text-gray-600">{renderClusterDescription(cluster)}</p>
                       </div>
                       <div className="p-5">
-                        <h4 className="text-lg font-semibold mb-3">Skills for {careerClusters[cluster]}</h4>
+                        <h4 className="text-lg font-semibold mb-3">Skills for {careerClusters[cluster as keyof typeof careerClusters]}</h4>
                         <ul className="list-disc list-inside text-gray-600 mb-4">
                           {renderClusterSkills(cluster).map((skill, index) => (
                             <li key={index}>{skill}</li>
@@ -274,12 +277,16 @@ const FuturePathwaysResults = () => {
           <div className="mt-12 text-center">
             <h3 className="text-xl font-bold mb-4">Explore More Options</h3>
             <div className="flex flex-wrap justify-center gap-4">
-              <Button variant="outline" className="border-brand-green text-brand-green hover:bg-brand-green/5">
-                Explore Different Career Paths
-              </Button>
-              <Button variant="outline" className="border-brand-green text-brand-green hover:bg-brand-green/5">
-                Take Another Assessment
-              </Button>
+              <Link to="/assessment/career-vision">
+                <Button variant="outline" className="border-brand-green text-brand-green hover:bg-brand-green/5">
+                  Explore Different Career Paths
+                </Button>
+              </Link>
+              <Link to="/assessment/riasec">
+                <Button variant="outline" className="border-brand-green text-brand-green hover:bg-brand-green/5">
+                  Take Another Assessment
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
