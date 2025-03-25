@@ -45,7 +45,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
         <Card className="p-6 bg-brand-blue/5">
           <div className="flex items-center mb-4">
             <Star className="h-5 w-5 text-brand-blue mr-2" />
-            <h3 className="font-semibold">RIASEC Profile</h3>
+            <p className="font-semibold">RIASEC Profile</p>
           </div>
           <p className="text-sm text-muted-foreground mb-4">
             Your top interests are in the {topRiasecCategories.map(c => {
@@ -67,7 +67,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
         <Card className="p-6 bg-brand-green/5">
           <div className="flex items-center mb-4">
             <Target className="h-5 w-5 text-brand-green mr-2" />
-            <h3 className="font-semibold">Future Pathways</h3>
+            <p className="font-semibold">Future Pathways</p>
           </div>
           <p className="text-sm text-muted-foreground mb-4">
             Your top career clusters are {topPathwaysClusters.map(c => {
