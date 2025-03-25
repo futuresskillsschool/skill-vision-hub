@@ -252,9 +252,7 @@ const EQTab: React.FC<EQTabProps> = ({ eqScore }) => {
               <p className="text-sm text-gray-600 pl-3 border-l-2 border-purple-100">
                 {item.description}
               </p>
-              <div className="mt-3 pt-2 text-sm font-medium flex items-center justify-end text-purple-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                Learn more <ArrowUpRight className="h-3 w-3 ml-1" />
-              </div>
+              
             </Card>
           </motion.div>
         ))}
