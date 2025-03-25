@@ -133,7 +133,7 @@ const EQTab: React.FC<EQTabProps> = ({ eqScore }) => {
             className="relative overflow-hidden rounded-2xl shadow-lg w-full h-full"
           >
             <div className="absolute inset-0 bg-gradient-to-br from-purple-400 via-purple-300 to-blue-300 opacity-90"></div>
-            <div className="absolute inset-0 bg-[url('/lovable-uploads/2a57ac38-c970-47f4-9845-ae1dfc4315f1.png')] bg-cover bg-center mix-blend-overlay opacity-30"></div>
+            <div className="absolute inset-0 bg-cover bg-center mix-blend-overlay opacity-30"></div>
             <div className="absolute inset-0 flex flex-col justify-between p-8 text-white z-20">
               <div className="flex items-start">
                 <div className="bg-white/20 backdrop-blur-sm p-2.5 rounded-full shadow-lg">
