@@ -37,7 +37,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
   handleDownloadPDF 
 }) => {
   const eqLevel = eqScore < 25 ? "low" : eqScore < 35 ? "medium" : "high";
-  const eqPercentage = (eqScore / 40) * 100;
+  const scorePercentage = Math.round((eqScore / 40) * 100);
 
   return (
     <>
@@ -98,7 +98,43 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
             } level.
           </p>
           <div className="flex items-center justify-center h-[120px]">
-            <CircularProgressIndicator value={eqScore} max={40} size="lg" />
+            {/* <CircularProgressIndicator value={eqScore} max={40} size="lg" /> */}
+            <div className="w-56 h-56 relative">
+              <svg className="w-full h-full" viewBox="0 0 100 100">
+                <circle 
+                  className="stroke-purple-200" 
+                  cx="50" cy="50" r="40" 
+                  strokeWidth="8" 
+                  fill="none"
+                />
+                <circle 
+                  className="stroke-purple-400" 
+                  cx="50" cy="50" r="40" 
+                  strokeWidth="8" 
+                  fill="none"
+                  strokeLinecap="round"
+                  strokeDasharray={`${2 * Math.PI * 40}`}
+                  strokeDashoffset={`${2 * Math.PI * 40 * (1 - scorePercentage / 100)}`}
+                  transform="rotate(-90 50 50)"
+                />
+                <text 
+                  x="50" y="43" 
+                  dominantBaseline="middle" 
+                  textAnchor="middle"
+                  className="fill-purple-500 text-2xl font-bold"
+                >
+                  {scorePercentage}%
+                </text>
+                <text 
+                  x="50" y="60" 
+                  dominantBaseline="middle" 
+                  textAnchor="middle"
+                  className="fill-gray-500 text-xs"
+                >
+                  EQ Score
+                </text>
+              </svg>
+            </div>
           </div>
         </Card>
       </div>
