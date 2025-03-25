@@ -51,7 +51,7 @@ const CareerVisionResults = () => {
     
     // Fetch student details if we have a studentId in the results state
     const fetchStudentDetails = async () => {
-      if (results?.studentId) {
+      if (results && results.studentId) {
         try {
           const { data, error } = await supabase
             .from('student_details')

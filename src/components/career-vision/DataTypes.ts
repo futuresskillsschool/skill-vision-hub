@@ -1,4 +1,3 @@
-
 export interface RiasecDescription {
   title: string;
   description: string;
@@ -28,8 +27,13 @@ export interface AssessmentResults {
   pathways: Record<string, number>;
   eq: {
     totalScore: number;
-    [key: string]: any;
+    selfAwareness: number;
+    selfRegulation: number;
+    socialAwareness: number;
+    relationshipManagement: number;
   };
+  studentId?: string;
+  assessmentType?: string;
 }
 
 export const riasecDescriptions: Record<string, RiasecDescription> = {
