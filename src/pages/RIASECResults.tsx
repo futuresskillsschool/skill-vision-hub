@@ -1,13 +1,15 @@
+
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Download, Star } from 'lucide-react';
+import { ArrowLeft, Download, Star, User, School, BookOpen } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { motion } from 'framer-motion';
 
 const riasecTypes = {
   R: {
@@ -162,14 +164,22 @@ const riasecTypes = {
   }
 };
 
-type RIASECScores = {
+interface RIASECScores {
   R: number;
   I: number;
   A: number;
   S: number;
   E: number;
   C: number;
-};
+}
+
+interface StudentDetails {
+  id: string;
+  name: string;
+  class: string;
+  section: string;
+  school: string;
+}
 
 const RIASECResults = () => {
   const location = useLocation();
@@ -177,6 +187,7 @@ const RIASECResults = () => {
   const resultsRef = useRef<HTMLDivElement>(null);
   const { user, storeAssessmentResult } = useAuth();
   const [isDownloading, setIsDownloading] = useState(false);
+  const [studentDetails, setStudentDetails] = useState<StudentDetails | null>(null);
   
   const scores: RIASECScores = location.state?.scores || { R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 };
   
@@ -187,6 +198,32 @@ const RIASECResults = () => {
     }
     
     window.scrollTo(0, 0);
+    
+    // Fetch student details if we have a studentId in the results state
+    const fetchStudentDetails = async () => {
+      if (location.state?.studentId) {
+        try {
+          const { data, error } = await supabase
+            .from('student_details')
+            .select('*')
+            .eq('id', location.state.studentId)
+            .single();
+            
+          if (error) {
+            console.error('Error fetching student details:', error);
+            return;
+          }
+          
+          if (data) {
+            setStudentDetails(data as StudentDetails);
+          }
+        } catch (error) {
+          console.error('Error in student details fetch:', error);
+        }
+      }
+    };
+    
+    fetchStudentDetails();
   }, [location.state, navigate]);
   
   const sortedTypes = Object.entries(scores)
@@ -289,6 +326,40 @@ const RIASECResults = () => {
               <Download className="mr-2 h-4 w-4" /> {isDownloading ? 'Generating PDF...' : 'Download Results'}
             </Button>
           </div>
+          
+          {/* Student Details Section */}
+          {studentDetails && (
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-brand-purple/10 rounded-xl p-4 md:p-6 mb-6 max-w-4xl mx-auto"
+            >
+              <h2 className="text-xl font-semibold mb-3 text-brand-purple">Student Information</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="flex items-center">
+                  <User className="h-5 w-5 text-brand-purple mr-2" />
+                  <div>
+                    <p className="text-sm text-gray-600">Name</p>
+                    <p className="font-medium">{studentDetails.name}</p>
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  <BookOpen className="h-5 w-5 text-brand-purple mr-2" />
+                  <div>
+                    <p className="text-sm text-gray-600">Class & Section</p>
+                    <p className="font-medium">{studentDetails.class} - {studentDetails.section}</p>
+                  </div>
+                </div>
+                <div className="flex items-center md:col-span-2">
+                  <School className="h-5 w-5 text-brand-purple mr-2" />
+                  <div>
+                    <p className="text-sm text-gray-600">School</p>
+                    <p className="font-medium">{studentDetails.school}</p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
           
           <div 
             ref={resultsRef}

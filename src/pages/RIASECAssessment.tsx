@@ -1,264 +1,255 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { CheckCircle } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
+import confetti from 'canvas-confetti';
+import { motion } from 'framer-motion';
 
-// Define RIASEC question type
-type RIASECQuestion = {
-  id: number;
-  question: string;
-  type: 'R' | 'I' | 'A' | 'S' | 'E' | 'C';
-  options: string[];
+const riasecCategories = {
+  R: "Realistic - working with things",
+  I: "Investigative - working with ideas",
+  A: "Artistic - working with creativity",
+  S: "Social - working with people",
+  E: "Enterprising - working with leadership",
+  C: "Conventional - working with organization"
 };
 
-// Define the set of 12 questions (2 per category)
-const riasecQuestions: RIASECQuestion[] = [
-  // Realistic (R) questions
-  {
-    id: 1,
-    question: "I enjoy building things with my hands.",
-    type: 'R',
-    options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-  },
-  {
-    id: 2,
-    question: "I like working with tools, machines, or technology.",
-    type: 'R',
-    options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-  },
+type RIASECCode = 'R' | 'I' | 'A' | 'S' | 'E' | 'C';
+
+interface Question {
+  id: string;
+  text: string;
+  category: RIASECCode;
+}
+
+const questions: Question[] = [
+  // Realistic Questions
+  { id: 'q1', text: 'I like to work with my hands or tools', category: 'R' },
+  { id: 'q2', text: 'I enjoy building or fixing things', category: 'R' },
+  { id: 'q3', text: 'I like working outdoors or with plants and animals', category: 'R' },
+  { id: 'q4', text: 'I enjoy physical, hands-on activities', category: 'R' },
+  { id: 'q5', text: 'I like working with machines, tools, or equipment', category: 'R' },
   
-  // Investigative (I) questions
-  {
-    id: 3,
-    question: "I enjoy solving complex problems and puzzles.",
-    type: 'I',
-    options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-  },
-  {
-    id: 4,
-    question: "I'm curious about how things work and why things happen.",
-    type: 'I',
-    options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-  },
+  // Investigative Questions  
+  { id: 'q6', text: 'I enjoy solving complex problems', category: 'I' },
+  { id: 'q7', text: 'I like to analyze information and discover new things', category: 'I' },
+  { id: 'q8', text: 'I enjoy science and research', category: 'I' },
+  { id: 'q9', text: 'I like to investigate why things happen', category: 'I' },
+  { id: 'q10', text: 'I enjoy thinking about abstract concepts', category: 'I' },
   
-  // Artistic (A) questions
-  {
-    id: 5,
-    question: "I enjoy creative activities like art, music, or writing.",
-    type: 'A',
-    options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-  },
-  {
-    id: 6,
-    question: "I prefer tasks that allow me to express myself.",
-    type: 'A',
-    options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-  },
+  // Artistic Questions
+  { id: 'q11', text: 'I like to express myself creatively', category: 'A' },
+  { id: 'q12', text: 'I enjoy art, music, or writing', category: 'A' },
+  { id: 'q13', text: 'I like activities without structured rules', category: 'A' },
+  { id: 'q14', text: 'I enjoy designing things', category: 'A' },
+  { id: 'q15', text: 'I like to use my imagination', category: 'A' },
   
-  // Social (S) questions
-  {
-    id: 7,
-    question: "I enjoy helping others and working with people.",
-    type: 'S',
-    options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-  },
-  {
-    id: 8,
-    question: "I'm good at explaining things to others.",
-    type: 'S',
-    options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-  },
+  // Social Questions
+  { id: 'q16', text: 'I enjoy helping people', category: 'S' },
+  { id: 'q17', text: 'I like teaching or training others', category: 'S' },
+  { id: 'q18', text: 'I enjoy working in groups', category: 'S' },
+  { id: 'q19', text: 'I like discussing problems and helping others solve them', category: 'S' },
+  { id: 'q20', text: 'I enjoy activities that improve society or help people', category: 'S' },
   
-  // Enterprising (E) questions
-  {
-    id: 9,
-    question: "I like to take charge and lead others.",
-    type: 'E',
-    options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-  },
-  {
-    id: 10,
-    question: "I enjoy persuading others and selling ideas or products.",
-    type: 'E',
-    options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-  },
+  // Enterprising Questions
+  { id: 'q21', text: 'I like to lead and persuade others', category: 'E' },
+  { id: 'q22', text: 'I enjoy selling things or promoting ideas', category: 'E' },
+  { id: 'q23', text: 'I like to start and carry out projects', category: 'E' },
+  { id: 'q24', text: 'I enjoy taking risks and making decisions', category: 'E' },
+  { id: 'q25', text: 'I like to influence or convince others', category: 'E' },
   
-  // Conventional (C) questions
-  {
-    id: 11,
-    question: "I like following clear procedures and rules.",
-    type: 'C',
-    options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-  },
-  {
-    id: 12,
-    question: "I enjoy organizing information and working with data.",
-    type: 'C',
-    options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
-  }
+  // Conventional Questions
+  { id: 'q26', text: 'I enjoy organizing things', category: 'C' },
+  { id: 'q27', text: 'I like following clear procedures and rules', category: 'C' },
+  { id: 'q28', text: 'I enjoy working with numbers and records', category: 'C' },
+  { id: 'q29', text: 'I like paying attention to details', category: 'C' },
+  { id: 'q30', text: 'I enjoy completing tasks that require precision', category: 'C' },
 ];
-
-type Answer = {
-  questionId: number;
-  answer: number; // Index of the selected option (0-4 for 5-point scale)
-  type: 'R' | 'I' | 'A' | 'S' | 'E' | 'C';
-};
 
 const RIASECAssessment = () => {
   const navigate = useNavigate();
-  const [answers, setAnswers] = useState<Answer[]>([]);
-  const [currentProgress, setCurrentProgress] = useState(0);
-
+  const { toast } = useToast();
+  const [answers, setAnswers] = useState<Record<string, number>>({});
+  const [currentPage, setCurrentPage] = useState(0);
+  const [progress, setProgress] = useState(0);
+  
+  const questionsPerPage = 10;
+  const totalPages = Math.ceil(questions.length / questionsPerPage);
+  const currentQuestions = questions.slice(
+    currentPage * questionsPerPage, 
+    (currentPage + 1) * questionsPerPage
+  );
+  
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
-
-  const handleAnswerSelect = (questionId: number, answerIndex: number, type: 'R' | 'I' | 'A' | 'S' | 'E' | 'C') => {
-    const newAnswers = [...answers];
-    const existingAnswerIndex = newAnswers.findIndex(a => a.questionId === questionId);
-    
-    if (existingAnswerIndex >= 0) {
-      newAnswers[existingAnswerIndex] = { questionId, answer: answerIndex, type };
-    } else {
-      newAnswers.push({ questionId, answer: answerIndex, type });
-    }
-    
-    setAnswers(newAnswers);
-    
-    // Update progress
-    const answeredCount = new Set(newAnswers.map(a => a.questionId)).size;
-    setCurrentProgress((answeredCount / riasecQuestions.length) * 100);
+    // Calculate progress based on answers
+    const answeredCount = Object.keys(answers).length;
+    const progressValue = (answeredCount / questions.length) * 100;
+    setProgress(progressValue);
+  }, [answers]);
+  
+  const handleAnswer = (questionId: string, value: number) => {
+    setAnswers(prev => ({
+      ...prev,
+      [questionId]: value,
+    }));
   };
-
-  const handleSubmit = () => {
-    // Calculate RIASEC scores
-    // For 5-point scale: Strongly Disagree (0) to Strongly Agree (4)
-    const scores = {
+  
+  const goToNextPage = () => {
+    window.scrollTo(0, 0);
+    if (currentPage < totalPages - 1) {
+      setCurrentPage(currentPage + 1);
+    } else {
+      // If this is the last page, submit the assessment
+      handleSubmit();
+    }
+  };
+  
+  const goToPreviousPage = () => {
+    window.scrollTo(0, 0);
+    if (currentPage > 0) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+  
+  const calculateScores = () => {
+    const scores: Record<RIASECCode, number> = {
       R: 0,
       I: 0,
       A: 0,
       S: 0,
       E: 0,
-      C: 0,
+      C: 0
     };
     
-    answers.forEach(answer => {
-      // Convert 0-4 scale to actual values for more meaningful scores
-      const value = answer.answer + 1; // Convert 0-4 to 1-5
-      scores[answer.type] += value;
+    questions.forEach(question => {
+      const answer = answers[question.id] || 0;
+      scores[question.category] += answer;
     });
     
-    // Navigate to results page with scores
-    navigate('/riasec-results', { state: { scores } });
+    return scores;
   };
-
-  const isQuestionAnswered = (questionId: number) => {
-    return answers.some(a => a.questionId === questionId);
+  
+  const handleSubmit = () => {
+    const scores = calculateScores();
+    
+    // Show completion animation
+    confetti({
+      particleCount: 100,
+      spread: 70,
+      origin: { y: 0.6 }
+    });
+    
+    toast({
+      title: "Assessment Complete!",
+      description: "Your results are ready to view.",
+    });
+    
+    // Navigate to student details page with scores
+    navigate('/assessment/riasec/student-details', {
+      state: {
+        scores,
+        assessmentType: 'riasec'
+      }
+    });
   };
-
-  const allQuestionsAnswered = answers.length === riasecQuestions.length;
-
+  
+  const isPageComplete = () => {
+    return currentQuestions.every(q => answers[q.id] !== undefined);
+  };
+  
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-white via-purple-50 to-blue-50">
       <Navbar />
       
       <main className="flex-grow pt-24 pb-16">
         <div className="container mx-auto px-4 md:px-6">
-          <div className="mb-8">
-            <Button
-              variant="ghost"
-              onClick={() => navigate(-1)}
-              className="mb-4 text-brand-purple hover:text-brand-purple/80 -ml-3"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" /> Back
-            </Button>
-            
-            <h1 className="text-3xl md:text-4xl font-bold mb-2">RIASEC Model Assessment</h1>
-            <p className="text-foreground/70 max-w-3xl">
-              Discover your Holland Code and find career matches based on your interests, abilities, and preferences.
-              This assessment contains 12 questions and will help you understand your personality type according to the RIASEC model.
-            </p>
-          </div>
-          
-          {/* Progress bar */}
-          <div className="w-full bg-gray-100 rounded-full h-2.5 mb-8">
-            <div 
-              className="bg-brand-purple h-2.5 rounded-full transition-all duration-500 ease-out"
-              style={{ width: `${currentProgress}%` }}
-            ></div>
-          </div>
-          
           <div className="max-w-3xl mx-auto">
-            <div className="mb-6 p-4 bg-brand-purple/5 border border-brand-purple/10 rounded-lg">
-              <h2 className="font-semibold text-brand-purple mb-2">Instructions:</h2>
-              <p>Read each statement carefully and select the response that best describes you. Be honest in your responses for the most accurate results.</p>
-            </div>
-            
-            {/* Questions */}
-            <div className="space-y-8 mb-10">
-              {riasecQuestions.map((question) => (
-                <div key={question.id} className="p-6 bg-white rounded-xl shadow-sm border border-gray-100">
-                  <h3 className="text-xl font-semibold mb-4 flex items-start">
-                    <span className="bg-brand-purple text-white rounded-full w-8 h-8 inline-flex items-center justify-center mr-3 flex-shrink-0">
-                      {question.id}
-                    </span>
-                    {question.question}
-                  </h3>
-                  
-                  <RadioGroup 
-                    className="space-y-2"
-                    value={answers.find(a => a.questionId === question.id)?.answer.toString() || ""}
-                    onValueChange={(value) => {
-                      handleAnswerSelect(question.id, parseInt(value), question.type);
-                    }}
-                  >
-                    <div className="flex flex-wrap gap-2">
-                      {question.options.map((option, index) => (
-                        <label
-                          key={index}
-                          className={`flex items-center p-3 rounded-lg cursor-pointer transition-all flex-1 min-w-[150px] ${
-                            answers.find(a => a.questionId === question.id)?.answer === index
-                              ? 'bg-brand-purple/10 border border-brand-purple/30'
-                              : 'bg-gray-50 border border-gray-100 hover:bg-gray-100'
-                          }`}
-                        >
-                          <RadioGroupItem 
-                            value={index.toString()} 
-                            id={`q${question.id}-${index}`} 
-                            className="mr-2"
-                          />
-                          <span className="text-sm font-medium">{option}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </RadioGroup>
-                  
-                  {isQuestionAnswered(question.id) && (
-                    <div className="mt-2 text-sm text-green-600 flex items-center">
-                      <CheckCircle className="h-4 w-4 mr-1" /> Answer recorded
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-            
-            <div className="sticky bottom-0 bg-white p-4 border-t border-gray-200 flex justify-between items-center">
-              <div>
-                <p className="text-sm text-foreground/70">
-                  {answers.length} of {riasecQuestions.length} questions answered
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-3">
+                <h1 className="text-3xl font-bold">RIASEC Assessment</h1>
+                <span className="text-sm font-medium bg-brand-purple text-white px-3 py-1 rounded-full">
+                  Page {currentPage + 1} of {totalPages}
+                </span>
+              </div>
+              
+              <div className="mb-4">
+                <Progress value={progress} className="h-2 mb-2" />
+                <p className="text-sm text-muted-foreground">
+                  {Math.round(progress)}% complete ({Object.keys(answers).length} of {questions.length} questions answered)
                 </p>
               </div>
               
+              <p className="text-muted-foreground">
+                Rate how much you enjoy or would enjoy each activity on a scale from 1 (strongly dislike) to 5 (strongly enjoy).
+              </p>
+            </div>
+            
+            <Card className="p-6 md:p-8 mb-8 shadow-md">
+              <div className="space-y-6">
+                {currentQuestions.map((question, index) => (
+                  <motion.div 
+                    key={question.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                    className="border-b border-gray-100 pb-6 last:border-0 last:pb-0"
+                  >
+                    <div className="flex items-start mb-3">
+                      <p className="font-medium flex-grow">{question.text}</p>
+                      <span className="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-600">
+                        {riasecCategories[question.category].split(' - ')[0]}
+                      </span>
+                    </div>
+                    
+                    <div className="grid grid-cols-5 gap-2">
+                      {[1, 2, 3, 4, 5].map((value) => (
+                        <Button
+                          key={value}
+                          variant={answers[question.id] === value ? "default" : "outline"}
+                          className={`relative h-12 ${
+                            answers[question.id] === value 
+                            ? "bg-brand-purple hover:bg-brand-purple/90" 
+                            : "hover:bg-brand-purple/10"
+                          }`}
+                          onClick={() => handleAnswer(question.id, value)}
+                        >
+                          {value}
+                          {answers[question.id] === value && (
+                            <CheckCircle className="h-4 w-4 absolute -top-1 -right-1 text-white bg-green-500 rounded-full" />
+                          )}
+                        </Button>
+                      ))}
+                    </div>
+                    <div className="flex justify-between mt-2 text-xs text-muted-foreground">
+                      <span>Strongly dislike</span>
+                      <span>Strongly enjoy</span>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </Card>
+            
+            <div className="flex justify-between">
               <Button 
-                onClick={handleSubmit}
-                disabled={!allQuestionsAnswered}
-                className="button-primary"
+                variant="outline" 
+                onClick={goToPreviousPage}
+                disabled={currentPage === 0}
               >
-                Submit Answers <ArrowRight className="ml-2 h-4 w-4" />
+                Previous Page
+              </Button>
+              
+              <Button 
+                onClick={goToNextPage}
+                disabled={!isPageComplete()}
+                className={currentPage === totalPages - 1 ? "bg-green-600 hover:bg-green-700" : ""}
+              >
+                {currentPage === totalPages - 1 ? "Submit Assessment" : "Next Page"}
               </Button>
             </div>
           </div>

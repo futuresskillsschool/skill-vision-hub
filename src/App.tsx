@@ -52,6 +52,7 @@ const App = () => (
               {/* Career Vision Assessment Flow */}
               <Route path="/assessment/career-vision" element={<CareerVisionLanding />} />
               <Route path="/assessment/career-vision/take" element={<CareerVisionAssessment />} />
+              <Route path="/assessment/career-vision/student-details" element={<StudentDetailsPage />} />
               <Route path="/assessment/career-vision/results" element={<CareerVisionResults />} />
               
               {/* EQ Navigator Assessment Flow */}
@@ -73,6 +74,7 @@ const App = () => (
               {/* RIASEC Assessment Flow */}
               <Route path="/assessment/riasec" element={<RIASECLanding />} />
               <Route path="/assessment/riasec/take" element={<RIASECAssessment />} />
+              <Route path="/assessment/riasec/student-details" element={<StudentDetailsPage />} />
               <Route path="/assessment/riasec/results" element={<RIASECResults />} />
               <Route path="/riasec" element={<Navigate to="/assessment/riasec" replace />} />
               <Route path="/riasec/take" element={<Navigate to="/assessment/riasec/take" replace />} />

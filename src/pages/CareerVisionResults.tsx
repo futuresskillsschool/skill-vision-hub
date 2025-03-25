@@ -1,15 +1,16 @@
 
 import { useState, useEffect } from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Download } from 'lucide-react';
+import { ArrowLeft, Download, User, School, BookOpen } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { supabase } from '@/integrations/supabase/client';
 
 // Import refactored components
 import OverviewTab from '@/components/career-vision/OverviewTab';
@@ -23,12 +24,22 @@ import {
   AssessmentResults
 } from '@/components/career-vision/DataTypes';
 
+interface StudentDetails {
+  id: string;
+  name: string;
+  class: string;
+  section: string;
+  school: string;
+}
+
 const CareerVisionResults = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
   
   const [results, setResults] = useState<AssessmentResults | null>(location.state || null);
+  const [studentDetails, setStudentDetails] = useState<StudentDetails | null>(null);
   
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -37,6 +48,32 @@ const CareerVisionResults = () => {
       // This would be implemented if we had a function to fetch results
       // fetchUserResults('career-vision').then(setResults);
     }
+    
+    // Fetch student details if we have a studentId in the results state
+    const fetchStudentDetails = async () => {
+      if (results?.studentId) {
+        try {
+          const { data, error } = await supabase
+            .from('student_details')
+            .select('*')
+            .eq('id', results.studentId)
+            .single();
+            
+          if (error) {
+            console.error('Error fetching student details:', error);
+            return;
+          }
+          
+          if (data) {
+            setStudentDetails(data as StudentDetails);
+          }
+        } catch (error) {
+          console.error('Error in student details fetch:', error);
+        }
+      }
+    };
+    
+    fetchStudentDetails();
   }, [results, user]);
   
   if (!results) {
@@ -136,6 +173,40 @@ const CareerVisionResults = () => {
                 Download PDF
               </Button>
             </div>
+            
+            {/* Student Details Section */}
+            {studentDetails && (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-brand-purple/10 rounded-xl p-4 md:p-6 mb-6"
+              >
+                <h2 className="text-xl font-semibold mb-3 text-brand-purple">Student Information</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex items-center">
+                    <User className="h-5 w-5 text-brand-purple mr-2" />
+                    <div>
+                      <p className="text-sm text-gray-600">Name</p>
+                      <p className="font-medium">{studentDetails.name}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center">
+                    <BookOpen className="h-5 w-5 text-brand-purple mr-2" />
+                    <div>
+                      <p className="text-sm text-gray-600">Class & Section</p>
+                      <p className="font-medium">{studentDetails.class} - {studentDetails.section}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center md:col-span-2">
+                    <School className="h-5 w-5 text-brand-purple mr-2" />
+                    <div>
+                      <p className="text-sm text-gray-600">School</p>
+                      <p className="font-medium">{studentDetails.school}</p>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
             
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
