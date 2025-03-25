@@ -1,457 +1,478 @@
-import { useState, useEffect, useRef } from 'react';
+
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Button } from '@/components/ui/button';
+import { motion } from 'framer-motion';
+import { useForm } from 'react-hook-form';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Progress } from '@/components/ui/progress';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Sparkles, ArrowLeft, ArrowRight, Check, BrainCircuit, Heart, Info, Clock } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
-import { useToast } from '@/components/ui/use-toast';
-import confetti from 'canvas-confetti';
+import { 
+  Form, 
+  FormControl, 
+  FormField, 
+  FormItem, 
+  FormMessage 
+} from '@/components/ui/form';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Progress } from '@/components/ui/progress';
+import { ArrowLeft, ArrowRight, AlertCircle } from 'lucide-react';
+import AssessmentDetailsPanel from '@/components/assessment/AssessmentDetailsPanel';
 
-interface Question {
+// Types
+type Question = {
   id: number;
   scenario: string;
-  options: {
-    id: string;
-    text: string;
-    score: number;
-  }[];
-}
+  options: Option[];
+};
 
-const eqQuestions: Question[] = [
+type Option = {
+  id: string;
+  text: string;
+  score: number;
+};
+
+type FormValues = {
+  [key: string]: string;
+};
+
+// Questions for the EQ Navigator assessment
+const questions: Question[] = [
   {
     id: 1,
-    scenario: "You're excited to share some good news with a friend, but they seem distracted and uninterested. You...",
+    scenario: "When someone shares a problem with me, I typically:",
     options: [
-      { id: "a", text: "Get angry and accuse them of not caring about you.", score: 1 },
-      { id: "b", text: "Feel disappointed but try to understand why they might be distracted. Maybe they're having a bad day.", score: 4 },
-      { id: "c", text: "Pretend you're not bothered, even though you're a little hurt.", score: 2 },
-      { id: "d", text: "Stop talking about your news and change the subject.", score: 2 }
+      { id: "q1_a", text: "Focus on offering solutions right away", score: 2 },
+      { id: "q1_b", text: "Listen carefully before responding", score: 4 },
+      { id: "q1_c", text: "Change the subject if it feels uncomfortable", score: 1 },
+      { id: "q1_d", text: "Ask questions to better understand how they feel", score: 5 }
     ]
   },
   {
     id: 2,
-    scenario: "You witness a classmate making fun of another student's appearance. You...",
+    scenario: "When I feel upset or angry, I usually:",
     options: [
-      { id: "a", text: "Laugh along with the classmate.", score: 1 },
-      { id: "b", text: "Ignore it and hope it stops.", score: 2 },
-      { id: "c", text: "Tell the classmate that it's not okay to make fun of someone's appearance and try to support the student being targeted.", score: 4 },
-      { id: "d", text: "Tell the targeted student to ignore the comments.", score: 2 }
+      { id: "q2_a", text: "Express my feelings calmly and clearly", score: 5 },
+      { id: "q2_b", text: "Keep it to myself until it passes", score: 2 },
+      { id: "q2_c", text: "React immediately, sometimes saying things I regret later", score: 1 },
+      { id: "q2_d", text: "Try to understand why I'm feeling this way", score: 4 }
     ]
   },
   {
     id: 3,
-    scenario: "You're feeling really stressed about upcoming exams. You...",
+    scenario: "When someone disagrees with me, I tend to:",
     options: [
-      { id: "a", text: "Isolate yourself and worry constantly.", score: 1 },
-      { id: "b", text: "Talk to a friend or family member about how you're feeling and find healthy ways to manage stress (e.g., exercise, hobbies).", score: 4 },
-      { id: "c", text: "Procrastinate and avoid thinking about the exams.", score: 2 },
-      { id: "d", text: "Try to convince yourself you don't care about the exams.", score: 1 }
+      { id: "q3_a", text: "Get defensive or frustrated", score: 1 },
+      { id: "q3_b", text: "Try to see things from their perspective", score: 5 },
+      { id: "q3_c", text: "Avoid discussing the topic further", score: 2 },
+      { id: "q3_d", text: "Listen, but still believe my view is correct", score: 3 }
     ]
   },
   {
     id: 4,
-    scenario: "A friend is going through a tough time (e.g., family issues, break-up). You...",
+    scenario: "In group projects or team activities, I usually:",
     options: [
-      { id: "a", text: "Offer a listening ear and support, letting them know you're there for them.", score: 4 },
-      { id: "b", text: "Try to give them advice, even if you're not sure what to say.", score: 3 },
-      { id: "c", text: "Avoid them because you don't know how to handle the situation.", score: 1 },
-      { id: "d", text: "Tell them to \"toughen up.\"", score: 1 }
+      { id: "q4_a", text: "Take charge and direct others", score: 3 },
+      { id: "q4_b", text: "Prefer to work on my own part quietly", score: 2 },
+      { id: "q4_c", text: "Make sure everyone's ideas are heard", score: 5 },
+      { id: "q4_d", text: "Go along with what others want to avoid conflict", score: 1 }
     ]
   },
   {
     id: 5,
-    scenario: "You receive constructive criticism on a project. You...",
+    scenario: "When I see someone feeling sad or upset, I typically:",
     options: [
-      { id: "a", text: "Get defensive and argue with the person giving the feedback.", score: 1 },
-      { id: "b", text: "Listen to the feedback, even if it's hard to hear, and try to learn from it.", score: 4 },
-      { id: "c", text: "Feel hurt and take it personally.", score: 2 },
-      { id: "d", text: "Ignore the feedback completely.", score: 1 }
+      { id: "q5_a", text: "Feel uncomfortable and try to avoid the situation", score: 1 },
+      { id: "q5_b", text: "Tell them to cheer up or look on the bright side", score: 2 },
+      { id: "q5_c", text: "Ask if they want to talk about what's bothering them", score: 5 },
+      { id: "q5_d", text: "Feel sad myself but don't know what to do", score: 3 }
     ]
   },
   {
     id: 6,
-    scenario: "You have a strong disagreement with a friend. You...",
+    scenario: "When faced with a significant change in my life, I usually:",
     options: [
-      { id: "a", text: "Resort to personal insults and name-calling.", score: 1 },
-      { id: "b", text: "Try to see things from your friend's perspective and find a compromise.", score: 4 },
-      { id: "c", text: "Refuse to talk to your friend anymore.", score: 1 },
-      { id: "d", text: "Give them the silent treatment.", score: 1 }
+      { id: "q6_a", text: "Feel overwhelmed and struggle to adapt", score: 1 },
+      { id: "q6_b", text: "Focus on the potential opportunities", score: 4 },
+      { id: "q6_c", text: "Take time to process my feelings about the change", score: 5 },
+      { id: "q6_d", text: "Just push through without thinking about it much", score: 2 }
     ]
   },
   {
     id: 7,
-    scenario: "You achieve a goal you've been working towards. You...",
+    scenario: "When receiving criticism, I tend to:",
     options: [
-      { id: "a", text: "Brag about your achievement to everyone.", score: 2 },
-      { id: "b", text: "Celebrate your success and acknowledge the effort you put in.", score: 4 },
-      { id: "c", text: "Downplay your achievement, as if it wasn't a big deal.", score: 2 },
-      { id: "d", text: "Immediately start worrying about your next goal.", score: 2 }
+      { id: "q7_a", text: "Get upset or defensive", score: 1 },
+      { id: "q7_b", text: "Consider if there's something I can learn from it", score: 5 },
+      { id: "q7_c", text: "Pretend it doesn't bother me", score: 2 },
+      { id: "q7_d", text: "Worry about it for a long time afterward", score: 3 }
     ]
   },
   {
     id: 8,
-    scenario: "You make a mistake. You...",
+    scenario: "When someone shares good news with me, I typically:",
     options: [
-      { id: "a", text: "Blame someone else.", score: 1 },
-      { id: "b", text: "Take responsibility for your actions and try to fix the mistake.", score: 4 },
-      { id: "c", text: "Try to hide the mistake.", score: 1 },
-      { id: "d", text: "Beat yourself up about it excessively.", score: 2 }
+      { id: "q8_a", text: "Show genuine excitement for them", score: 5 },
+      { id: "q8_b", text: "Congratulate them briefly and move on", score: 3 },
+      { id: "q8_c", text: "Talk about a similar achievement of my own", score: 2 },
+      { id: "q8_d", text: "Feel envious if their success exceeds mine", score: 1 }
     ]
   },
   {
     id: 9,
-    scenario: "You see a new student struggling to fit in. You...",
+    scenario: "When making important decisions, I usually:",
     options: [
-      { id: "a", text: "Ignore them.", score: 1 },
-      { id: "b", text: "Make fun of them.", score: 1 },
-      { id: "c", text: "Introduce yourself and try to make them feel welcome.", score: 4 },
-      { id: "d", text: "Observe them from a distance but don't interact.", score: 2 }
+      { id: "q9_a", text: "Consider how the decision will affect others", score: 5 },
+      { id: "q9_b", text: "Go with whatever feels right in the moment", score: 2 },
+      { id: "q9_c", text: "Logically analyze all options without considering feelings", score: 3 },
+      { id: "q9_d", text: "Worry so much that I struggle to decide", score: 1 }
     ]
   },
   {
     id: 10,
-    scenario: "You feel overwhelmed by your emotions. You...",
+    scenario: "After a disagreement with a friend, I tend to:",
     options: [
-      { id: "a", text: "Try to suppress or ignore your feelings.", score: 2 },
-      { id: "b", text: "Find healthy ways to express your emotions (e.g., talking to someone, journaling, creative activities).", score: 4 },
-      { id: "c", text: "Lash out at others.", score: 1 },
-      { id: "d", text: "Engage in self-destructive behaviors.", score: 1 }
+      { id: "q10_a", text: "Give each other space and avoid talking about it", score: 2 },
+      { id: "q10_b", text: "Think about how we both contributed to the problem", score: 5 },
+      { id: "q10_c", text: "Apologize even if I don't think I'm wrong just to make peace", score: 3 },
+      { id: "q10_d", text: "Expect them to make the first move to resolve things", score: 1 }
     ]
   }
 ];
 
-const groupQuestions = (questions: Question[], perPage: number) => {
-  const groupedQuestions = [];
-  for (let i = 0; i < questions.length; i += perPage) {
-    groupedQuestions.push(questions.slice(i, i + perPage));
-  }
-  return groupedQuestions;
-};
+// Total questions in the assessment
+const totalQuestions = questions.length;
 
 const EQNavigatorAssessment = () => {
   const navigate = useNavigate();
-  const { user, storeAssessmentResult } = useAuth();
-  const { toast } = useToast();
-  const [selectedOptions, setSelectedOptions] = useState<string[]>(Array(eqQuestions.length).fill(''));
-  const [showResults, setShowResults] = useState(false);
-  const [totalScore, setTotalScore] = useState(0);
-  const confettiRef = useRef<HTMLDivElement>(null);
+  const { handleSubmit, control, watch, setValue, formState: { errors } } = useForm<FormValues>();
+  const [currentStep, setCurrentStep] = useState<number>(0);
+  const [assessmentStarted, setAssessmentStarted] = useState<boolean>(false);
+  const [selectedOptions, setSelectedOptions] = useState<string[]>(Array(totalQuestions).fill(''));
   
-  const questionsPerPage = 5;
-  const groupedQuestions = groupQuestions(eqQuestions, questionsPerPage);
-  const [currentPageIndex, setCurrentPageIndex] = useState(0);
-
+  // Reset form when questions change
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
-
-  const progressPercentage = ((currentPageIndex * questionsPerPage) / eqQuestions.length) * 100;
-  
-  const triggerConfetti = () => {
-    if (confettiRef.current) {
-      const { top, left, width, height } = confettiRef.current.getBoundingClientRect();
-      const centerX = left + width / 2;
-      const centerY = top + height / 2;
-      
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { 
-          x: centerX / window.innerWidth, 
-          y: centerY / window.innerHeight 
-        },
-        colors: ['#B5D8FE', '#A0C3FF', '#D8B5FF', '#FFB5E8', '#B5FFD8']
-      });
-    }
-  };
-
-  const handleOptionSelect = (questionIndex: number, optionId: string) => {
-    const newSelectedOptions = [...selectedOptions];
-    const globalQuestionIndex = currentPageIndex * questionsPerPage + questionIndex;
-    newSelectedOptions[globalQuestionIndex] = optionId;
-    setSelectedOptions(newSelectedOptions);
-  };
-
-  const handleNext = () => {
-    if (currentPageIndex < groupedQuestions.length - 1) {
-      setCurrentPageIndex(currentPageIndex + 1);
-      window.scrollTo(0, 0);
-    } else {
-      let score = 0;
-      selectedOptions.forEach((optionId, index) => {
-        const question = eqQuestions[index];
-        const option = question.options.find(opt => opt.id === optionId);
-        if (option) {
-          score += option.score;
-        }
-      });
-      setTotalScore(score);
-      setShowResults(true);
-      setTimeout(() => triggerConfetti(), 500);
-      
-      if (user) {
-        const resultData = {
-          totalScore: score,
-          answers: selectedOptions.map((optionId, index) => {
-            const question = eqQuestions[index];
-            const option = question.options.find(opt => opt.id === optionId);
-            return {
-              questionId: question.id,
-              question: question.scenario,
-              answer: option?.text,
-              score: option?.score
-            };
-          })
-        };
-        
-        storeAssessmentResult('eq-navigator', resultData);
+    if (assessmentStarted && currentStep < totalQuestions) {
+      const questionId = questions[currentStep].id;
+      const existingSelection = selectedOptions[currentStep];
+      if (existingSelection) {
+        setValue(`question_${questionId}`, existingSelection);
       } else {
-        toast({
-          title: "Not logged in",
-          description: "Sign in to save your results for future reference.",
-        });
+        setValue(`question_${questionId}`, '');
       }
     }
+  }, [currentStep, assessmentStarted, setValue, selectedOptions]);
+  
+  const startAssessment = () => {
+    setAssessmentStarted(true);
+    setCurrentStep(0);
   };
-
+  
+  const handleNext = (data: FormValues) => {
+    const questionId = questions[currentStep].id;
+    const selectedOption = data[`question_${questionId}`];
+    
+    // Update selected options
+    const newSelectedOptions = [...selectedOptions];
+    newSelectedOptions[currentStep] = selectedOption;
+    setSelectedOptions(newSelectedOptions);
+    
+    // If this is the last question, calculate score and navigate to results
+    if (currentStep === totalQuestions - 1) {
+      const totalScore = calculateTotalScore(newSelectedOptions);
+      
+      // Navigate to student details page first before showing results
+      navigate('/assessment/eq-navigator/student-details', { 
+        state: { 
+          totalScore,
+          selectedOptions: newSelectedOptions,
+          questions,
+        } 
+      });
+    } else {
+      // Move to next question
+      setCurrentStep(currentStep + 1);
+    }
+  };
+  
   const handlePrevious = () => {
-    if (currentPageIndex > 0) {
-      setCurrentPageIndex(currentPageIndex - 1);
-      window.scrollTo(0, 0);
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
     }
   };
-
-  const handleViewResults = () => {
-    navigate('/eq-navigator/results', { 
-      state: { 
-        totalScore, 
-        selectedOptions,
-        questions: eqQuestions
-      } 
-    });
-  };
-
-  const isCurrentPageComplete = () => {
-    const currentQuestions = groupedQuestions[currentPageIndex];
-    for (let i = 0; i < currentQuestions.length; i++) {
-      const globalIndex = currentPageIndex * questionsPerPage + i;
-      if (!selectedOptions[globalIndex]) {
-        return false;
+  
+  const calculateTotalScore = (options: string[]) => {
+    let score = 0;
+    
+    questions.forEach((question, index) => {
+      const selectedOptionId = options[index];
+      const selectedOption = question.options.find(option => option.id === selectedOptionId);
+      
+      if (selectedOption) {
+        score += selectedOption.score;
       }
-    }
-    return true;
+    });
+    
+    return score;
   };
-
+  
+  // Calculate progress percentage
+  const progressPercentage = assessmentStarted 
+    ? Math.round(((currentStep + 1) / totalQuestions) * 100) 
+    : 0;
+  
+  // If assessment has not yet started, show introduction
+  if (!assessmentStarted) {
+    return (
+      <div className="min-h-screen flex flex-col bg-gradient-to-br from-white via-purple-50 to-blue-50">
+        <Navbar />
+        
+        <main className="flex-grow pt-24 pb-16 px-4">
+          <div className="container mx-auto">
+            <div className="max-w-4xl mx-auto">
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8 border border-purple-200/30"
+              >
+                <div className="mb-6 text-center">
+                  <h1 className="text-3xl font-bold text-gray-800 mb-4">EQ Navigator Assessment</h1>
+                  <p className="text-gray-600 max-w-2xl mx-auto">
+                    This assessment is designed to help you explore your emotional intelligence (EQ) - 
+                    how well you understand and manage your emotions and navigate social relationships.
+                  </p>
+                </div>
+                
+                <div className="space-y-6 mb-8">
+                  <div className="bg-purple-50 p-5 rounded-lg border border-purple-100">
+                    <h2 className="text-xl font-semibold mb-3 text-gray-800">What This Assessment Measures</h2>
+                    <p className="text-gray-600 mb-4">
+                      Emotional intelligence encompasses several key components that this assessment will help you explore:
+                    </p>
+                    <ul className="space-y-3">
+                      <li className="flex items-start">
+                        <div className="h-6 w-6 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0 mt-0.5 mr-3">
+                          <span className="text-purple-500 text-sm font-medium">✓</span>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-800">Self-awareness:</span> Recognizing your own emotions and how they affect your thoughts and behavior
+                        </div>
+                      </li>
+                      <li className="flex items-start">
+                        <div className="h-6 w-6 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0 mt-0.5 mr-3">
+                          <span className="text-purple-500 text-sm font-medium">✓</span>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-800">Self-regulation:</span> Managing emotions in healthy ways and adapting to changing circumstances
+                        </div>
+                      </li>
+                      <li className="flex items-start">
+                        <div className="h-6 w-6 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0 mt-0.5 mr-3">
+                          <span className="text-purple-500 text-sm font-medium">✓</span>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-800">Empathy:</span> Understanding and sharing the feelings of others
+                        </div>
+                      </li>
+                      <li className="flex items-start">
+                        <div className="h-6 w-6 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0 mt-0.5 mr-3">
+                          <span className="text-purple-500 text-sm font-medium">✓</span>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-800">Social skills:</span> Navigating social networks, building relationships, and managing conflicts
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                  
+                  <div className="bg-purple-50 p-5 rounded-lg border border-purple-100">
+                    <h2 className="text-xl font-semibold mb-3 text-gray-800">How It Works</h2>
+                    <ul className="space-y-3">
+                      <li className="flex items-start">
+                        <div className="h-6 w-6 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0 mt-0.5 mr-3">
+                          <span className="text-purple-500 text-sm font-medium">1</span>
+                        </div>
+                        <div className="text-gray-600">
+                          You'll respond to 10 questions about how you typically handle various emotional and social situations.
+                        </div>
+                      </li>
+                      <li className="flex items-start">
+                        <div className="h-6 w-6 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0 mt-0.5 mr-3">
+                          <span className="text-purple-500 text-sm font-medium">2</span>
+                        </div>
+                        <div className="text-gray-600">
+                          The assessment takes approximately 5-7 minutes to complete.
+                        </div>
+                      </li>
+                      <li className="flex items-start">
+                        <div className="h-6 w-6 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0 mt-0.5 mr-3">
+                          <span className="text-purple-500 text-sm font-medium">3</span>
+                        </div>
+                        <div className="text-gray-600">
+                          After completion, you'll receive a personalized profile with insights about your emotional intelligence and areas for growth.
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </motion.div>
+              
+              <div className="grid md:grid-cols-3 gap-6">
+                <div className="md:col-span-1">
+                  <AssessmentDetailsPanel 
+                    duration="5-7 minutes" 
+                    questions={totalQuestions} 
+                    onStartAssessment={startAssessment}
+                  />
+                </div>
+                
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="md:col-span-2 bg-white rounded-xl shadow-lg p-6 md:p-8 border border-purple-200/30"
+                >
+                  <h2 className="text-xl font-semibold mb-4 text-gray-800">Tips for Taking This Assessment</h2>
+                  
+                  <ul className="space-y-4">
+                    <li className="flex items-start">
+                      <div className="h-6 w-6 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0 mt-0.5 mr-3">
+                        <span className="text-purple-500 text-sm font-medium">✓</span>
+                      </div>
+                      <div className="text-gray-600">
+                        <span className="font-medium text-gray-800">Be honest with yourself.</span> Choose answers that reflect how you actually respond, not how you think you should respond.
+                      </div>
+                    </li>
+                    <li className="flex items-start">
+                      <div className="h-6 w-6 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0 mt-0.5 mr-3">
+                        <span className="text-purple-500 text-sm font-medium">✓</span>
+                      </div>
+                      <div className="text-gray-600">
+                        <span className="font-medium text-gray-800">Consider your typical behavior,</span> not just how you've acted in one or two specific situations.
+                      </div>
+                    </li>
+                    <li className="flex items-start">
+                      <div className="h-6 w-6 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0 mt-0.5 mr-3">
+                        <span className="text-purple-500 text-sm font-medium">✓</span>
+                      </div>
+                      <div className="text-gray-600">
+                        <span className="font-medium text-gray-800">Remember, there are no "perfect" scores.</span> Emotional intelligence is about understanding yourself better and identifying areas for growth.
+                      </div>
+                    </li>
+                    <li className="flex items-start">
+                      <div className="h-6 w-6 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0 mt-0.5 mr-3">
+                        <span className="text-purple-500 text-sm font-medium">✓</span>
+                      </div>
+                      <div className="text-gray-600">
+                        <span className="font-medium text-gray-800">Trust your instincts</span> and go with your first response rather than overthinking each question.
+                      </div>
+                    </li>
+                  </ul>
+                </motion.div>
+              </div>
+            </div>
+          </div>
+        </main>
+        
+        <Footer />
+      </div>
+    );
+  }
+  
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-white via-purple-50 to-blue-50">
       <Navbar />
       
       <main className="flex-grow pt-24 pb-16 px-4">
         <div className="container mx-auto">
-          <div className="max-w-4xl mx-auto">
-            {!showResults ? (
-              <AnimatePresence mode="wait">
-                <motion.div 
-                  key={`page-${currentPageIndex}`}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.4 }}
-                  className="bg-white rounded-2xl shadow-lg border-2 border-purple-200/30 p-8 overflow-hidden relative"
-                >
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-purple-100/30 to-blue-100/30 rounded-full -mt-20 -mr-20 blur-3xl"></div>
-                  <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-blue-100/30 to-purple-100/30 rounded-full -mb-20 -ml-20 blur-3xl"></div>
-                  
-                  <div className="relative z-10">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-                      <div>
-                        <Button
-                          variant="ghost"
-                          onClick={() => navigate(-1)}
-                          className="mb-4 text-purple-500 hover:text-purple-700 -ml-3"
-                        >
-                          <ArrowLeft className="mr-2 h-4 w-4" /> Back
-                        </Button>
-                        
-                        <h1 className="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">
-                          <div className="bg-gradient-to-br from-purple-100 to-blue-100 p-2.5 rounded-full mr-3 shadow-sm">
-                            <Heart className="h-6 w-6 text-purple-500" />
-                          </div>
-                          EQ Navigator Assessment
-                        </h1>
-                      </div>
-                      
-                      <div className="flex items-center gap-3">
-                        <div className="bg-purple-100 text-purple-600 px-3 py-1.5 rounded-full text-sm font-medium flex items-center">
-                          <Clock className="w-3.5 h-3.5 mr-1.5" />
-                          ~5 mins
-                        </div>
-                        <div className="bg-purple-100 text-purple-600 px-3 py-1.5 rounded-full text-sm font-medium">
-                          {Math.min((currentPageIndex + 1) * questionsPerPage, eqQuestions.length)} of {eqQuestions.length} questions
-                        </div>
-                      </div>
-                    </div>
+          <div className="max-w-3xl mx-auto">
+            <div className="mb-6 flex items-center justify-between">
+              <Button
+                variant="ghost"
+                onClick={handlePrevious}
+                disabled={currentStep === 0}
+                className="text-purple-500 hover:text-purple-600 hover:bg-purple-50"
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" /> Previous
+              </Button>
+              
+              <div className="text-center">
+                <div className="text-sm text-gray-500 mb-1">Question {currentStep + 1} of {totalQuestions}</div>
+                <Progress value={progressPercentage} className="w-[200px] h-2" />
+              </div>
+              
+              <div className="invisible">
+                <Button>
+                  Next <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            
+            <motion.div
+              key={currentStep}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Form {...{ control, handleSubmit: handleSubmit(handleNext) }}>
+                <Card className="border border-purple-200/30 shadow-lg">
+                  <div className="p-6 md:p-8">
+                    <h2 className="text-xl font-semibold mb-6 text-gray-800">{questions[currentStep].scenario}</h2>
                     
-                    <div className="mb-6 p-4 bg-purple-50 border border-purple-200 rounded-xl flex items-start">
-                      <div className="bg-purple-100 text-purple-600 p-2 rounded-full mr-3 flex-shrink-0">
-                        <Info className="h-5 w-5" />
-                      </div>
-                      <div>
-                        <h2 className="font-medium text-gray-800 mb-1">About this assessment</h2>
-                        <p className="text-gray-600 text-sm">
-                          This assessment measures your emotional intelligence across different situations.
-                          Choose the options that best reflect how you would genuinely respond.
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="mb-8">
-                      <div className="flex justify-between items-center mb-2">
-                        <h2 className="text-lg font-medium text-gray-700 flex items-center">
-                          <span className="bg-purple-500 text-white w-8 h-8 rounded-full flex items-center justify-center mr-2 text-sm font-bold shadow-sm">
-                            {currentPageIndex + 1}
-                          </span>
-                          Page {currentPageIndex + 1} of {groupedQuestions.length}
-                        </h2>
-                        <span className="text-sm text-gray-500">
-                          {Math.round(progressPercentage)}% complete
-                        </span>
-                      </div>
-                      
-                      <Progress 
-                        value={progressPercentage} 
-                        className="h-3 bg-purple-100/50" 
-                        indicatorClassName="bg-gradient-to-r from-purple-400 to-blue-300" 
-                      />
-                    </div>
-                    
-                    <div className="space-y-8">
-                      {groupedQuestions[currentPageIndex].map((question, questionIndex) => {
-                        const globalQuestionIndex = currentPageIndex * questionsPerPage + questionIndex;
-                        return (
-                          <motion.div 
-                            key={question.id}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.3, delay: questionIndex * 0.1 }}
-                            className="bg-gradient-to-br from-white to-purple-50 rounded-xl p-6 border border-purple-200/40 shadow-md relative overflow-hidden"
-                          >
-                            <div className="absolute top-0 right-0 h-20 w-20 bg-gradient-to-br from-purple-100/20 to-blue-100/20 rounded-full -mt-10 -mr-10 blur-xl opacity-50"></div>
-                            
-                            <h3 className="text-lg md:text-xl font-semibold mb-5 flex items-start">
-                              <span className="bg-gradient-to-br from-purple-400 to-blue-400 text-white w-8 h-8 rounded-full flex items-center justify-center mr-3 flex-shrink-0 shadow-md">
-                                {globalQuestionIndex + 1}
-                              </span>
-                              <span className="flex-1">{question.scenario}</span>
-                            </h3>
-                            
-                            <RadioGroup 
-                              value={selectedOptions[globalQuestionIndex]} 
-                              onValueChange={(value) => handleOptionSelect(questionIndex, value)}
+                    <FormField
+                      control={control}
+                      name={`question_${questions[currentStep].id}`}
+                      rules={{ required: "Please select an option" }}
+                      render={({ field }) => (
+                        <FormItem className="space-y-1">
+                          <FormControl>
+                            <RadioGroup
+                              onValueChange={field.onChange}
+                              value={field.value}
                               className="space-y-3"
                             >
-                              {question.options.map((option) => (
-                                <div 
-                                  key={option.id} 
-                                  className={`group flex items-start space-x-2 border-2 rounded-xl p-4 transition-all duration-300 ${
-                                    selectedOptions[globalQuestionIndex] === option.id 
-                                      ? 'border-purple-400 bg-gradient-to-r from-purple-50 to-blue-50 shadow-md transform -translate-y-0.5' 
-                                      : 'border-gray-200 hover:border-purple-300 hover:bg-purple-50/30'
-                                  }`}
+                              {questions[currentStep].options.map((option) => (
+                                <div
+                                  key={option.id}
+                                  className="flex items-center space-x-3 border border-gray-200 rounded-lg p-4 transition-colors hover:bg-purple-50"
                                 >
-                                  <RadioGroupItem 
-                                    value={option.id} 
-                                    id={`question-${question.id}-option-${option.id}`} 
-                                    className="mt-1" 
-                                  />
-                                  <Label 
-                                    htmlFor={`question-${question.id}-option-${option.id}`} 
-                                    className="flex-1 cursor-pointer font-medium text-gray-700 group-hover:text-gray-900"
+                                  <RadioGroupItem value={option.id} id={option.id} />
+                                  <label
+                                    htmlFor={option.id}
+                                    className="flex-1 text-base cursor-pointer"
                                   >
                                     {option.text}
-                                  </Label>
-                                  {selectedOptions[globalQuestionIndex] === option.id && (
-                                    <div className="bg-purple-200 rounded-full p-1">
-                                      <Check className="h-4 w-4 text-purple-600" />
-                                    </div>
-                                  )}
+                                  </label>
                                 </div>
                               ))}
                             </RadioGroup>
-                          </motion.div>
-                        );
-                      })}
-                    </div>
+                          </FormControl>
+                          {errors[`question_${questions[currentStep].id}`] && (
+                            <FormMessage>
+                              <div className="flex items-center mt-2 text-red-500">
+                                <AlertCircle className="h-4 w-4 mr-1" />
+                                <span>Please select an option</span>
+                              </div>
+                            </FormMessage>
+                          )}
+                        </FormItem>
+                      )}
+                    />
                     
-                    <div className="flex justify-between mt-8">
+                    <div className="flex justify-end mt-6">
                       <Button 
-                        variant="outline"
-                        onClick={handlePrevious}
-                        disabled={currentPageIndex === 0}
-                        className="flex items-center gap-1 shadow-sm hover:shadow-md transition-all duration-200 border-purple-200 hover:bg-purple-50"
+                        type="submit" 
+                        className="bg-gradient-to-r from-purple-400 to-blue-400 hover:from-purple-500 hover:to-blue-500 text-white"
                       >
-                        <ArrowLeft className="h-4 w-4" />
-                        Previous
-                      </Button>
-                      
-                      <Button 
-                        onClick={handleNext}
-                        disabled={!isCurrentPageComplete()}
-                        className="bg-gradient-to-r from-purple-400 to-blue-400 hover:from-purple-500 hover:to-blue-500 text-white shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-1"
-                      >
-                        {currentPageIndex === groupedQuestions.length - 1 ? "Finish" : "Next"}
-                        <ArrowRight className="h-4 w-4" />
+                        {currentStep === totalQuestions - 1 ? 'Complete' : 'Next'}
+                        <ArrowRight className="ml-2 h-4 w-4" />
                       </Button>
                     </div>
                   </div>
-                </motion.div>
-              </AnimatePresence>
-            ) : (
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-2xl shadow-lg border-2 border-purple-200/30 p-8 md:p-10 text-center overflow-hidden relative"
-                ref={confettiRef}
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-white via-purple-50/30 to-blue-50/30"></div>
-                <div className="absolute top-0 right-0 h-64 w-64 bg-gradient-to-br from-purple-100/20 to-blue-100/20 rounded-full -mt-32 -mr-32 blur-3xl"></div>
-                <div className="absolute bottom-0 left-0 h-64 w-64 bg-gradient-to-br from-blue-100/20 to-purple-100/20 rounded-full -mb-32 -ml-32 blur-3xl"></div>
-                
-                <div className="relative z-10">
-                  <motion.div
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ delay: 0.2, duration: 0.5 }}
-                    className="relative w-32 h-32 mx-auto mb-8"
-                  >
-                    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-200/50 to-blue-200/50 animate-pulse"></div>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Heart className="h-16 w-16 text-purple-500" />
-                    </div>
-                  </motion.div>
-                  
-                  <h2 className="text-3xl md:text-4xl font-bold mb-3 bg-gradient-to-r from-purple-500 to-blue-500 bg-clip-text text-transparent">Assessment Complete!</h2>
-                  <p className="text-gray-600 mb-8 max-w-md mx-auto">
-                    Thank you for completing the EQ Navigator assessment. You're ready to view your personalized emotional intelligence profile!
-                  </p>
-                  
-                  <Button 
-                    onClick={handleViewResults}
-                    size="lg"
-                    className="bg-gradient-to-r from-purple-400 to-blue-400 hover:from-purple-500 hover:to-blue-500 text-white shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-6 text-lg transform hover:-translate-y-1"
-                  >
-                    <Sparkles className="h-5 w-5 mr-2" />
-                    View Your Results
-                  </Button>
-                </div>
-              </motion.div>
-            )}
+                </Card>
+              </Form>
+            </motion.div>
           </div>
         </div>
       </main>

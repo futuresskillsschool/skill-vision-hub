@@ -72,6 +72,39 @@ export type Database = {
         }
         Relationships: []
       }
+      student_details: {
+        Row: {
+          assessment_type: string
+          class: string
+          created_at: string
+          id: string
+          name: string
+          school: string
+          section: string
+          user_id: string | null
+        }
+        Insert: {
+          assessment_type: string
+          class: string
+          created_at?: string
+          id?: string
+          name: string
+          school: string
+          section: string
+          user_id?: string | null
+        }
+        Update: {
+          assessment_type?: string
+          class?: string
+          created_at?: string
+          id?: string
+          name?: string
+          school?: string
+          section?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

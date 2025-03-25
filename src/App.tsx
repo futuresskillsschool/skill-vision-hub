@@ -28,6 +28,7 @@ import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
 import { PrivateRoute } from "./components/PrivateRoute";
+import StudentDetailsPage from "./pages/StudentDetailsPage";
 
 // Add framer-motion for animations
 import { motion, AnimatePresence } from "framer-motion";
@@ -46,6 +47,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/assessment/:id" element={<AssessmentDetail />} />
               <Route path="/assessment/:id/lead-form" element={<LeadForm />} />
+              <Route path="/assessment/:id/student-details" element={<StudentDetailsPage />} />
               <Route path="/assessment/career-vision" element={<CareerVisionLanding />} />
               <Route path="/assessment/career-vision/take" element={<CareerVisionAssessment />} />
               <Route path="/assessment/career-vision/results" element={<CareerVisionResults />} />
