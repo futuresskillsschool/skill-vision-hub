@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -13,20 +13,29 @@ const StudentDetailsPage = () => {
   // Check if we have results data from the previous page
   const resultsData = location.state;
   
-  if (!resultsData) {
+  useEffect(() => {
     // Redirect to the assessment page if no results data
-    navigate(`/assessment/${id}`);
+    if (!resultsData) {
+      console.log("No results data, redirecting to assessment page");
+      navigate(`/assessment/${id || 'scct'}`);
+    }
+  }, [resultsData, navigate, id]);
+  
+  if (!resultsData) {
     return null;
   }
   
   // Determine which assessment type based on the URL or the results data
-  let assessmentType = id || '';
+  let assessmentType = id || resultsData.assessmentType || 'scct';
+  
+  console.log("StudentDetailsPage - Assessment type:", assessmentType);
+  console.log("StudentDetailsPage - Results data:", resultsData);
   
   const handleSubmitSuccess = (studentId: string) => {
     console.log("Student details submitted, navigating to results page with:", { ...resultsData, studentId });
     
     // Navigate to the results page with the results data
-    navigate(`/assessment/${id}/results`, {
+    navigate(`/assessment/${assessmentType}/results`, {
       state: {
         ...resultsData,
         studentId

@@ -43,6 +43,9 @@ const StudentDetailsForm = ({
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   
+  console.log("StudentDetailsForm - Assessment type:", assessmentType);
+  console.log("StudentDetailsForm - Results data:", resultsData);
+  
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
