@@ -90,7 +90,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
         <Card className="p-6 bg-brand-purple/5">
           <div className="flex items-center mb-4">
             <Heart className="h-5 w-5 text-brand-purple mr-2" />
-            <p className="font-semibold text-lg">EQ<br /> Navigator</p>
+            <p className="font-semibold text-xl">EQ<br /> Navigator</p>
           </div>
           <p className="text-sm text-muted-foreground mb-4">
             Your emotional intelligence is at the {
