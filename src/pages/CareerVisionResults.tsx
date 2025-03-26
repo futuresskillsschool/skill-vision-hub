@@ -149,9 +149,16 @@ const CareerVisionResults = () => {
       const addSectionToPDF = async (
         container: HTMLDivElement | null, 
         title: string, 
-        pageNumber: number
+        pageNumber: number,
+        tabToActivate: string
       ) => {
         if (!container) return;
+        
+        // Activate the correct tab first
+        setActiveTab(tabToActivate);
+        
+        // Wait for the DOM to update
+        await new Promise(resolve => setTimeout(resolve, 500));
         
         const canvas = await html2canvas(container, {
           scale: 2,
@@ -204,30 +211,23 @@ const CareerVisionResults = () => {
       pdf.setFontSize(10);
       pdf.text('Page 1', 10, 287);
       
-      // Force each tab to be visible temporarily for capturing
-      // We'll need to store original active tab to restore later
+      // Store original active tab to restore later
       const originalActiveTab = activeTab;
       
-      // Make sure overview tab is visible first and capture it
-      setActiveTab("overview");
-      // Give time for the state to update and components to render
-      await new Promise(resolve => setTimeout(resolve, 200));
-      await addSectionToPDF(overviewRef.current, 'Overview', 1);
+      // Make sure all tabs are properly rendered for the PDF
+      // We need to activate each tab before we capture it
       
-      // Capture RIASEC tab
-      setActiveTab("riasec");
-      await new Promise(resolve => setTimeout(resolve, 200));
-      await addSectionToPDF(riasecRef.current, 'RIASEC Profile', 2);
+      // Overview tab (Page 2)
+      await addSectionToPDF(overviewRef.current, 'Overview', 1, "overview");
       
-      // Capture Pathways tab
-      setActiveTab("pathways");
-      await new Promise(resolve => setTimeout(resolve, 200));
-      await addSectionToPDF(pathwaysRef.current, 'Future Pathways', 3);
+      // RIASEC tab (Page 3)
+      await addSectionToPDF(riasecRef.current, 'RIASEC Profile', 2, "riasec");
       
-      // Capture EQ tab
-      setActiveTab("eq");
-      await new Promise(resolve => setTimeout(resolve, 200));
-      await addSectionToPDF(eqRef.current, 'EQ Navigator', 4);
+      // Pathways tab (Page 4)
+      await addSectionToPDF(pathwaysRef.current, 'Future Pathways', 3, "pathways");
+      
+      // EQ tab (Page 5)
+      await addSectionToPDF(eqRef.current, 'EQ Navigator', 4, "eq");
       
       // Restore original active tab
       setActiveTab(originalActiveTab);
