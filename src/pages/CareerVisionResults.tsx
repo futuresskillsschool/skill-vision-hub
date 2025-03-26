@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Navbar from '@/components/Navbar';
@@ -23,6 +23,7 @@ import {
   getCareerRecommendations,
   AssessmentResults
 } from '@/components/career-vision/DataTypes';
+import { toast } from 'sonner';
 
 interface StudentDetails {
   id: string;
@@ -40,6 +41,12 @@ const CareerVisionResults = () => {
   
   const [results, setResults] = useState<AssessmentResults | null>(location.state || null);
   const [studentDetails, setStudentDetails] = useState<StudentDetails | null>(null);
+  const resultsContainerRef = useRef<HTMLDivElement>(null);
+  const overviewRef = useRef<HTMLDivElement>(null);
+  const riasecRef = useRef<HTMLDivElement>(null);
+  const pathwaysRef = useRef<HTMLDivElement>(null);
+  const eqRef = useRef<HTMLDivElement>(null);
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -123,29 +130,117 @@ const CareerVisionResults = () => {
     .sort((a, b) => (b[1] as number) - (a[1] as number))
     .slice(0, 2)
     .map(([cluster]) => cluster);
-  
+
   const handleDownloadPDF = async () => {
-    const element = document.getElementById('results-container');
-    if (!element) return;
+    if (isGeneratingPDF) return;
     
-    const canvas = await html2canvas(element, {
-      scale: 1,
-      useCORS: true,
-      logging: false
-    });
+    setIsGeneratingPDF(true);
+    toast.loading("Generating your comprehensive PDF report...");
     
-    const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4'
-    });
-    
-    const imgWidth = 210;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-    
-    pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-    pdf.save('Career-Vision-Assessment-Results.pdf');
+    try {
+      // This will store our PDF document
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+      
+      // Function to capture a specific section and add it to the PDF
+      const addSectionToPDF = async (
+        container: HTMLDivElement | null, 
+        title: string, 
+        pageNumber: number
+      ) => {
+        if (!container) return;
+        
+        const canvas = await html2canvas(container, {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          allowTaint: true,
+          backgroundColor: '#FFFFFF'
+        });
+        
+        const imgData = canvas.toDataURL('image/png');
+        
+        // Add a new page for sections after the first one
+        if (pageNumber > 0) {
+          pdf.addPage();
+        }
+        
+        const imgWidth = 210 - 20; // A4 width - margins
+        const pageHeight = 297 - 20; // A4 height - margins
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        
+        // Add title to the page
+        pdf.setFontSize(16);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text(title, 10, 15);
+        
+        // Add the image below the title
+        pdf.addImage(imgData, 'PNG', 10, 20, imgWidth, imgHeight);
+        
+        // Add page number at the bottom
+        pdf.setFontSize(10);
+        pdf.setFont('helvetica', 'normal');
+        pdf.text(`Page ${pageNumber + 1}`, 10, 287);
+      };
+      
+      // Add cover page
+      pdf.setFontSize(24);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('Career Vision Assessment', 105, 100, { align: 'center' });
+      pdf.setFontSize(16);
+      pdf.text('Comprehensive Results Report', 105, 115, { align: 'center' });
+      
+      if (studentDetails) {
+        pdf.setFontSize(14);
+        pdf.setFont('helvetica', 'normal');
+        pdf.text(`Student: ${studentDetails.name}`, 105, 140, { align: 'center' });
+        pdf.text(`Class: ${studentDetails.class} - ${studentDetails.section}`, 105, 150, { align: 'center' });
+        pdf.text(`School: ${studentDetails.school}`, 105, 160, { align: 'center' });
+      }
+      
+      pdf.setFontSize(10);
+      pdf.text('Page 1', 10, 287);
+      
+      // Force each tab to be visible temporarily for capturing
+      // We'll need to store original active tab to restore later
+      const originalActiveTab = activeTab;
+      
+      // Make sure overview tab is visible first and capture it
+      setActiveTab("overview");
+      // Give time for the state to update and components to render
+      await new Promise(resolve => setTimeout(resolve, 200));
+      await addSectionToPDF(overviewRef.current, 'Overview', 1);
+      
+      // Capture RIASEC tab
+      setActiveTab("riasec");
+      await new Promise(resolve => setTimeout(resolve, 200));
+      await addSectionToPDF(riasecRef.current, 'RIASEC Profile', 2);
+      
+      // Capture Pathways tab
+      setActiveTab("pathways");
+      await new Promise(resolve => setTimeout(resolve, 200));
+      await addSectionToPDF(pathwaysRef.current, 'Future Pathways', 3);
+      
+      // Capture EQ tab
+      setActiveTab("eq");
+      await new Promise(resolve => setTimeout(resolve, 200));
+      await addSectionToPDF(eqRef.current, 'EQ Navigator', 4);
+      
+      // Restore original active tab
+      setActiveTab(originalActiveTab);
+      
+      // Save PDF
+      pdf.save('Career-Vision-Complete-Results.pdf');
+      toast.success("Your comprehensive PDF report is ready!");
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      toast.error("There was an error generating your PDF. Please try again.");
+    } finally {
+      setIsGeneratingPDF(false);
+    }
   };
   
   return (
@@ -154,7 +249,7 @@ const CareerVisionResults = () => {
       
       <main className="flex-grow pt-24 pb-16">
         <div className="container mx-auto px-4 md:px-6">
-          <div className="max-w-4xl mx-auto" id="results-container">
+          <div className="max-w-4xl mx-auto" id="results-container" ref={resultsContainerRef}>
             <div className="mb-8 flex justify-between items-start">
               <div>
                 <Link to="/assessment/career-vision" className="inline-flex items-center text-brand-purple hover:underline mb-4">
@@ -166,11 +261,12 @@ const CareerVisionResults = () => {
               
               <Button 
                 variant="outline" 
-                onClick={handleDownloadPDF} 
+                onClick={handleDownloadPDF}
+                disabled={isGeneratingPDF} 
                 className="hidden md:flex items-center gap-2"
               >
                 <Download className="h-4 w-4" />
-                Download PDF
+                {isGeneratingPDF ? "Generating..." : "Download PDF Report"}
               </Button>
             </div>
             
@@ -223,35 +319,43 @@ const CareerVisionResults = () => {
                   </TabsList>
                   
                   <TabsContent value="overview" className="mt-0">
-                    <OverviewTab 
-                      riasec={riasec}
-                      pathways={pathways}
-                      eqScore={eqScore}
-                      careerRecommendations={careerRecommendations}
-                      topRiasecCategories={topRiasecCategories}
-                      topPathwaysClusters={topPathwaysClusters}
-                      riasecChartData={riasecChartData}
-                      pathwaysChartData={pathwaysChartData}
-                      handleDownloadPDF={handleDownloadPDF}
-                    />
+                    <div ref={overviewRef}>
+                      <OverviewTab 
+                        riasec={riasec}
+                        pathways={pathways}
+                        eqScore={eqScore}
+                        careerRecommendations={careerRecommendations}
+                        topRiasecCategories={topRiasecCategories}
+                        topPathwaysClusters={topPathwaysClusters}
+                        riasecChartData={riasecChartData}
+                        pathwaysChartData={pathwaysChartData}
+                        handleDownloadPDF={handleDownloadPDF}
+                      />
+                    </div>
                   </TabsContent>
                   
                   <TabsContent value="riasec" className="mt-0">
-                    <RIASECTab 
-                      riasec={riasec}
-                      riasecChartData={riasecChartData}
-                    />
+                    <div ref={riasecRef}>
+                      <RIASECTab 
+                        riasec={riasec}
+                        riasecChartData={riasecChartData}
+                      />
+                    </div>
                   </TabsContent>
                   
                   <TabsContent value="pathways" className="mt-0">
-                    <PathwaysTab 
-                      pathways={pathways}
-                      pathwaysChartData={pathwaysChartData}
-                    />
+                    <div ref={pathwaysRef}>
+                      <PathwaysTab 
+                        pathways={pathways}
+                        pathwaysChartData={pathwaysChartData}
+                      />
+                    </div>
                   </TabsContent>
                   
                   <TabsContent value="eq" className="mt-0">
-                    <EQTab eqScore={eqScore} />
+                    <div ref={eqRef}>
+                      <EQTab eqScore={eqScore} />
+                    </div>
                   </TabsContent>
                 </Tabs>
               </div>

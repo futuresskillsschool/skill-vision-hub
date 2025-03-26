@@ -98,7 +98,6 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
             } level.
           </p>
           <div className="flex items-center justify-center h-[120px]">
-            {/* <CircularProgressIndicator value={eqScore} max={40} size="lg" /> */}
             <div className="w-56 h-56 relative">
               <svg className="w-FULL h-FULL" viewBox="0 0 100 100">
                 <circle 
@@ -201,7 +200,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
         className="w-full md:hidden flex items-center justify-center gap-2 mt-4"
       >
         <Download className="h-4 w-4" />
-        Download PDF
+        Download Comprehensive PDF
       </Button>
     </>
   );
