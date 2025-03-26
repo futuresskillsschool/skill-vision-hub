@@ -1,4 +1,3 @@
-
 import { useEffect, useState, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -7,10 +6,12 @@ import { Card } from '@/components/ui/card';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Progress } from '@/components/ui/progress';
-import { Sparkles, Heart, ArrowRight, Brain, BookOpen, PenTool, Home, Download, Check, Award, ArrowLeft, Info } from 'lucide-react';
+import { Sparkles, Heart, ArrowRight, Brain, BookOpen, PenTool, Home, Download, Check, Award, ArrowLeft, Info, User, School } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 interface EQResultsProps {
   totalScore: number;
@@ -251,8 +252,8 @@ const EQNavigatorResults = () => {
   const [isLoading, setIsLoading] = useState(true);
   const reportRef = useRef<HTMLDivElement>(null);
   const [studentDetails, setStudentDetails] = useState<StudentDetails | null>(null);
-   const { user } = useAuth();
-  const [results, setResults] = useState<AssessmentResults | null>(location.state || null);
+  const { user } = useAuth();
+  const [results, setResults] = useState<any | null>(location.state || null);
   
   useEffect(() => {
     window.scrollTo(0, 0);
