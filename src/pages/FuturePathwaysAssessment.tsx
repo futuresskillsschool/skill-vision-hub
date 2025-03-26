@@ -201,10 +201,12 @@ const FuturePathwaysAssessment = () => {
   };
 
   const handleViewResults = () => {
-    navigate('/future-pathways/results', { 
+    // Navigate to the student details page before showing results
+    navigate('/assessment/eq-navigator/student-details', { 
       state: { 
-        clusterScores,
-        selectedOptions
+        totalScore,
+        selectedOptions,
+        questions
       } 
     });
   };
