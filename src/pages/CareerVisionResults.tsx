@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -11,8 +10,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
-// Import refactored components
 import OverviewTab from '@/components/career-vision/OverviewTab';
 import RIASECTab from '@/components/career-vision/RIASECTab';
 import PathwaysTab from '@/components/career-vision/PathwaysTab';
@@ -23,7 +22,6 @@ import {
   getCareerRecommendations,
   AssessmentResults
 } from '@/components/career-vision/DataTypes';
-import { toast } from 'sonner';
 
 interface StudentDetails {
   id: string;
@@ -56,7 +54,6 @@ const CareerVisionResults = () => {
       // fetchUserResults('career-vision').then(setResults);
     }
     
-    // Fetch student details if we have a studentId in the results state
     const fetchStudentDetails = async () => {
       if (results && results.studentId) {
         try {
@@ -138,14 +135,12 @@ const CareerVisionResults = () => {
     toast.loading("Generating your comprehensive PDF report...");
     
     try {
-      // This will store our PDF document
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
         format: 'a4'
       });
       
-      // Function to capture a specific section and add it to the PDF
       const addSectionToPDF = async (
         container: HTMLDivElement | null, 
         title: string, 
@@ -154,46 +149,51 @@ const CareerVisionResults = () => {
       ) => {
         if (!container) return;
         
-        // Activate the correct tab first
         setActiveTab(tabToActivate);
         
-        // Wait for the DOM to update
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        window.dispatchEvent(new Event('resize'));
         
         const canvas = await html2canvas(container, {
           scale: 2,
           useCORS: true,
-          logging: false,
+          logging: true,
           allowTaint: true,
-          backgroundColor: '#FFFFFF'
+          backgroundColor: '#FFFFFF',
+          onclone: (document, element) => {
+            const allElements = element.querySelectorAll('*');
+            allElements.forEach(el => {
+              if (el instanceof HTMLElement) {
+                el.style.display = 'block';
+                el.style.visibility = 'visible';
+                el.style.opacity = '1';
+              }
+            });
+          }
         });
         
         const imgData = canvas.toDataURL('image/png');
         
-        // Add a new page for sections after the first one
         if (pageNumber > 0) {
           pdf.addPage();
         }
         
-        const imgWidth = 210 - 20; // A4 width - margins
-        const pageHeight = 297 - 20; // A4 height - margins
+        const imgWidth = 210 - 20;
+        const pageHeight = 297 - 20;
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
         
-        // Add title to the page
         pdf.setFontSize(16);
         pdf.setFont('helvetica', 'bold');
         pdf.text(title, 10, 15);
         
-        // Add the image below the title
         pdf.addImage(imgData, 'PNG', 10, 20, imgWidth, imgHeight);
         
-        // Add page number at the bottom
         pdf.setFontSize(10);
         pdf.setFont('helvetica', 'normal');
         pdf.text(`Page ${pageNumber + 1}`, 10, 287);
       };
       
-      // Add cover page
       pdf.setFontSize(24);
       pdf.setFont('helvetica', 'bold');
       pdf.text('Career Vision Assessment', 105, 100, { align: 'center' });
@@ -211,28 +211,25 @@ const CareerVisionResults = () => {
       pdf.setFontSize(10);
       pdf.text('Page 1', 10, 287);
       
-      // Store original active tab to restore later
       const originalActiveTab = activeTab;
       
-      // Make sure all tabs are properly rendered for the PDF
-      // We need to activate each tab before we capture it
+      console.log("Starting PDF generation sequence");
       
-      // Overview tab (Page 2)
+      console.log("Capturing Overview tab");
       await addSectionToPDF(overviewRef.current, 'Overview', 1, "overview");
       
-      // RIASEC tab (Page 3)
+      console.log("Capturing RIASEC tab");
       await addSectionToPDF(riasecRef.current, 'RIASEC Profile', 2, "riasec");
       
-      // Pathways tab (Page 4)
+      console.log("Capturing Pathways tab");
       await addSectionToPDF(pathwaysRef.current, 'Future Pathways', 3, "pathways");
       
-      // EQ tab (Page 5)
+      console.log("Capturing EQ tab");
       await addSectionToPDF(eqRef.current, 'EQ Navigator', 4, "eq");
       
-      // Restore original active tab
       setActiveTab(originalActiveTab);
+      console.log("PDF generation complete");
       
-      // Save PDF
       pdf.save('Career-Vision-Complete-Results.pdf');
       toast.success("Your comprehensive PDF report is ready!");
     } catch (error) {
@@ -270,7 +267,6 @@ const CareerVisionResults = () => {
               </Button>
             </div>
             
-            {/* Student Details Section */}
             {studentDetails && (
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
