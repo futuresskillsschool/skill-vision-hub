@@ -14,7 +14,6 @@ import { Progress } from '@/components/ui/progress';
 interface PathwayResultsProps {
   clusterScores: Record<string, number>;
   selectedOptions: number[];
-  studentId?: string;
 }
 
 interface CareerCluster {
@@ -177,8 +176,41 @@ const FuturePathwaysResults = () => {
   const [maxScore, setMaxScore] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const reportRef = useRef<HTMLDivElement>(null);
-  const [studentDetails, setStudentDetails] = useState<any>(null);
 
+   useEffect(() => {
+    window.scrollTo(0, 0);
+    
+    if (!results && user) {
+      // This would be implemented if we had a function to fetch results
+      // fetchUserResults('career-vision').then(setResults);
+    }
+    
+    // Fetch student details if we have a studentId in the results state
+    const fetchStudentDetails = async () => {
+      if (results && results.studentId) {
+        try {
+          const { data, error } = await supabase
+            .from('student_details')
+            .select('*')
+            .eq('id', results.studentId)
+            .single();
+            
+          if (error) {
+            console.error('Error fetching student details:', error);
+            return;
+          }
+          
+          if (data) {
+            setStudentDetails(data as StudentDetails);
+          }
+        } catch (error) {
+          console.error('Error in student details fetch:', error);
+        }
+      }
+    };
+    
+    fetchStudentDetails();
+  }, [results, user]);
   useEffect(() => {
     window.scrollTo(0, 0);
     
@@ -204,10 +236,6 @@ const FuturePathwaysResults = () => {
     
     setTopClusters(topTwoClusters);
     setIsLoading(false);
-    
-    if (state.studentId) {
-      console.log('Student ID:', state.studentId);
-    }
   }, [location, navigate]);
 
   const calculatePercentage = (score: number) => {
