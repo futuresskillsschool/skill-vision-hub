@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -107,20 +106,7 @@ const CareerVisionAssessment = () => {
   }, [answers]);
 
   const handleAnswer = (questionId: string, value: number) => {
-    const newAnswers = { ...answers, [questionId]: value };
-    setAnswers(newAnswers);
-    
-    // Check if all questions in the current section are answered to auto-advance
-    const sectionQuestionIds = currentSection.questions.map(q => q.id);
-    const answeredSectionQuestions = sectionQuestionIds.filter(id => newAnswers[id] !== undefined);
-    
-    if (answeredSectionQuestions.length === sectionQuestionIds.length && !isLastSection) {
-      // Wait a moment before advancing to the next section
-      setTimeout(() => {
-        setCurrentSectionIndex(prev => prev + 1);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }, 400);
-    }
+    setAnswers(prev => ({ ...prev, [questionId]: value }));
   };
 
   const handleNextSection = () => {
