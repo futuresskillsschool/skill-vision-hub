@@ -16,6 +16,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
 
 interface QuestionnaireSection {
   id: string;
@@ -31,40 +33,40 @@ interface QuestionnaireSection {
 const RIASEC_QUESTIONS: QuestionnaireSection = {
   id: 'riasec',
   title: 'RIASEC Profile',
-  description: 'Indicate how much you\'d enjoy doing each of the following activities:',
+  description: 'Indicate how much you agree or disagree with each of the following statements:',
   questions: [
-    { id: 'R1', text: 'Build something with tools and materials', tooltip: 'Activities involving hands-on work with physical objects' },
-    { id: 'I1', text: 'Solve puzzles or complex problems', tooltip: 'Activities that involve analysis and critical thinking' },
-    { id: 'A1', text: 'Create art, music, or creative writing', tooltip: 'Activities that involve self-expression and creativity' },
-    { id: 'S1', text: 'Teach or help others learn something new', tooltip: 'Activities that involve helping, teaching, or providing service to others' },
-    { id: 'E1', text: 'Lead a group or organization', tooltip: 'Activities that involve leadership, persuasion, or management' },
-    { id: 'C1', text: 'Create organized systems for information', tooltip: 'Activities that involve organization, attention to detail, and following procedures' },
-    { id: 'R2', text: 'Fix mechanical or electronic devices', tooltip: 'Working with machines, tools, or physical systems' },
-    { id: 'I2', text: 'Research and analyze information', tooltip: 'Investigating questions and finding explanations' },
-    { id: 'A2', text: 'Design something visually appealing', tooltip: 'Creating aesthetic or artistic works' },
-    { id: 'S2', text: 'Counsel someone through a problem', tooltip: 'Supporting others through listening and guidance' },
-    { id: 'E2', text: 'Persuade others to do things your way', tooltip: 'Influencing others and taking initiative' },
-    { id: 'C2', text: 'Work with details and follow instructions', tooltip: 'Being precise, orderly, and methodical' },
+    { id: 'R1', text: 'I enjoy building something with tools and materials', tooltip: 'Activities involving hands-on work with physical objects' },
+    { id: 'I1', text: 'I like to solve puzzles or complex problems', tooltip: 'Activities that involve analysis and critical thinking' },
+    { id: 'A1', text: 'I prefer creating art, music, or creative writing', tooltip: 'Activities that involve self-expression and creativity' },
+    { id: 'S1', text: 'I enjoy teaching or helping others learn something new', tooltip: 'Activities that involve helping, teaching, or providing service to others' },
+    { id: 'E1', text: 'I like to lead a group or organization', tooltip: 'Activities that involve leadership, persuasion, or management' },
+    { id: 'C1', text: 'I prefer creating organized systems for information', tooltip: 'Activities that involve organization, attention to detail, and following procedures' },
+    { id: 'R2', text: 'I enjoy fixing mechanical or electronic devices', tooltip: 'Working with machines, tools, or physical systems' },
+    { id: 'I2', text: 'I like to research and analyze information', tooltip: 'Investigating questions and finding explanations' },
+    { id: 'A2', text: 'I prefer designing something visually appealing', tooltip: 'Creating aesthetic or artistic works' },
+    { id: 'S2', text: 'I enjoy counseling someone through a problem', tooltip: 'Supporting others through listening and guidance' },
+    { id: 'E2', text: 'I like to persuade others to do things my way', tooltip: 'Influencing others and taking initiative' },
+    { id: 'C2', text: 'I prefer work with details and follow instructions', tooltip: 'Being precise, orderly, and methodical' },
   ],
 };
 
 const PATHWAYS_QUESTIONS: QuestionnaireSection = {
   id: 'pathways',
   title: 'Future Pathways Explorer',
-  description: 'Rate your interest in these possible future-oriented activities:',
+  description: 'Indicate how much you agree or disagree with these statements about possible future activities:',
   questions: [
-    { id: 'tech-innovator1', text: 'Develop innovative technologies to solve global problems', tooltip: 'Creating new technological solutions for world challenges' },
-    { id: 'digital-creator1', text: 'Create digital content or virtual experiences', tooltip: 'Producing online content, digital art, or virtual reality experiences' },
-    { id: 'data-analyst1', text: 'Analyze data patterns to derive meaningful insights', tooltip: 'Finding patterns and meaning in large sets of information' },
-    { id: 'entrepreneur1', text: 'Start and grow your own business venture', tooltip: 'Building and scaling a business from the ground up' },
-    { id: 'helper1', text: 'Use technology to improve health or education', tooltip: 'Applying tech solutions to social services like healthcare or education' },
+    { id: 'tech-innovator1', text: 'I would enjoy developing innovative technologies to solve global problems', tooltip: 'Creating new technological solutions for world challenges' },
+    { id: 'digital-creator1', text: 'I would like to create digital content or virtual experiences', tooltip: 'Producing online content, digital art, or virtual reality experiences' },
+    { id: 'data-analyst1', text: 'I would enjoy analyzing data patterns to derive meaningful insights', tooltip: 'Finding patterns and meaning in large sets of information' },
+    { id: 'entrepreneur1', text: 'I would like to start and grow my own business venture', tooltip: 'Building and scaling a business from the ground up' },
+    { id: 'helper1', text: 'I would enjoy using technology to improve health or education', tooltip: 'Applying tech solutions to social services like healthcare or education' },
   ],
 };
 
 const EQ_QUESTIONS: QuestionnaireSection = {
   id: 'eq',
   title: 'EQ Navigator',
-  description: 'How well do these statements describe you?',
+  description: 'Indicate how much you agree or disagree with each of these statements about yourself:',
   questions: [
     { id: 'eq1', text: 'I can identify my emotions as I experience them', tooltip: 'Being aware of your feelings in the moment' },
     { id: 'eq2', text: 'I recognize how my emotions affect my behavior', tooltip: 'Understanding the connection between feelings and actions' },
@@ -78,6 +80,14 @@ const EQ_QUESTIONS: QuestionnaireSection = {
 };
 
 const ALL_QUESTIONS = [RIASEC_QUESTIONS, PATHWAYS_QUESTIONS, EQ_QUESTIONS];
+
+const answerOptions = [
+  { value: "1", label: "Strongly Disagree" },
+  { value: "2", label: "Disagree" },
+  { value: "3", label: "Neutral" },
+  { value: "4", label: "Agree" },
+  { value: "5", label: "Strongly Agree" }
+];
 
 const CareerVisionAssessment = () => {
   const navigate = useNavigate();
@@ -280,29 +290,27 @@ const CareerVisionAssessment = () => {
                           )}
                         </div>
                         
-                        <div className="grid grid-cols-5 gap-2">
-                          {[1, 2, 3, 4, 5].map((value) => (
-                            <Button
-                              key={value}
-                              variant={answers[question.id] === value ? "default" : "outline"}
-                              className={`relative h-12 ${
-                                answers[question.id] === value 
-                                ? "bg-brand-purple hover:bg-brand-purple/90" 
-                                : "hover:bg-brand-purple/10"
-                              }`}
-                              onClick={() => handleAnswer(question.id, value)}
-                            >
-                              {value}
-                              {answers[question.id] === value && (
-                                <CheckCircle className="h-4 w-4 absolute -top-1 -right-1 text-white bg-green-500 rounded-full" />
-                              )}
-                            </Button>
+                        <RadioGroup
+                          value={answers[question.id]?.toString() || ""}
+                          onValueChange={(value) => handleAnswer(question.id, parseInt(value))}
+                          className="flex flex-col space-y-1 sm:flex-row sm:space-y-0 sm:space-x-4 justify-between"
+                        >
+                          {answerOptions.map((option) => (
+                            <div key={option.value} className="flex items-center space-x-2">
+                              <RadioGroupItem
+                                value={option.value}
+                                id={`${question.id}-${option.value}`}
+                                className="text-brand-purple"
+                              />
+                              <Label 
+                                htmlFor={`${question.id}-${option.value}`}
+                                className={`text-sm ${answers[question.id]?.toString() === option.value ? 'font-medium text-brand-purple' : 'text-muted-foreground'}`}
+                              >
+                                {option.label}
+                              </Label>
+                            </div>
                           ))}
-                        </div>
-                        <div className="flex justify-between mt-2 text-xs text-muted-foreground">
-                          <span>Not at all</span>
-                          <span>Very much</span>
-                        </div>
+                        </RadioGroup>
                       </div>
                     ))}
                   </div>
