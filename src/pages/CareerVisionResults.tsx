@@ -37,9 +37,9 @@ const CareerVisionResults = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [results, setResults] = useState<AssessmentResults | null>(location.state || null);
   const [activeTab, setActiveTab] = useState("overview");
   
-  const [results, setResults] = useState<AssessmentResults | null>(location.state || null);
   const [studentDetails, setStudentDetails] = useState<StudentDetails | null>(null);
   const resultsContainerRef = useRef<HTMLDivElement>(null);
   const overviewRef = useRef<HTMLDivElement>(null);

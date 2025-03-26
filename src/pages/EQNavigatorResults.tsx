@@ -46,6 +46,14 @@ interface EQProfile {
   }>;
 }
 
+interface StudentDetails {
+  id: string;
+  name: string;
+  class: string;
+  section: string;
+  school: string;
+}
+
 const profiles: Record<string, EQProfile> = {
   'empathetic': {
     title: 'Empathetic Explorer',
@@ -242,6 +250,9 @@ const EQNavigatorResults = () => {
   const [scoreRange, setScoreRange] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const reportRef = useRef<HTMLDivElement>(null);
+  const [studentDetails, setStudentDetails] = useState<StudentDetails | null>(null);
+   const { user } = useAuth();
+  const [results, setResults] = useState<AssessmentResults | null>(location.state || null);
   
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -277,7 +288,38 @@ const EQNavigatorResults = () => {
     
     setProfile(selectedProfile);
     setIsLoading(false);
-  }, [location, navigate]);
+
+    if (!results && user) {
+      // This would be implemented if we had a function to fetch results
+      // fetchUserResults('career-vision').then(setResults);
+    }
+    
+    // Fetch student details if we have a studentId in the results state
+    const fetchStudentDetails = async () => {
+      if (results && results.studentId) {
+        try {
+          const { data, error } = await supabase
+            .from('student_details')
+            .select('*')
+            .eq('id', results.studentId)
+            .single();
+            
+          if (error) {
+            console.error('Error fetching student details:', error);
+            return;
+          }
+          
+          if (data) {
+            setStudentDetails(data as StudentDetails);
+          }
+        } catch (error) {
+          console.error('Error in student details fetch:', error);
+        }
+      }
+    };
+    
+    fetchStudentDetails();
+  }, [location, navigate, user, results]);
 
   const calculatePercentage = (totalScore: number) => {
     return Math.round((totalScore / 40) * 100);
@@ -430,6 +472,40 @@ const EQNavigatorResults = () => {
                 </Button>
               </div>
             </div>
+
+             {/* Student Details Section */}
+            {studentDetails && (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-brand-purple/10 rounded-xl p-4 md:p-6 mb-6"
+              >
+                <h2 className="text-xl font-semibold mb-3 text-brand-purple">Student Information</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex items-center">
+                    <User className="h-5 w-5 text-brand-purple mr-2" />
+                    <div>
+                      <p className="text-sm text-gray-600">Name</p>
+                      <p className="font-medium">{studentDetails.name}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center">
+                    <BookOpen className="h-5 w-5 text-brand-purple mr-2" />
+                    <div>
+                      <p className="text-sm text-gray-600">Class & Section</p>
+                      <p className="font-medium">{studentDetails.class} - {studentDetails.section}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center md:col-span-2">
+                    <School className="h-5 w-5 text-brand-purple mr-2" />
+                    <div>
+                      <p className="text-sm text-gray-600">School</p>
+                      <p className="font-medium">{studentDetails.school}</p>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
 
             <div ref={reportRef}>
               <motion.div 
