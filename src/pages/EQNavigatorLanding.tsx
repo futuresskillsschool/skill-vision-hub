@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
   Check, 
   Clock, 
@@ -12,7 +12,6 @@ import {
   Users, 
   Heart, 
   Sparkles, 
-  ChevronRight,
   ArrowRight
 } from 'lucide-react';
 
@@ -29,162 +28,162 @@ const EQNavigatorLanding = () => {
       
       <main className="flex-grow pt-24 pb-16">
         <div className="container mx-auto px-4 md:px-6">
-          <div className="max-w-5xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="mb-12 text-center"
-            >
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="max-w-5xl mx-auto"
+          >
+            {/* Hero Section */}
+            <div className="text-center mb-16">
               <span className="inline-block bg-[hsl(var(--brand-red))/10] text-[hsl(var(--brand-red))] px-4 py-1.5 rounded-full font-medium text-sm mb-4">
-                EQ Navigator Assessment
+                Emotional Intelligence Assessment
               </span>
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 bg-gradient-to-r from-[hsl(var(--brand-red))] to-[hsl(var(--brand-red-dark))] bg-clip-text text-transparent">
                 Discover Your Emotional Intelligence
               </h1>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
+              <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-8">
                 Measure your emotional intelligence and develop crucial soft skills for personal and professional success in today's workplace.
               </p>
               
               <Button 
                 onClick={handleStartAssessment}
                 size="lg"
-                className="bg-gradient-to-r from-[hsl(var(--brand-red))] to-[hsl(var(--brand-red-dark))] hover:opacity-90 text-white shadow-md hover:shadow-lg transition-all duration-300 px-8 py-6 text-lg"
+                className="bg-[hsl(var(--brand-red))] hover:bg-[hsl(var(--brand-red-dark))] text-white font-semibold px-8 py-6"
               >
                 Start Assessment Now
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-            </motion.div>
+            </div>
             
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="bg-white rounded-2xl shadow-xl p-6 md:p-8 mb-16 border border-[hsl(var(--brand-red))/20] overflow-hidden relative"
-            >
-              <div className="absolute -top-24 -right-24 w-64 h-64 bg-gradient-to-br from-[hsl(var(--brand-pink))/20] to-[hsl(var(--brand-red))/10] rounded-full blur-3xl"></div>
-              <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-gradient-to-br from-[hsl(var(--brand-orange))/10] to-[hsl(var(--brand-pink))/20] rounded-full blur-3xl"></div>
+            {/* Main Features Section */}
+            <div className="grid md:grid-cols-2 gap-10 mb-16">
+              <div>
+                <h2 className="text-2xl font-bold mb-6 text-gray-800 flex items-center">
+                  <Heart className="h-6 w-6 text-[hsl(var(--brand-red))] mr-2" />
+                  What You'll Learn
+                </h2>
+                <ul className="space-y-4">
+                  <li className="flex items-start bg-white p-4 rounded-lg shadow-sm">
+                    <div className="bg-[hsl(var(--brand-red))/10] p-2 rounded-full mr-3 mt-1 flex-shrink-0">
+                      <Check className="h-5 w-5 text-[hsl(var(--brand-red))]" />
+                    </div>
+                    <div>
+                      <span className="font-semibold text-gray-800">Self-Awareness</span>
+                      <p className="text-gray-600 mt-1">Understand your emotions, strengths, weaknesses, and how they impact your behavior and decisions.</p>
+                    </div>
+                  </li>
+                  <li className="flex items-start bg-white p-4 rounded-lg shadow-sm">
+                    <div className="bg-[hsl(var(--brand-red))/10] p-2 rounded-full mr-3 mt-1 flex-shrink-0">
+                      <Check className="h-5 w-5 text-[hsl(var(--brand-red))]" />
+                    </div>
+                    <div>
+                      <span className="font-semibold text-gray-800">Social Skills</span>
+                      <p className="text-gray-600 mt-1">Assess your ability to build relationships, communicate effectively, and navigate social complexities.</p>
+                    </div>
+                  </li>
+                  <li className="flex items-start bg-white p-4 rounded-lg shadow-sm">
+                    <div className="bg-[hsl(var(--brand-red))/10] p-2 rounded-full mr-3 mt-1 flex-shrink-0">
+                      <Check className="h-5 w-5 text-[hsl(var(--brand-red))]" />
+                    </div>
+                    <div>
+                      <span className="font-semibold text-gray-800">Empathy</span>
+                      <p className="text-gray-600 mt-1">Measure your ability to understand others' emotions and perspectives in various situations.</p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
               
-              <div className="grid md:grid-cols-2 gap-8 items-center relative z-10">
-                <div>
-                  <h2 className="text-2xl font-bold mb-6 text-gray-800 flex items-center">
-                    <Heart className="h-6 w-6 text-[hsl(var(--brand-red))] mr-2" />
-                    What You'll Learn
-                  </h2>
-                  <ul className="space-y-5">
-                    <li className="flex items-start">
-                      <div className="bg-[hsl(var(--brand-red))/10] p-2 rounded-full mr-3 mt-1">
-                        <Check className="h-5 w-5 text-[hsl(var(--brand-red))]" />
-                      </div>
-                      <div>
-                        <span className="font-semibold text-gray-800">Self-Awareness</span>
-                        <p className="text-gray-600 mt-1">Understand your emotions, strengths, weaknesses, and how they impact your behavior and decisions.</p>
-                      </div>
-                    </li>
-                    <li className="flex items-start">
-                      <div className="bg-[hsl(var(--brand-red))/10] p-2 rounded-full mr-3 mt-1">
-                        <Check className="h-5 w-5 text-[hsl(var(--brand-red))]" />
-                      </div>
-                      <div>
-                        <span className="font-semibold text-gray-800">Social Skills</span>
-                        <p className="text-gray-600 mt-1">Assess your ability to build relationships, communicate effectively, and navigate social complexities.</p>
-                      </div>
-                    </li>
-                    <li className="flex items-start">
-                      <div className="bg-[hsl(var(--brand-red))/10] p-2 rounded-full mr-3 mt-1">
-                        <Check className="h-5 w-5 text-[hsl(var(--brand-red))]" />
-                      </div>
-                      <div>
-                        <span className="font-semibold text-gray-800">Empathy</span>
-                        <p className="text-gray-600 mt-1">Measure your ability to understand others' emotions and perspectives in various situations.</p>
-                      </div>
-                    </li>
-                  </ul>
-                </div>
-                
-                <Card className="p-6 border-[hsl(var(--brand-red))/20 bg-gradient-to-br from-white to-[hsl(var(--brand-red))/5] shadow-lg">
-                  <div className="flex items-center justify-between mb-5">
-                    <h3 className="text-xl font-semibold text-gray-800">Assessment Details</h3>
-                    <div className="flex items-center text-gray-500">
+              <Card className="border border-[hsl(var(--brand-red))/20 shadow-lg overflow-hidden">
+                <CardHeader className="bg-gradient-to-r from-[hsl(var(--brand-red))/5] to-[hsl(var(--brand-red))/10] pb-4">
+                  <CardTitle className="flex justify-between items-center">
+                    <span>Assessment Details</span>
+                    <div className="flex items-center text-gray-500 text-sm">
                       <Clock className="h-4 w-4 mr-2 text-[hsl(var(--brand-red))]" />
                       <span>25 minutes</span>
                     </div>
-                  </div>
-                  
-                  <div className="space-y-4 mb-8">
+                  </CardTitle>
+                  <CardDescription>
+                    What to expect when taking this assessment
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-6">
+                  <div className="space-y-4 mb-6">
                     <div className="flex justify-between items-center py-3 border-b border-gray-100">
                       <span className="text-gray-600">Questions</span>
                       <span className="font-medium text-gray-800">10 questions</span>
                     </div>
                     <div className="flex justify-between items-center py-3 border-b border-gray-100">
-                      <span className="text-gray-600">Sections</span>
-                      <span className="font-medium text-gray-800">5 sections</span>
+                      <span className="text-gray-600">Format</span>
+                      <span className="font-medium text-gray-800">Scenario-based</span>
+                    </div>
+                    <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                      <span className="text-gray-600">Results</span>
+                      <span className="font-medium text-gray-800">Immediate feedback</span>
                     </div>
                     <div className="flex justify-between items-center py-3">
-                      <span className="text-gray-600">Format</span>
-                      <span className="font-medium text-gray-800">Multiple choice</span>
+                      <span className="text-gray-600">Certificate</span>
+                      <span className="font-medium text-gray-800">Available upon completion</span>
                     </div>
                   </div>
                   
                   <Button 
                     onClick={handleStartAssessment}
-                    className="w-full bg-gradient-to-r from-[hsl(var(--brand-red))] to-[hsl(var(--brand-red-dark))] hover:opacity-90 text-white shadow-md hover:shadow-lg transition-all duration-300 py-6"
+                    className="w-full bg-[hsl(var(--brand-red))] hover:bg-[hsl(var(--brand-red-dark))] text-white"
                     size="lg"
                   >
                     <Sparkles className="mr-2 h-5 w-5" />
-                    Start Assessment
+                    Begin Assessment
                   </Button>
-                </Card>
-              </div>
-            </motion.div>
+                </CardContent>
+              </Card>
+            </div>
             
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="mb-16"
-            >
+            {/* EQ Dimensions Section */}
+            <div className="mb-16">
               <h2 className="text-2xl font-bold mb-8 text-center text-gray-800">EQ Dimensions</h2>
               
               <div className="grid md:grid-cols-3 gap-6">
-                <Card className="p-6 border-[hsl(var(--brand-red))/20 bg-white hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                  <div className="w-14 h-14 bg-[hsl(var(--brand-red))/10] rounded-full flex items-center justify-center mb-5">
-                    <Brain className="h-7 w-7 text-[hsl(var(--brand-red))]" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-3 text-gray-800">Self-Regulation</h3>
-                  <p className="text-gray-600">
-                    Assess your ability to control impulsive feelings and behaviors, manage emotions in healthy ways, and adapt to changing circumstances.
-                  </p>
+                <Card className="border border-[hsl(var(--brand-red))/20 hover:shadow-lg transition-all duration-300">
+                  <CardContent className="pt-6">
+                    <div className="w-14 h-14 bg-[hsl(var(--brand-red))/10] rounded-full flex items-center justify-center mb-5 mx-auto">
+                      <Brain className="h-7 w-7 text-[hsl(var(--brand-red))]" />
+                    </div>
+                    <h3 className="text-xl font-semibold mb-3 text-center text-gray-800">Self-Regulation</h3>
+                    <p className="text-gray-600 text-center">
+                      Control impulsive feelings and behaviors, manage emotions in healthy ways, and adapt to changing circumstances.
+                    </p>
+                  </CardContent>
                 </Card>
                 
-                <Card className="p-6 border-[hsl(var(--brand-red))/20 bg-white hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                  <div className="w-14 h-14 bg-[hsl(var(--brand-red))/10] rounded-full flex items-center justify-center mb-5">
-                    <Heart className="h-7 w-7 text-[hsl(var(--brand-red))]" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-3 text-gray-800">Empathy</h3>
-                  <p className="text-gray-600">
-                    Measure your ability to understand the emotions, needs, and concerns of other people, pick up on emotional cues, and feel comfortable socially.
-                  </p>
+                <Card className="border border-[hsl(var(--brand-red))/20 hover:shadow-lg transition-all duration-300">
+                  <CardContent className="pt-6">
+                    <div className="w-14 h-14 bg-[hsl(var(--brand-red))/10] rounded-full flex items-center justify-center mb-5 mx-auto">
+                      <Heart className="h-7 w-7 text-[hsl(var(--brand-red))]" />
+                    </div>
+                    <h3 className="text-xl font-semibold mb-3 text-center text-gray-800">Empathy</h3>
+                    <p className="text-gray-600 text-center">
+                      Understand the emotions, needs, and concerns of other people, pick up on emotional cues, and feel comfortable socially.
+                    </p>
+                  </CardContent>
                 </Card>
                 
-                <Card className="p-6 border-[hsl(var(--brand-red))/20 bg-white hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                  <div className="w-14 h-14 bg-[hsl(var(--brand-red))/10] rounded-full flex items-center justify-center mb-5">
-                    <Users className="h-7 w-7 text-[hsl(var(--brand-red))]" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-3 text-gray-800">Social Skills</h3>
-                  <p className="text-gray-600">
-                    Evaluate how well you manage relationships, navigate social networks, influence and inspire others, and build effective teams.
-                  </p>
+                <Card className="border border-[hsl(var(--brand-red))/20 hover:shadow-lg transition-all duration-300">
+                  <CardContent className="pt-6">
+                    <div className="w-14 h-14 bg-[hsl(var(--brand-red))/10] rounded-full flex items-center justify-center mb-5 mx-auto">
+                      <Users className="h-7 w-7 text-[hsl(var(--brand-red))]" />
+                    </div>
+                    <h3 className="text-xl font-semibold mb-3 text-center text-gray-800">Social Skills</h3>
+                    <p className="text-gray-600 text-center">
+                      Manage relationships, navigate social networks, influence and inspire others, and build effective teams.
+                    </p>
+                  </CardContent>
                 </Card>
               </div>
-            </motion.div>
+            </div>
             
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="bg-gradient-to-r from-[hsl(var(--brand-red))] to-[hsl(var(--brand-red-dark))] rounded-2xl p-8 md:p-10 text-white shadow-xl mb-16"
-            >
+            {/* CTA Section */}
+            <div className="bg-gradient-to-r from-[hsl(var(--brand-red))] to-[hsl(var(--brand-red-dark))] rounded-2xl p-8 md:p-10 text-white shadow-xl mb-16">
               <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                 <div>
                   <h2 className="text-2xl md:text-3xl font-bold mb-3">Ready to discover your EQ?</h2>
@@ -195,69 +194,73 @@ const EQNavigatorLanding = () => {
                 <Button 
                   onClick={handleStartAssessment}
                   size="lg"
-                  className="bg-white text-[hsl(var(--brand-red))] hover:bg-white/90 shadow-lg hover:shadow-xl transition-all duration-300 min-w-[200px] py-6"
+                  className="bg-white text-[hsl(var(--brand-red))] hover:bg-white/90 shadow-lg hover:shadow-xl transition-all duration-300 min-w-[200px] whitespace-nowrap"
                 >
                   Take Assessment
-                  <ChevronRight className="ml-2 h-5 w-5" />
+                  <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </div>
-            </motion.div>
+            </div>
             
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              className="text-center"
-            >
-              <h2 className="text-2xl font-bold mb-4 text-gray-800">Benefits of High EQ</h2>
+            {/* Benefits Section */}
+            <div className="text-center mb-10">
+              <h2 className="text-2xl font-bold mb-8 text-gray-800">Benefits of High EQ</h2>
               <p className="text-gray-600 mb-8 max-w-3xl mx-auto">
                 Emotional intelligence is a key factor in personal and professional success. Research shows that individuals with high EQ often outperform those with high IQ alone.
               </p>
               
-              <div className="grid md:grid-cols-4 gap-4">
-                <div className="bg-white rounded-xl p-5 shadow-md border border-[hsl(var(--brand-red))/10 hover:shadow-lg transition-all duration-300">
-                  <div className="w-12 h-12 bg-[hsl(var(--brand-red))/10] rounded-full mx-auto flex items-center justify-center mb-4">
-                    <Sparkles className="h-6 w-6 text-[hsl(var(--brand-red))]" />
-                  </div>
-                  <h3 className="font-semibold mb-2 text-gray-800">Better Relationships</h3>
-                  <p className="text-gray-600 text-sm">Build deeper connections with others through emotional understanding</p>
-                </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <Card className="border border-[hsl(var(--brand-red))/20 hover:shadow-md transition-all duration-300">
+                  <CardContent className="pt-6">
+                    <div className="w-12 h-12 bg-[hsl(var(--brand-red))/10] rounded-full mx-auto flex items-center justify-center mb-4">
+                      <Sparkles className="h-6 w-6 text-[hsl(var(--brand-red))]" />
+                    </div>
+                    <h3 className="font-semibold mb-2 text-gray-800">Better Relationships</h3>
+                    <p className="text-gray-600 text-sm">Build deeper connections with others</p>
+                  </CardContent>
+                </Card>
                 
-                <div className="bg-white rounded-xl p-5 shadow-md border border-[hsl(var(--brand-red))/10 hover:shadow-lg transition-all duration-300">
-                  <div className="w-12 h-12 bg-[hsl(var(--brand-red))/10] rounded-full mx-auto flex items-center justify-center mb-4">
-                    <Users className="h-6 w-6 text-[hsl(var(--brand-red))]" />
-                  </div>
-                  <h3 className="font-semibold mb-2 text-gray-800">Career Success</h3>
-                  <p className="text-gray-600 text-sm">Navigate workplace dynamics and lead more effectively</p>
-                </div>
+                <Card className="border border-[hsl(var(--brand-red))/20 hover:shadow-md transition-all duration-300">
+                  <CardContent className="pt-6">
+                    <div className="w-12 h-12 bg-[hsl(var(--brand-red))/10] rounded-full mx-auto flex items-center justify-center mb-4">
+                      <Users className="h-6 w-6 text-[hsl(var(--brand-red))]" />
+                    </div>
+                    <h3 className="font-semibold mb-2 text-gray-800">Career Success</h3>
+                    <p className="text-gray-600 text-sm">Navigate workplace dynamics effectively</p>
+                  </CardContent>
+                </Card>
                 
-                <div className="bg-white rounded-xl p-5 shadow-md border border-[hsl(var(--brand-red))/10 hover:shadow-lg transition-all duration-300">
-                  <div className="w-12 h-12 bg-[hsl(var(--brand-red))/10] rounded-full mx-auto flex items-center justify-center mb-4">
-                    <Brain className="h-6 w-6 text-[hsl(var(--brand-red))]" />
-                  </div>
-                  <h3 className="font-semibold mb-2 text-gray-800">Better Decisions</h3>
-                  <p className="text-gray-600 text-sm">Make choices that align with your values and long-term goals</p>
-                </div>
+                <Card className="border border-[hsl(var(--brand-red))/20 hover:shadow-md transition-all duration-300">
+                  <CardContent className="pt-6">
+                    <div className="w-12 h-12 bg-[hsl(var(--brand-red))/10] rounded-full mx-auto flex items-center justify-center mb-4">
+                      <Brain className="h-6 w-6 text-[hsl(var(--brand-red))]" />
+                    </div>
+                    <h3 className="font-semibold mb-2 text-gray-800">Better Decisions</h3>
+                    <p className="text-gray-600 text-sm">Make choices aligned with your values</p>
+                  </CardContent>
+                </Card>
                 
-                <div className="bg-white rounded-xl p-5 shadow-md border border-[hsl(var(--brand-red))/10 hover:shadow-lg transition-all duration-300">
-                  <div className="w-12 h-12 bg-[hsl(var(--brand-red))/10] rounded-full mx-auto flex items-center justify-center mb-4">
-                    <Heart className="h-6 w-6 text-[hsl(var(--brand-red))]" />
-                  </div>
-                  <h3 className="font-semibold mb-2 text-gray-800">Mental Wellbeing</h3>
-                  <p className="text-gray-600 text-sm">Manage stress and maintain a positive emotional state</p>
-                </div>
+                <Card className="border border-[hsl(var(--brand-red))/20 hover:shadow-md transition-all duration-300">
+                  <CardContent className="pt-6">
+                    <div className="w-12 h-12 bg-[hsl(var(--brand-red))/10] rounded-full mx-auto flex items-center justify-center mb-4">
+                      <Heart className="h-6 w-6 text-[hsl(var(--brand-red))]" />
+                    </div>
+                    <h3 className="font-semibold mb-2 text-gray-800">Mental Wellbeing</h3>
+                    <p className="text-gray-600 text-sm">Manage stress and emotional states</p>
+                  </CardContent>
+                </Card>
               </div>
               
               <Button 
                 onClick={handleStartAssessment}
                 size="lg" 
-                className="mt-10 bg-gradient-to-r from-[hsl(var(--brand-red))] to-[hsl(var(--brand-red-dark))] hover:opacity-90 text-white shadow-md hover:shadow-lg transition-all duration-300 px-8 py-6 text-lg"
+                className="mt-10 bg-[hsl(var(--brand-red))] hover:bg-[hsl(var(--brand-red-dark))] text-white shadow-md hover:shadow-lg transition-all duration-300 px-8"
               >
                 Start Your EQ Assessment
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-            </motion.div>
-          </div>
+            </div>
+          </motion.div>
         </div>
       </main>
       
