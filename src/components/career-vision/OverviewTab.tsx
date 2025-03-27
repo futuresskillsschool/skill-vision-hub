@@ -37,7 +37,8 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
   handleDownloadPDF 
 }) => {
   const eqLevel = eqScore < 25 ? "low" : eqScore < 35 ? "medium" : "high";
-  const scorePercentage = Math.round((eqScore / 40) * 100);
+  // Ensure the score percentage is capped at 100%
+  const scorePercentage = Math.min(Math.round((eqScore / 40) * 100), 100);
 
   return (
     <>
