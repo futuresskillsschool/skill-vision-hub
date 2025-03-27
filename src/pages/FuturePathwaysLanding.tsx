@@ -12,7 +12,7 @@ const FuturePathwaysLanding = () => {
   const navigate = useNavigate();
   
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-white via-green-10 to-green-10">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-white via-green-10 to-green-90">
       <Navbar />
       
       <main className="flex-grow pt-24 pb-16">
