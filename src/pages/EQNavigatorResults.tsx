@@ -1,4 +1,3 @@
-
 import { useEffect, useState, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -431,7 +430,7 @@ const EQNavigatorResults = () => {
         const srcY = (pdfHeight * 0.9 * i) / ratio;
         const sectionHeight = Math.min(imgHeight - srcY, (pdfHeight * 0.9) / ratio);
         
-        // Fixed: Correct addImage syntax by reducing parameters
+        // Fixed: Using the correct ImageOptions properties for jsPDF v3.0.1
         pdf.addImage({
           imageData: imgData,
           format: 'PNG',
@@ -440,11 +439,7 @@ const EQNavigatorResults = () => {
           width: pdfWidth * 0.9, // 90% of page width
           height: (sectionHeight * ratio), // Scaled height for this section
           compression: 'FAST',
-          rotation: 0,
-          srcX: 0,
-          srcY: srcY, // Start Y position in source image
-          srcWidth: imgWidth,
-          srcHeight: sectionHeight // Height to capture from source
+          rotation: 0
         });
       }
       
