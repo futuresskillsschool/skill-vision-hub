@@ -12,7 +12,7 @@ const RIASECLanding = () => {
   const navigate = useNavigate();
   
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-[#f9f7ff] via-[#f0ebff] to-[#eae3ff]"">
       <Navbar />
       
       <main className="flex-grow pt-24 pb-16">
