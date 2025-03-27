@@ -26,102 +26,102 @@ interface Question {
 const questions: Question[] = [
   {
     id: 1,
-    scenario: "Your friend seems upset about something but hasn't mentioned anything. What would you do?",
+    scenario: "You're excited to share some good news with a friend, but they seem distracted and uninterested. You...",
     options: [
-      { id: "1a", text: "Wait for them to bring it up when they're ready", score: 3 },
-      { id: "1b", text: "Ask them directly if something is bothering them", score: 4 },
-      { id: "1c", text: "Try to cheer them up without mentioning their mood", score: 2 },
-      { id: "1d", text: "Assume it's not your business and ignore it", score: 1 }
+      { id: "1a", text: "Get angry and accuse them of not caring about you.", score: 1 },
+      { id: "1b", text: "Feel disappointed but try to understand why they might be distracted. Maybe they're having a bad day.", score: 4 },
+      { id: "1c", text: "Pretend you're not bothered, even though you're a little hurt.", score: 2 },
+      { id: "1d", text: "Stop talking about your news and change the subject.", score: 3 }
     ]
   },
   {
     id: 2,
-    scenario: "You receive criticism on a project you worked hard on. How do you respond?",
+    scenario: "You witness a classmate making fun of another student's appearance. You...",
     options: [
-      { id: "2a", text: "Get defensive and explain why the criticism is wrong", score: 1 },
-      { id: "2b", text: "Thank them for the feedback and consider how to improve", score: 4 },
-      { id: "2c", text: "Feel hurt but don't say anything", score: 2 },
-      { id: "2d", text: "Ask for specific suggestions on how to improve", score: 3 }
+      { id: "2a", text: "Laugh along with the classmate.", score: 1 },
+      { id: "2b", text: "Ignore it and hope it stops.", score: 2 },
+      { id: "2c", text: "Tell the classmate that it's not okay to make fun of someone's appearance and try to support the student being targeted.", score: 4 },
+      { id: "2d", text: "Tell the targeted student to ignore the comments.", score: 3 }
     ]
   },
   {
     id: 3,
-    scenario: "You're feeling overwhelmed with school work. What's your approach?",
+    scenario: "You're feeling really stressed about upcoming exams. You...",
     options: [
-      { id: "3a", text: "Push through and work harder, ignoring how you feel", score: 2 },
-      { id: "3b", text: "Take a break to recharge and then make a plan", score: 4 },
-      { id: "3c", text: "Procrastinate and avoid the work because it's too stressful", score: 1 },
-      { id: "3d", text: "Talk to someone about feeling overwhelmed", score: 3 }
+      { id: "3a", text: "Isolate yourself and worry constantly.", score: 1 },
+      { id: "3b", text: "Talk to a friend or family member about how you're feeling and find healthy ways to manage stress (e.g., exercise, hobbies).", score: 4 },
+      { id: "3c", text: "Procrastinate and avoid thinking about the exams.", score: 2 },
+      { id: "3d", text: "Try to convince yourself you don't care about the exams.", score: 3 }
     ]
   },
   {
     id: 4,
-    scenario: "During a group project, one member isn't contributing. What do you do?",
+    scenario: "A friend is going through a tough time (e.g., family issues, break-up). You...",
     options: [
-      { id: "4a", text: "Complain about them to other group members", score: 1 },
-      { id: "4b", text: "Privately ask if everything is okay and if they need help", score: 4 },
-      { id: "4c", text: "Take on their work yourself without saying anything", score: 2 },
-      { id: "4d", text: "Tell the teacher they're not doing their fair share", score: 3 }
+      { id: "4a", text: "Offer a listening ear and support, letting them know you're there for them.", score: 4 },
+      { id: "4b", text: "Try to give them advice, even if you're not sure what to say.", score: 3 },
+      { id: "4c", text: "Avoid them because you don't know how to handle the situation.", score: 1 },
+      { id: "4d", text: "Tell them to \"toughen up.\"", score: 2 }
     ]
   },
   {
     id: 5,
-    scenario: "You're having a bad day and a friend makes a joke that annoys you. How do you react?",
+    scenario: "You receive constructive criticism on a project. You...",
     options: [
-      { id: "5a", text: "Snap at them angrily", score: 1 },
-      { id: "5b", text: "Fake a laugh but feel annoyed inside", score: 2 },
-      { id: "5c", text: "Calmly let them know you're having a tough day and not in a joking mood", score: 4 },
-      { id: "5d", text: "Ignore the joke and change the subject", score: 3 }
+      { id: "5a", text: "Get defensive and argue with the person giving the feedback.", score: 1 },
+      { id: "5b", text: "Listen to the feedback, even if it's hard to hear, and try to learn from it.", score: 4 },
+      { id: "5c", text: "Feel hurt and take it personally.", score: 2 },
+      { id: "5d", text: "Ignore the feedback completely.", score: 3 }
     ]
   },
   {
     id: 6,
-    scenario: "You notice a classmate sitting alone and looking sad. What would you do?",
+    scenario: "You have a strong disagreement with a friend. You...",
     options: [
-      { id: "6a", text: "Mind your own business - they probably want to be alone", score: 1 },
-      { id: "6b", text: "Invite them to join you and your friends", score: 3 },
-      { id: "6c", text: "Ask if they'd like some company and listen if they want to talk", score: 4 },
-      { id: "6d", text: "Feel bad for them but do nothing", score: 2 }
+      { id: "6a", text: "Resort to personal insults and name-calling.", score: 1 },
+      { id: "6b", text: "Try to see things from your friend's perspective and find a compromise.", score: 4 },
+      { id: "6c", text: "Refuse to talk to your friend anymore.", score: 2 },
+      { id: "6d", text: "Give them the silent treatment.", score: 3 }
     ]
   },
   {
     id: 7,
-    scenario: "You've made a mistake that affected others. What's your response?",
+    scenario: "You achieve a goal you've been working towards. You...",
     options: [
-      { id: "7a", text: "Hope no one notices", score: 1 },
-      { id: "7b", text: "Blame outside circumstances", score: 2 },
-      { id: "7c", text: "Apologize but make excuses", score: 3 },
-      { id: "7d", text: "Take responsibility and find ways to fix it", score: 4 }
+      { id: "7a", text: "Brag about your achievement to everyone.", score: 2 },
+      { id: "7b", text: "Celebrate your success and acknowledge the effort you put in.", score: 4 },
+      { id: "7c", text: "Downplay your achievement, as if it wasn't a big deal.", score: 3 },
+      { id: "7d", text: "Immediately start worrying about your next goal.", score: 1 }
     ]
   },
   {
     id: 8,
-    scenario: "A friend shares great news with you on a day when you're feeling down. How do you respond?",
+    scenario: "You make a mistake. You...",
     options: [
-      { id: "8a", text: "Change the subject to your problems", score: 1 },
-      { id: "8b", text: "Pretend to be happy for them while feeling jealous", score: 2 },
-      { id: "8c", text: "Genuinely celebrate their success despite your own feelings", score: 4 },
-      { id: "8d", text: "Congratulate them briefly and then make an excuse to end the conversation", score: 3 }
+      { id: "8a", text: "Blame someone else.", score: 1 },
+      { id: "8b", text: "Take responsibility for your actions and try to fix the mistake.", score: 4 },
+      { id: "8c", text: "Try to hide the mistake.", score: 2 },
+      { id: "8d", text: "Beat yourself up about it excessively.", score: 3 }
     ]
   },
   {
     id: 9,
-    scenario: "You're feeling anxious about an upcoming test. What do you do?",
+    scenario: "You see a new student struggling to fit in. You...",
     options: [
-      { id: "9a", text: "Ignore the feeling and hope it goes away", score: 1 },
-      { id: "9b", text: "Recognize your anxiety and use it as motivation to study", score: 4 },
-      { id: "9c", text: "Get overwhelmed and procrastinate studying", score: 2 },
-      { id: "9d", text: "Talk to someone about your anxiety", score: 3 }
+      { id: "9a", text: "Ignore them.", score: 2 },
+      { id: "9b", text: "Make fun of them.", score: 1 },
+      { id: "9c", text: "Introduce yourself and try to make them feel welcome.", score: 4 },
+      { id: "9d", text: "Observe them from a distance but don't interact.", score: 3 }
     ]
   },
   {
     id: 10,
-    scenario: "You strongly disagree with an opinion a friend has expressed. How do you handle it?",
+    scenario: "You feel overwhelmed by your emotions. You...",
     options: [
-      { id: "10a", text: "Tell them they're wrong and explain why", score: 2 },
-      { id: "10b", text: "Keep your opinion to yourself to avoid conflict", score: 3 },
-      { id: "10c", text: "Listen to understand their perspective, then respectfully share yours", score: 4 },
-      { id: "10d", text: "Argue forcefully to change their mind", score: 1 }
+      { id: "10a", text: "Try to suppress or ignore your feelings.", score: 2 },
+      { id: "10b", text: "Find healthy ways to express your emotions (e.g., talking to someone, journaling, creative activities).", score: 4 },
+      { id: "10c", text: "Lash out at others.", score: 1 },
+      { id: "10d", text: "Engage in self-destructive behaviors.", score: 3 }
     ]
   }
 ];
