@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -30,46 +29,28 @@ interface Question {
 
 const questions: Question[] = [
   // Realistic Questions
-  { id: 'q1', text: 'I like to work with my hands or tools', category: 'R' },
-  { id: 'q2', text: 'I enjoy building or fixing things', category: 'R' },
-  { id: 'q3', text: 'I like working outdoors or with plants and animals', category: 'R' },
-  { id: 'q4', text: 'I enjoy physical, hands-on activities', category: 'R' },
-  { id: 'q5', text: 'I like working with machines, tools, or equipment', category: 'R' },
+  { id: 'q1', text: 'I enjoy building things with my hands.', category: 'R' },
+  { id: 'q2', text: 'I like working with tools, machines, or technology.', category: 'R' },
   
   // Investigative Questions  
-  { id: 'q6', text: 'I enjoy solving complex problems', category: 'I' },
-  { id: 'q7', text: 'I like to analyze information and discover new things', category: 'I' },
-  { id: 'q8', text: 'I enjoy science and research', category: 'I' },
-  { id: 'q9', text: 'I like to investigate why things happen', category: 'I' },
-  { id: 'q10', text: 'I enjoy thinking about abstract concepts', category: 'I' },
+  { id: 'q3', text: 'I enjoy solving complex problems and puzzles.', category: 'I' },
+  { id: 'q4', text: 'I\'m curious about how things work and why things happen.', category: 'I' },
   
   // Artistic Questions
-  { id: 'q11', text: 'I like to express myself creatively', category: 'A' },
-  { id: 'q12', text: 'I enjoy art, music, or writing', category: 'A' },
-  { id: 'q13', text: 'I like activities without structured rules', category: 'A' },
-  { id: 'q14', text: 'I enjoy designing things', category: 'A' },
-  { id: 'q15', text: 'I like to use my imagination', category: 'A' },
+  { id: 'q5', text: 'I enjoy creative activities like art, music, or writing.', category: 'A' },
+  { id: 'q6', text: 'I prefer tasks that allow me to express myself.', category: 'A' },
   
   // Social Questions
-  { id: 'q16', text: 'I enjoy helping people', category: 'S' },
-  { id: 'q17', text: 'I like teaching or training others', category: 'S' },
-  { id: 'q18', text: 'I enjoy working in groups', category: 'S' },
-  { id: 'q19', text: 'I like discussing problems and helping others solve them', category: 'S' },
-  { id: 'q20', text: 'I enjoy activities that improve society or help people', category: 'S' },
+  { id: 'q7', text: 'I enjoy helping others and working with people.', category: 'S' },
+  { id: 'q8', text: 'I\'m good at explaining things to others.', category: 'S' },
   
   // Enterprising Questions
-  { id: 'q21', text: 'I like to lead and persuade others', category: 'E' },
-  { id: 'q22', text: 'I enjoy selling things or promoting ideas', category: 'E' },
-  { id: 'q23', text: 'I like to start and carry out projects', category: 'E' },
-  { id: 'q24', text: 'I enjoy taking risks and making decisions', category: 'E' },
-  { id: 'q25', text: 'I like to influence or convince others', category: 'E' },
+  { id: 'q9', text: 'I like to take charge and lead others.', category: 'E' },
+  { id: 'q10', text: 'I enjoy persuading others and selling ideas or products.', category: 'E' },
   
   // Conventional Questions
-  { id: 'q26', text: 'I enjoy organizing things', category: 'C' },
-  { id: 'q27', text: 'I like following clear procedures and rules', category: 'C' },
-  { id: 'q28', text: 'I enjoy working with numbers and records', category: 'C' },
-  { id: 'q29', text: 'I like paying attention to details', category: 'C' },
-  { id: 'q30', text: 'I enjoy completing tasks that require precision', category: 'C' },
+  { id: 'q11', text: 'I like following clear procedures and rules.', category: 'C' },
+  { id: 'q12', text: 'I enjoy organizing information and working with data.', category: 'C' },
 ];
 
 const RIASECAssessment = () => {
