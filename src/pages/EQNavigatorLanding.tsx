@@ -68,8 +68,8 @@ const EQNavigatorLanding = () => {
                   <Sparkles className="h-4 w-4 mr-2 text-purple-500" />
                   <span>Immediate results</span>
                 </div>
-              </div>
-            </div> */}
+              </div> */}
+            </div>
             
             {/* Main Features Section */}
             <div className="grid md:grid-cols-2 gap-10 mb-16">
@@ -136,10 +136,10 @@ const EQNavigatorLanding = () => {
                       <span className="text-gray-600">Results</span>
                       <span className="font-medium text-gray-800">Immediate feedback</span>
                     </div>
-                    <div className="flex justify-between items-center py-3">
+                    {/* <div className="flex justify-between items-center py-3">
                       <span className="text-gray-600">Certificate</span>
                       <span className="font-medium text-gray-800">Available upon completion</span>
-                    </div>
+                    </div> */}
                   </div>
                   
                   <Button 
