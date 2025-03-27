@@ -1,14 +1,14 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Progress } from '@/components/ui/progress';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Heart, ArrowLeft, ArrowRight, Check } from 'lucide-react';
+import { Heart, ArrowLeft, ArrowRight, Check, AlertCircle } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 
 // Define the structure of a question
@@ -141,8 +141,8 @@ const EQNavigatorAssessment = () => {
   const [showResults, setShowResults] = useState(false);
   const [totalScore, setTotalScore] = useState(0);
 
-  // Group questions 2 per page
-  const questionsPerPage = 2;
+  // Group questions 1 per page for better focus
+  const questionsPerPage = 1;
   const groupedQuestions = groupQuestions(questions, questionsPerPage);
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
 
@@ -218,121 +218,130 @@ const EQNavigatorAssessment = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-[#6b46c1] via-[#7e57c2] to-[#9575cd]">
       <Navbar />
       
       <main className="flex-grow pt-24 pb-16">
         <div className="container mx-auto px-4 md:px-6">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-3xl mx-auto">
             {!showResults ? (
-              <motion.div 
-                key={currentPageIndex}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-                className="bg-white rounded-xl shadow-card p-6 md:p-8"
-              >
-                <div className="mb-8">
-                  <div className="flex justify-between items-center mb-2">
-                    <h2 className="text-lg font-medium text-muted-foreground">
-                      Page {currentPageIndex + 1} of {groupedQuestions.length}
-                    </h2>
-                    <span className="text-sm text-muted-foreground font-medium">
-                      {Math.min((currentPageIndex + 1) * questionsPerPage, questions.length)} of {questions.length} questions
-                    </span>
-                  </div>
-                  <Progress value={progressPercentage} className="h-2 bg-purple-100" />
-                </div>
-                
-                <div className="space-y-8">
-                  {groupedQuestions[currentPageIndex].map((question, questionIndex) => {
-                    const globalQuestionIndex = currentPageIndex * questionsPerPage + questionIndex;
-                    return (
-                      <div key={question.id} className="bg-purple-50 rounded-lg p-5 border border-purple-100">
-                        <h3 className="text-lg md:text-xl font-semibold mb-4 flex">
-                          <span className="bg-purple-500 text-white w-8 h-8 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
-                            {globalQuestionIndex + 1}
-                          </span>
-                          {question.scenario}
-                        </h3>
-                        
-                        <RadioGroup 
-                          value={selectedOptions[globalQuestionIndex]} 
-                          onValueChange={(value) => handleOptionSelect(questionIndex, value)}
-                          className="space-y-3"
-                        >
-                          {question.options.map((option) => (
-                            <div 
-                              key={option.id} 
-                              className={`flex items-start space-x-2 border rounded-md p-3 transition-colors ${
-                                selectedOptions[globalQuestionIndex] === option.id 
-                                  ? 'border-purple-400 bg-purple-100' 
-                                  : 'border-border/50 hover:border-purple-300 hover:bg-purple-50'
-                              }`}
-                            >
-                              <RadioGroupItem 
-                                value={option.id} 
-                                id={`question-${question.id}-option-${option.id}`} 
-                                className="mt-1" 
-                              />
-                              <Label 
-                                htmlFor={`question-${question.id}-option-${option.id}`} 
-                                className="flex-1 cursor-pointer font-normal text-base"
-                              >
-                                {option.text}
-                              </Label>
-                              {selectedOptions[globalQuestionIndex] === option.id && (
-                                <div className="bg-purple-200 rounded-full p-1">
-                                  <Check className="h-4 w-4 text-purple-600" />
-                                </div>
-                              )}
-                            </div>
-                          ))}
-                        </RadioGroup>
+              <AnimatePresence mode="wait">
+                <motion.div 
+                  key={currentPageIndex}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.4 }}
+                  className="bg-white/10 backdrop-blur-md rounded-xl shadow-2xl p-6 md:p-8 text-white border border-white/20"
+                >
+                  <div className="mb-8">
+                    <div className="flex justify-between items-center mb-2">
+                      <h2 className="text-lg font-medium">
+                        Question {currentPageIndex + 1} of {groupedQuestions.length}
+                      </h2>
+                      <div className="bg-purple-700/30 px-3 py-1 rounded-full text-sm font-semibold backdrop-blur-sm">
+                        EQ Navigator
                       </div>
-                    );
-                  })}
-                </div>
-                
-                <div className="flex justify-between mt-8">
-                  <Button 
-                    variant="outline"
-                    onClick={handlePrevious}
-                    disabled={currentPageIndex === 0}
-                    className="flex items-center gap-1"
-                  >
-                    <ArrowLeft className="h-4 w-4" />
-                    Previous
-                  </Button>
+                    </div>
+                    <Progress value={progressPercentage} className="h-2 bg-white/20" indicatorClassName="bg-gradient-to-r from-white/80 to-purple-300" />
+                  </div>
                   
-                  <Button 
-                    onClick={handleNext}
-                    disabled={!isCurrentPageComplete()}
-                    className="bg-purple-500 hover:bg-purple-600 text-white flex items-center gap-1"
-                  >
-                    {currentPageIndex === groupedQuestions.length - 1 ? "Finish" : "Next"}
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </div>
-              </motion.div>
+                  <div className="space-y-8">
+                    {groupedQuestions[currentPageIndex].map((question, questionIndex) => {
+                      const globalQuestionIndex = currentPageIndex * questionsPerPage + questionIndex;
+                      return (
+                        <div key={question.id} className="rounded-lg p-5 border border-white/20 bg-white/5 backdrop-blur-md">
+                          <h3 className="text-xl md:text-2xl font-semibold mb-6 flex items-start">
+                            <span className="bg-gradient-to-r from-purple-400/90 to-indigo-400/90 text-white w-10 h-10 rounded-full flex items-center justify-center mr-4 flex-shrink-0 shadow-md">
+                              {globalQuestionIndex + 1}
+                            </span>
+                            <span>{question.scenario}</span>
+                          </h3>
+                          
+                          <RadioGroup 
+                            value={selectedOptions[globalQuestionIndex]} 
+                            onValueChange={(value) => handleOptionSelect(questionIndex, value)}
+                            className="space-y-4"
+                          >
+                            {question.options.map((option) => (
+                              <div 
+                                key={option.id} 
+                                className={`flex items-start p-4 rounded-lg transition-all duration-300 ${
+                                  selectedOptions[globalQuestionIndex] === option.id 
+                                    ? 'bg-white/20 border border-white/40 shadow-md' 
+                                    : 'border border-white/10 hover:border-white/30 hover:bg-white/10 bg-white/5'
+                                }`}
+                              >
+                                <RadioGroupItem 
+                                  value={option.id} 
+                                  id={`question-${question.id}-option-${option.id}`} 
+                                  className="mt-1 border-white" 
+                                />
+                                <Label 
+                                  htmlFor={`question-${question.id}-option-${option.id}`} 
+                                  className="flex-1 cursor-pointer font-normal text-base ml-3"
+                                >
+                                  {option.text}
+                                </Label>
+                                {selectedOptions[globalQuestionIndex] === option.id && (
+                                  <div className="bg-white/20 rounded-full p-1">
+                                    <Check className="h-4 w-4 text-white" />
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </RadioGroup>
+
+                          {!isCurrentPageComplete() && (
+                            <div className="flex items-center mt-4 text-yellow-100 text-sm">
+                              <AlertCircle className="h-4 w-4 mr-2" />
+                              <span>Please select an option to continue</span>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  
+                  <div className="flex justify-between mt-8">
+                    <Button 
+                      variant="outline"
+                      onClick={handlePrevious}
+                      disabled={currentPageIndex === 0}
+                      className="flex items-center gap-1 bg-white/10 border-white/20 text-white hover:bg-white/20"
+                    >
+                      <ArrowLeft className="h-4 w-4" />
+                      Previous
+                    </Button>
+                    
+                    <Button 
+                      onClick={handleNext}
+                      disabled={!isCurrentPageComplete()}
+                      className="bg-white text-purple-700 hover:bg-white/90 flex items-center gap-1"
+                    >
+                      {currentPageIndex === groupedQuestions.length - 1 ? "Finish" : "Next"}
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
             ) : (
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-xl shadow-card p-6 md:p-8 text-center"
+                className="bg-white/10 backdrop-blur-md rounded-xl shadow-2xl p-8 text-center text-white border border-white/20"
               >
-                <div className="w-20 h-20 mx-auto bg-purple-100 rounded-full flex items-center justify-center mb-6">
-                  <Heart className="h-10 w-10 text-purple-500" />
+                <div className="w-20 h-20 mx-auto bg-white/20 rounded-full flex items-center justify-center mb-6">
+                  <Heart className="h-10 w-10 text-white" />
                 </div>
                 
                 <h2 className="text-2xl md:text-3xl font-semibold mb-3">Assessment Complete!</h2>
-                <p className="text-muted-foreground mb-8">Thank you for completing the EQ Navigator assessment. You're ready to view your personalized emotional intelligence insights!</p>
+                <p className="text-white/80 mb-8">Thank you for completing the EQ Navigator assessment. You're ready to view your personalized emotional intelligence insights!</p>
                 
                 <Button 
                   onClick={handleViewResults}
                   size="lg"
-                  className="bg-purple-500 hover:bg-purple-600 text-white"
+                  className="bg-white text-purple-700 hover:bg-white/90"
                 >
                   View Your Results
                 </Button>
