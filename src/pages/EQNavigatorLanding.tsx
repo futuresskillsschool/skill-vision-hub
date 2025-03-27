@@ -264,7 +264,7 @@ const EQNavigatorLanding = () => {
                     <p className="text-gray-600 text-sm">Manage stress and emotional states</p>
                   </CardContent>
                 </Card>
-              </div>
+              {/* </div>
               
               <Button 
                 onClick={handleStartAssessment}
@@ -274,7 +274,7 @@ const EQNavigatorLanding = () => {
                 Start Your EQ Assessment
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-            </div>
+            </div> */}
           </motion.div>
         </div>
       </main>
