@@ -431,20 +431,21 @@ const EQNavigatorResults = () => {
         const srcY = (pdfHeight * 0.9 * i) / ratio;
         const sectionHeight = Math.min(imgHeight - srcY, (pdfHeight * 0.9) / ratio);
         
-        pdf.addImage(
-          imgData,
-          'PNG',
-          pdfWidth * 0.05, // 5% margin on left
-          pdfHeight * 0.05, // 5% margin on top
-          pdfWidth * 0.9, // 90% of page width
-          (sectionHeight * ratio), // Scaled height for this section
-          null,
-          'FAST',
-          0,
-          srcY, // Start Y position in source image
-          imgWidth,
-          sectionHeight // Height to capture from source
-        );
+        // Fixed: Correct addImage syntax by reducing parameters
+        pdf.addImage({
+          imageData: imgData,
+          format: 'PNG',
+          x: pdfWidth * 0.05, // 5% margin on left
+          y: pdfHeight * 0.05, // 5% margin on top
+          width: pdfWidth * 0.9, // 90% of page width
+          height: (sectionHeight * ratio), // Scaled height for this section
+          compression: 'FAST',
+          rotation: 0,
+          srcX: 0,
+          srcY: srcY, // Start Y position in source image
+          srcWidth: imgWidth,
+          srcHeight: sectionHeight // Height to capture from source
+        });
       }
       
       // Save the PDF
