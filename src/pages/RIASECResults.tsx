@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -199,7 +198,6 @@ const RIASECResults = () => {
     
     window.scrollTo(0, 0);
     
-    // Fetch student details if we have a studentId in the results state
     const fetchStudentDetails = async () => {
       if (location.state?.studentId) {
         try {
@@ -327,7 +325,6 @@ const RIASECResults = () => {
             </Button>
           </div>
           
-          {/* Student Details Section */}
           {studentDetails && (
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
