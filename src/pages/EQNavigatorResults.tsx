@@ -1,3 +1,4 @@
+
 import { useEffect, useState, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -330,91 +331,123 @@ const EQNavigatorResults = () => {
     if (!reportRef.current) return;
     
     try {
-      const contentToCapture = reportRef.current.cloneNode(true) as HTMLElement;
+      // Create a cloned element for PDF generation
+      const originalContent = reportRef.current;
+      const contentClone = originalContent.cloneNode(true) as HTMLElement;
       
-      contentToCapture.style.width = '800px';
-      contentToCapture.style.backgroundColor = '#ffffff';
-      contentToCapture.style.padding = '40px';
-      contentToCapture.style.position = 'absolute';
-      contentToCapture.style.left = '-9999px';
-      contentToCapture.style.top = '-9999px';
-      document.body.appendChild(contentToCapture);
+      // Add styles for PDF generation
+      contentClone.style.width = '800px';
+      contentClone.style.padding = '40px';
+      contentClone.style.backgroundColor = '#ffffff';
+      contentClone.style.fontFamily = 'Arial, sans-serif';
+      contentClone.style.color = '#333333';
       
-      const expandElements = (element: HTMLElement) => {
+      // Hide the element off-screen for rendering
+      contentClone.style.position = 'fixed';
+      contentClone.style.left = '-9999px';
+      contentClone.style.top = '0';
+      document.body.appendChild(contentClone);
+      
+      // Process all elements for proper PDF rendering
+      const processElements = (element: HTMLElement) => {
+        // Ensure all sections are visible
+        element.style.display = 'block';
+        element.style.overflow = 'visible';
         element.style.height = 'auto';
         element.style.maxHeight = 'none';
-        element.style.overflow = 'visible';
-        element.style.display = element.style.display === 'none' ? 'none' : 'block';
         
+        // Fix SVG rendering
         const svgs = element.querySelectorAll('svg');
         svgs.forEach(svg => {
-          svg.setAttribute('width', svg.getBoundingClientRect().width.toString());
-          svg.setAttribute('height', svg.getBoundingClientRect().height.toString());
+          svg.setAttribute('width', '100%');
+          svg.setAttribute('height', '100%');
+          svg.style.display = 'block';
         });
         
+        // Ensure text is visible
+        const textElements = element.querySelectorAll('p, h1, h2, h3, h4, h5, h6, span');
+        textElements.forEach(el => {
+          (el as HTMLElement).style.color = '#333333';
+          (el as HTMLElement).style.fontFamily = 'Arial, sans-serif';
+          (el as HTMLElement).style.fontSize = (el as HTMLElement).style.fontSize || '14px';
+        });
+        
+        // Fix background colors
+        const cards = element.querySelectorAll('.bg-white, .bg-purple-50, .bg-purple-100');
+        cards.forEach(card => {
+          (card as HTMLElement).style.backgroundColor = '#ffffff';
+          (card as HTMLElement).style.border = '1px solid #e5e7eb';
+          (card as HTMLElement).style.borderRadius = '8px';
+          (card as HTMLElement).style.margin = '15px 0';
+          (card as HTMLElement).style.padding = '15px';
+        });
+        
+        // Process child elements
         Array.from(element.children).forEach(child => {
-          expandElements(child as HTMLElement);
+          processElements(child as HTMLElement);
         });
       };
       
-      expandElements(contentToCapture);
+      processElements(contentClone);
       
-      const canvas = await html2canvas(contentToCapture, {
+      // Render the content to canvas
+      const canvas = await html2canvas(contentClone, {
         scale: 2,
-        logging: false,
         useCORS: true,
+        allowTaint: true,
         backgroundColor: '#ffffff',
-        allowTaint: true
+        logging: false
       });
       
-      document.body.removeChild(contentToCapture);
+      // Remove the cloned element
+      document.body.removeChild(contentClone);
       
+      // Create PDF from canvas
       const imgData = canvas.toDataURL('image/png', 1.0);
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
         format: 'a4',
-        compress: false
+        compress: true
       });
       
+      // PDF dimensions
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
       
+      // Image dimensions and scaling
       const imgWidth = canvas.width;
       const imgHeight = canvas.height;
+      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight) * 0.9;
       
-      const ratio = pdfWidth / imgWidth * 0.95;
-      const totalPdfHeight = imgHeight * ratio;
-      const pageHeight = pdfHeight - 20;
-      const pageCount = Math.ceil(totalPdfHeight / pageHeight);
+      // Calculate pages
+      const scaledImgHeight = imgHeight * ratio;
+      const totalPages = Math.ceil(scaledImgHeight / (pdfHeight * 0.9));
       
-      let heightLeft = totalPdfHeight;
-      let position = 0;
-      let currentPage = 0;
-      
-      while (heightLeft > 0) {
-        if (currentPage > 0) {
-          pdf.addPage();
-        }
+      // Add each page
+      for (let i = 0; i < totalPages; i++) {
+        if (i > 0) pdf.addPage();
         
-        const currentPageHeight = Math.min(heightLeft, pageHeight);
-        const srcY = position / ratio;
-        const srcHeight = currentPageHeight / ratio;
+        const srcY = (pdfHeight * 0.9 * i) / ratio;
+        const sectionHeight = Math.min(imgHeight - srcY, (pdfHeight * 0.9) / ratio);
         
         pdf.addImage(
-          imgData, 
-          'PNG', 
-          10,
-          10,
-          pdfWidth - 20,
-          currentPageHeight
+          imgData,
+          'PNG',
+          pdfWidth * 0.05, // 5% margin on left
+          pdfHeight * 0.05, // 5% margin on top
+          pdfWidth * 0.9, // 90% of page width
+          (sectionHeight * ratio), // Scaled height for this section
+          null,
+          'FAST',
+          0,
+          srcY, // Start Y position in source image
+          imgWidth,
+          sectionHeight // Height to capture from source
         );
-        
-        heightLeft -= currentPageHeight;
-        position += currentPageHeight;
-        currentPage++;
       }
       
+      // Save the PDF
       pdf.save('EQ-Navigator-Results.pdf');
     } catch (error) {
       console.error('Error generating PDF:', error);
@@ -474,31 +507,31 @@ const EQNavigatorResults = () => {
               </div>
             </div>
 
-             {/* Student Details Section */}
+            {/* Student Details Section */}
             {studentDetails && (
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-brand-purple/10 rounded-xl p-4 md:p-6 mb-6"
+                className="bg-purple-50 rounded-xl p-4 md:p-6 mb-6 border border-purple-100"
               >
-                <h2 className="text-xl font-semibold mb-3 text-brand-purple">Student Information</h2>
+                <h2 className="text-xl font-semibold mb-3 text-gray-800">Student Information</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="flex items-center">
-                    <User className="h-5 w-5 text-brand-purple mr-2" />
+                    <User className="h-5 w-5 text-purple-500 mr-2" />
                     <div>
                       <p className="text-sm text-gray-600">Name</p>
                       <p className="font-medium">{studentDetails.name}</p>
                     </div>
                   </div>
                   <div className="flex items-center">
-                    <BookOpen className="h-5 w-5 text-brand-purple mr-2" />
+                    <BookOpen className="h-5 w-5 text-purple-500 mr-2" />
                     <div>
                       <p className="text-sm text-gray-600">Class & Section</p>
                       <p className="font-medium">{studentDetails.class} - {studentDetails.section}</p>
                     </div>
                   </div>
                   <div className="flex items-center md:col-span-2">
-                    <School className="h-5 w-5 text-brand-purple mr-2" />
+                    <School className="h-5 w-5 text-purple-500 mr-2" />
                     <div>
                       <p className="text-sm text-gray-600">School</p>
                       <p className="font-medium">{studentDetails.school}</p>
@@ -508,44 +541,41 @@ const EQNavigatorResults = () => {
               </motion.div>
             )}
 
-            <div ref={reportRef}>
+            <div ref={reportRef} className="pdf-report">
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
               >
-                <div className={cn(
-                  "rounded-2xl p-8 mb-8 text-center relative overflow-hidden",
-                  "bg-gradient-to-br from-purple-400 to-purple-500 text-white shadow-lg"
-                )}>
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-                  <div className="absolute bottom-0 left-0 w-64 h-64 bg-black/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
-                  
+                {/* Results Header */}
+                <div className="rounded-xl p-8 mb-8 text-center relative overflow-hidden bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-md">
                   <motion.div 
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ delay: 0.2, duration: 0.5 }}
-                    className="w-24 h-24 mx-auto rounded-full flex items-center justify-center mb-6 relative z-10 bg-white/20 backdrop-blur-sm shadow-lg"
+                    className="w-24 h-24 mx-auto rounded-full flex items-center justify-center mb-6 bg-white/20 backdrop-blur-sm"
                   >
                     <Heart className="h-12 w-12 text-white" />
                   </motion.div>
                   
-                  <h1 className="text-3xl md:text-4xl font-bold mb-2 relative z-10">{profile.title}</h1>
-                  <p className="text-xl text-white/80 mb-6 relative z-10">{profile.subtitle}</p>
+                  <h1 className="text-3xl md:text-4xl font-bold mb-2">{profile?.title}</h1>
+                  <p className="text-xl text-white/90 mb-6">{profile?.subtitle}</p>
                   
-                  <div className="mt-6 relative z-10">
+                  <div className="mt-6">
                     <div className="w-36 h-36 mx-auto relative mb-6">
                       <svg className="w-full h-full" viewBox="0 0 100 100">
                         <circle 
-                          className="stroke-white/20" 
+                          className="text-white/20" 
                           cx="50" cy="50" r="40" 
                           strokeWidth="8" 
+                          stroke="currentColor"
                           fill="none"
                         />
                         <circle 
-                          className="stroke-white" 
+                          className="text-white" 
                           cx="50" cy="50" r="40" 
                           strokeWidth="8" 
+                          stroke="currentColor"
                           fill="none"
                           strokeLinecap="round"
                           strokeDasharray={`${2 * Math.PI * 40}`}
@@ -573,7 +603,7 @@ const EQNavigatorResults = () => {
                     
                     <div className="grid grid-cols-3 gap-4 max-w-sm mx-auto">
                       <div className="text-center p-3 bg-white/10 backdrop-blur-sm rounded-xl">
-                        <div className="text-2xl font-bold">{scoreData.totalScore}</div>
+                        <div className="text-2xl font-bold">{scoreData?.totalScore}</div>
                         <div className="text-xs text-white/80">Your Score</div>
                       </div>
                       
@@ -590,11 +620,12 @@ const EQNavigatorResults = () => {
                   </div>
                 </div>
                 
+                {/* EQ Profile Section */}
                 <motion.div 
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3, duration: 0.5 }}
-                  className="bg-white rounded-2xl p-8 shadow-lg mb-8 border border-gray-100"
+                  className="bg-white rounded-xl p-8 shadow-md mb-8 border border-gray-100"
                 >
                   <h2 className="text-2xl font-semibold mb-4 flex items-center text-gray-800">
                     <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-3">
@@ -602,8 +633,9 @@ const EQNavigatorResults = () => {
                     </div>
                     Your EQ Profile
                   </h2>
-                  <p className="text-gray-600 text-lg leading-relaxed">{profile.description}</p>
+                  <p className="text-gray-700 text-lg leading-relaxed">{profile?.description}</p>
                   
+                  {/* EQ Breakdown */}
                   <div className="mt-8 pt-6 border-t border-gray-100">
                     <h3 className="text-lg font-medium mb-4 text-gray-800">Emotional Intelligence Breakdown</h3>
                     
@@ -615,8 +647,8 @@ const EQNavigatorResults = () => {
                         </div>
                         <Progress 
                           value={scorePercentage * 0.9} 
-                          className="h-3" 
-                          indicatorClassName="bg-gradient-to-r from-purple-300 to-purple-400"
+                          className="h-2.5" 
+                          indicatorClassName="bg-gradient-to-r from-purple-400 to-purple-500"
                         />
                       </div>
                       
@@ -627,8 +659,8 @@ const EQNavigatorResults = () => {
                         </div>
                         <Progress 
                           value={scorePercentage * 0.85} 
-                          className="h-3" 
-                          indicatorClassName="bg-gradient-to-r from-purple-300 to-purple-400"
+                          className="h-2.5" 
+                          indicatorClassName="bg-gradient-to-r from-purple-400 to-purple-500"
                         />
                       </div>
                       
@@ -639,8 +671,8 @@ const EQNavigatorResults = () => {
                         </div>
                         <Progress 
                           value={scorePercentage * 0.95} 
-                          className="h-3" 
-                          indicatorClassName="bg-gradient-to-r from-purple-300 to-purple-400"
+                          className="h-2.5" 
+                          indicatorClassName="bg-gradient-to-r from-purple-400 to-purple-500"
                         />
                       </div>
                       
@@ -651,13 +683,13 @@ const EQNavigatorResults = () => {
                         </div>
                         <Progress 
                           value={scorePercentage * 0.8} 
-                          className="h-3" 
-                          indicatorClassName="bg-gradient-to-r from-purple-300 to-purple-400"
+                          className="h-2.5" 
+                          indicatorClassName="bg-gradient-to-r from-purple-400 to-purple-500"
                         />
                       </div>
                     </div>
                     
-                    <div className="mt-8 p-4 bg-purple-50 border border-purple-200 rounded-xl flex items-start">
+                    <div className="mt-8 p-4 bg-purple-50 border border-purple-100 rounded-lg flex items-start">
                       <div className="bg-purple-100 text-purple-600 p-2 rounded-full mr-3 flex-shrink-0">
                         <Info className="h-5 w-5" />
                       </div>
@@ -672,11 +704,12 @@ const EQNavigatorResults = () => {
                   </div>
                 </motion.div>
                 
+                {/* Strengths Section */}
                 <motion.div 
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4, duration: 0.5 }}
-                  className="bg-white rounded-2xl p-8 shadow-lg mb-8 border border-gray-100"
+                  className="bg-white rounded-xl p-8 shadow-md mb-8 border border-gray-100"
                 >
                   <div className="flex items-center mb-6">
                     <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-3">
@@ -685,16 +718,16 @@ const EQNavigatorResults = () => {
                     <h2 className="text-2xl font-semibold text-gray-800">Your Strengths</h2>
                   </div>
                   
-                  <p className="text-gray-600 mb-6">{profile.strengthsIntro}</p>
+                  <p className="text-gray-700 mb-6">{profile?.strengthsIntro}</p>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {profile.strengths.map((strength, index) => (
+                    {profile?.strengths.map((strength, index) => (
                       <motion.div 
                         key={index} 
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.5 + index * 0.1 }}
-                        className="bg-purple-50 border border-purple-100 rounded-xl p-4 flex items-start"
+                        className="bg-purple-50 border border-purple-100 rounded-lg p-4 flex items-start"
                       >
                         <div className="bg-purple-200 text-purple-700 rounded-full p-2 mr-3 mt-0.5 flex-shrink-0">
                           <Check className="h-4 w-4" />
@@ -705,11 +738,12 @@ const EQNavigatorResults = () => {
                   </div>
                 </motion.div>
                 
+                {/* Growth Opportunities Section */}
                 <motion.div 
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.5, duration: 0.5 }}
-                  className="bg-white rounded-2xl p-8 shadow-lg mb-8 border border-gray-100"
+                  className="bg-white rounded-xl p-8 shadow-md mb-8 border border-gray-100"
                 >
                   <div className="flex items-center mb-6">
                     <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-3">
@@ -718,17 +752,17 @@ const EQNavigatorResults = () => {
                     <h2 className="text-2xl font-semibold text-gray-800">Growth Opportunities</h2>
                   </div>
                   
-                  <p className="text-gray-600 mb-6">{profile.growthIntro}</p>
+                  <p className="text-gray-700 mb-6">{profile?.growthIntro}</p>
                   
                   <div className="space-y-4">
-                    {profile.growthAreas.map((area, index) => (
+                    {profile?.growthAreas.map((area, index) => (
                       <motion.div
                         key={index}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.6 + index * 0.1 }}
                       >
-                        <Card className="p-5 border border-gray-100 hover:shadow-md transition-shadow bg-gradient-to-br from-white to-purple-50">
+                        <Card className="p-5 border border-gray-200 hover:shadow-md transition-shadow bg-gradient-to-br from-white to-purple-50">
                           <h3 className="font-semibold text-lg mb-3 text-gray-800">{area.area}</h3>
                           <div className="flex items-start">
                             <div className="bg-purple-100 text-purple-500 rounded-full p-2 mr-3 mt-0.5 flex-shrink-0">
@@ -742,11 +776,12 @@ const EQNavigatorResults = () => {
                   </div>
                 </motion.div>
                 
+                {/* Resources Section */}
                 <motion.div 
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.6, duration: 0.5 }}
-                  className="bg-white rounded-2xl p-8 shadow-lg mb-8 border border-gray-100"
+                  className="bg-white rounded-xl p-8 shadow-md mb-8 border border-gray-100"
                 >
                   <div className="flex items-center mb-6">
                     <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-3">
@@ -756,7 +791,7 @@ const EQNavigatorResults = () => {
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                    {profile.resources.map((resource, index) => (
+                    {profile?.resources.map((resource, index) => (
                       <motion.div
                         key={index}
                         initial={{ opacity: 0, y: 10 }}
@@ -764,7 +799,7 @@ const EQNavigatorResults = () => {
                         transition={{ delay: 0.7 + index * 0.1 }}
                       >
                         <Card 
-                          className="p-5 border border-gray-100 hover:border-purple-300 hover:shadow-md transition-all group h-full flex flex-col"
+                          className="p-5 border border-gray-200 hover:border-purple-300 hover:shadow-md transition-all group h-full flex flex-col"
                         >
                           <div className="w-12 h-12 mb-4 bg-purple-100 rounded-full flex items-center justify-center text-purple-500 group-hover:bg-purple-200 transition-colors">
                             {resource.icon}
@@ -786,7 +821,7 @@ const EQNavigatorResults = () => {
               <Button 
                 onClick={() => navigate('/')}
                 variant="outline"
-                className="flex items-center gap-2 border-purple-200 text-purple-500 hover:bg-purple-50"
+                className="flex items-center gap-2 border-purple-200 text-purple-600 hover:bg-purple-50"
               >
                 <Home className="h-4 w-4" />
                 Return Home
@@ -794,7 +829,7 @@ const EQNavigatorResults = () => {
               
               <Button 
                 onClick={() => navigate('/assessment/eq-navigator')}
-                className="bg-gradient-to-r from-purple-400 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white"
+                className="bg-purple-500 hover:bg-purple-600 text-white"
               >
                 Take Another Assessment
               </Button>

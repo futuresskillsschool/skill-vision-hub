@@ -9,7 +9,7 @@ import { Progress } from '@/components/ui/progress';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Heart, ArrowLeft, ArrowRight, Check } from 'lucide-react';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 
 // Define the structure of a question
 interface Question {
@@ -141,8 +141,8 @@ const EQNavigatorAssessment = () => {
   const [showResults, setShowResults] = useState(false);
   const [totalScore, setTotalScore] = useState(0);
 
-  // Group questions 2 per page
-  const questionsPerPage = 2;
+  // Group questions 5 per page
+  const questionsPerPage = 5;
   const groupedQuestions = groupQuestions(questions, questionsPerPage);
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
 
@@ -218,7 +218,7 @@ const EQNavigatorAssessment = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-gray-100">
       <Navbar />
       
       <main className="flex-grow pt-24 pb-16">
@@ -231,66 +231,75 @@ const EQNavigatorAssessment = () => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
-                className="bg-white rounded-xl shadow-card p-6 md:p-8"
+                className="bg-white rounded-xl shadow-md p-6 md:p-8"
               >
                 <div className="mb-8">
-                  <div className="flex justify-between items-center mb-2">
-                    <h2 className="text-lg font-medium text-muted-foreground">
-                      Page {currentPageIndex + 1} of {groupedQuestions.length}
+                  <div className="flex justify-between items-center mb-3">
+                    <h2 className="text-xl font-semibold text-gray-800">
+                      EQ Navigator Assessment
                     </h2>
-                    <span className="text-sm text-muted-foreground font-medium">
-                      {Math.min((currentPageIndex + 1) * questionsPerPage, questions.length)} of {questions.length} questions
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium bg-purple-100 text-purple-700 py-1 px-3 rounded-full">
+                        Page {currentPageIndex + 1} of {groupedQuestions.length}
+                      </span>
+                      <span className="text-sm text-gray-500 font-medium">
+                        {Math.min((currentPageIndex + 1) * questionsPerPage, questions.length)} of {questions.length} questions
+                      </span>
+                    </div>
                   </div>
-                  <Progress value={progressPercentage} className="h-2 bg-purple-100" />
+                  <Progress value={progressPercentage} className="h-2 bg-gray-100" indicatorClassName="bg-purple-500" />
                 </div>
                 
-                <div className="space-y-8">
+                <div className="space-y-10">
                   {groupedQuestions[currentPageIndex].map((question, questionIndex) => {
                     const globalQuestionIndex = currentPageIndex * questionsPerPage + questionIndex;
                     return (
-                      <div key={question.id} className="bg-purple-50 rounded-lg p-5 border border-purple-100">
-                        <h3 className="text-lg md:text-xl font-semibold mb-4 flex">
-                          <span className="bg-purple-500 text-white w-8 h-8 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
-                            {globalQuestionIndex + 1}
-                          </span>
-                          {question.scenario}
-                        </h3>
+                      <Card key={question.id} className="border border-gray-200 overflow-hidden">
+                        <div className="bg-purple-50 border-b border-purple-100 px-5 py-3">
+                          <h3 className="text-lg font-medium text-gray-800 flex items-start">
+                            <span className="flex-shrink-0 bg-purple-500 text-white w-7 h-7 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                              {globalQuestionIndex + 1}
+                            </span>
+                            <span>{question.scenario}</span>
+                          </h3>
+                        </div>
                         
-                        <RadioGroup 
-                          value={selectedOptions[globalQuestionIndex]} 
-                          onValueChange={(value) => handleOptionSelect(questionIndex, value)}
-                          className="space-y-3"
-                        >
-                          {question.options.map((option) => (
-                            <div 
-                              key={option.id} 
-                              className={`flex items-start space-x-2 border rounded-md p-3 transition-colors ${
-                                selectedOptions[globalQuestionIndex] === option.id 
-                                  ? 'border-purple-400 bg-purple-100' 
-                                  : 'border-border/50 hover:border-purple-300 hover:bg-purple-50'
-                              }`}
-                            >
-                              <RadioGroupItem 
-                                value={option.id} 
-                                id={`question-${question.id}-option-${option.id}`} 
-                                className="mt-1" 
-                              />
-                              <Label 
-                                htmlFor={`question-${question.id}-option-${option.id}`} 
-                                className="flex-1 cursor-pointer font-normal text-base"
+                        <CardContent className="p-5">
+                          <RadioGroup 
+                            value={selectedOptions[globalQuestionIndex]} 
+                            onValueChange={(value) => handleOptionSelect(questionIndex, value)}
+                            className="space-y-3"
+                          >
+                            {question.options.map((option) => (
+                              <div 
+                                key={option.id} 
+                                className={`flex items-start space-x-2 border rounded-md p-3 transition-colors ${
+                                  selectedOptions[globalQuestionIndex] === option.id 
+                                    ? 'border-purple-400 bg-purple-50' 
+                                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                                }`}
                               >
-                                {option.text}
-                              </Label>
-                              {selectedOptions[globalQuestionIndex] === option.id && (
-                                <div className="bg-purple-200 rounded-full p-1">
-                                  <Check className="h-4 w-4 text-purple-600" />
-                                </div>
-                              )}
-                            </div>
-                          ))}
-                        </RadioGroup>
-                      </div>
+                                <RadioGroupItem 
+                                  value={option.id} 
+                                  id={`question-${question.id}-option-${option.id}`} 
+                                  className="mt-1" 
+                                />
+                                <Label 
+                                  htmlFor={`question-${question.id}-option-${option.id}`} 
+                                  className="flex-1 cursor-pointer font-normal text-base"
+                                >
+                                  {option.text}
+                                </Label>
+                                {selectedOptions[globalQuestionIndex] === option.id && (
+                                  <div className="bg-purple-100 rounded-full p-1">
+                                    <Check className="h-4 w-4 text-purple-600" />
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </RadioGroup>
+                        </CardContent>
+                      </Card>
                     );
                   })}
                 </div>
@@ -320,14 +329,14 @@ const EQNavigatorAssessment = () => {
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-xl shadow-card p-6 md:p-8 text-center"
+                className="bg-white rounded-xl shadow-md p-6 md:p-8 text-center"
               >
                 <div className="w-20 h-20 mx-auto bg-purple-100 rounded-full flex items-center justify-center mb-6">
                   <Heart className="h-10 w-10 text-purple-500" />
                 </div>
                 
                 <h2 className="text-2xl md:text-3xl font-semibold mb-3">Assessment Complete!</h2>
-                <p className="text-muted-foreground mb-8">Thank you for completing the EQ Navigator assessment. You're ready to view your personalized emotional intelligence insights!</p>
+                <p className="text-gray-600 mb-8">Thank you for completing the EQ Navigator assessment. You're ready to view your personalized emotional intelligence insights!</p>
                 
                 <Button 
                   onClick={handleViewResults}
