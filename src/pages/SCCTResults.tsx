@@ -10,16 +10,19 @@ import {
   XCircle,
   User,
   School,
-  BookOpen
+  BookOpen,
+  Star
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Progress } from '@/components/ui/progress';
-import { Card } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { Radar, RadarChart, PolarGrid, PolarAngleAxis, Bar, BarChart, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 
 interface StudentDetails {
   id: string;
@@ -207,6 +210,7 @@ const SCCTResults = () => {
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [tabValue, setTabValue] = useState("overview");
   const [studentDetails, setStudentDetails] = useState<StudentDetails | null>(null);
+  const { user, storeAssessmentResult } = useAuth();
   
   const scores: SCCTScores = location.state?.scores || {};
   const sections: Section[] = location.state?.sections || [];
