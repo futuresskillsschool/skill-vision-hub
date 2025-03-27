@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -26,6 +27,7 @@ interface QuestionnaireSection {
     id: string;
     text: string;
     tooltip?: string;
+    options?: { id: string; text: string; }[];
   }[];
 }
 
@@ -80,52 +82,112 @@ const EQ_QUESTIONS: QuestionnaireSection = {
     { 
       id: 'eq1', 
       text: 'You\'re excited to share some good news with a friend, but they seem distracted and uninterested. You...', 
-      tooltip: 'This tests how you handle social disappointment'
+      tooltip: 'This tests how you handle social disappointment',
+      options: [
+        { id: '1', text: 'Get angry and accuse them of not caring about you.' },
+        { id: '2', text: 'Feel disappointed but try to understand why they might be distracted. Maybe they\'re having a bad day.' },
+        { id: '3', text: 'Pretend you\'re not bothered, even though you\'re a little hurt.' },
+        { id: '4', text: 'Stop talking about your news and change the subject.' }
+      ]
     },
     { 
       id: 'eq2', 
       text: 'You witness a classmate making fun of another student\'s appearance. You...', 
-      tooltip: 'This tests your response to witnessing unkindness' 
+      tooltip: 'This tests your response to witnessing unkindness',
+      options: [
+        { id: '1', text: 'Laugh along with the classmate.' },
+        { id: '2', text: 'Ignore it and hope it stops.' },
+        { id: '3', text: 'Tell the classmate that it\'s not okay to make fun of someone\'s appearance and try to support the student being targeted.' },
+        { id: '4', text: 'Tell the targeted student to ignore the comments.' }
+      ]
     },
     { 
       id: 'eq3', 
       text: 'You\'re feeling really stressed about upcoming exams. You...', 
-      tooltip: 'This tests your stress management skills' 
+      tooltip: 'This tests your stress management skills',
+      options: [
+        { id: '1', text: 'Isolate yourself and worry constantly.' },
+        { id: '2', text: 'Talk to a friend or family member about how you\'re feeling and find healthy ways to manage stress (e.g., exercise, hobbies).' },
+        { id: '3', text: 'Procrastinate and avoid thinking about the exams.' },
+        { id: '4', text: 'Try to convince yourself you don\'t care about the exams.' }
+      ]
     },
     { 
       id: 'eq4', 
       text: 'A friend is going through a tough time (e.g., family issues, break-up). You...', 
-      tooltip: 'This tests your empathy and support skills' 
+      tooltip: 'This tests your empathy and support skills',
+      options: [
+        { id: '1', text: 'Offer a listening ear and support, letting them know you\'re there for them.' },
+        { id: '2', text: 'Try to give them advice, even if you\'re not sure what to say.' },
+        { id: '3', text: 'Avoid them because you don\'t know how to handle the situation.' },
+        { id: '4', text: 'Tell them to "toughen up."' }
+      ]
     },
     { 
       id: 'eq5', 
       text: 'You receive constructive criticism on a project. You...', 
-      tooltip: 'This tests your openness to feedback' 
+      tooltip: 'This tests your openness to feedback',
+      options: [
+        { id: '1', text: 'Get defensive and argue with the person giving the feedback.' },
+        { id: '2', text: 'Listen to the feedback, even if it\'s hard to hear, and try to learn from it.' },
+        { id: '3', text: 'Feel hurt and take it personally.' },
+        { id: '4', text: 'Ignore the feedback completely.' }
+      ]
     },
     { 
       id: 'eq6', 
       text: 'You have a strong disagreement with a friend. You...', 
-      tooltip: 'This tests your conflict resolution skills' 
+      tooltip: 'This tests your conflict resolution skills',
+      options: [
+        { id: '1', text: 'Resort to personal insults and name-calling.' },
+        { id: '2', text: 'Try to see things from your friend\'s perspective and find a compromise.' },
+        { id: '3', text: 'Refuse to talk to your friend anymore.' },
+        { id: '4', text: 'Give them the silent treatment.' }
+      ]
     },
     { 
       id: 'eq7', 
       text: 'You achieve a goal you\'ve been working towards. You...', 
-      tooltip: 'This tests your response to success' 
+      tooltip: 'This tests your response to success',
+      options: [
+        { id: '1', text: 'Brag about your achievement to everyone.' },
+        { id: '2', text: 'Celebrate your success and acknowledge the effort you put in.' },
+        { id: '3', text: 'Downplay your achievement, as if it wasn\'t a big deal.' },
+        { id: '4', text: 'Immediately start worrying about your next goal.' }
+      ]
     },
     { 
       id: 'eq8', 
       text: 'You make a mistake. You...', 
-      tooltip: 'This tests your response to failure' 
+      tooltip: 'This tests your response to failure',
+      options: [
+        { id: '1', text: 'Blame someone else.' },
+        { id: '2', text: 'Take responsibility for your actions and try to fix the mistake.' },
+        { id: '3', text: 'Try to hide the mistake.' },
+        { id: '4', text: 'Beat yourself up about it excessively.' }
+      ]
     },
     { 
       id: 'eq9', 
       text: 'You see a new student struggling to fit in. You...', 
-      tooltip: 'This tests your social awareness' 
+      tooltip: 'This tests your social awareness',
+      options: [
+        { id: '1', text: 'Ignore them.' },
+        { id: '2', text: 'Make fun of them.' },
+        { id: '3', text: 'Introduce yourself and try to make them feel welcome.' },
+        { id: '4', text: 'Observe them from a distance but don\'t interact.' }
+      ]
     },
     { 
       id: 'eq10', 
       text: 'You feel overwhelmed by your emotions. You...', 
-      tooltip: 'This tests your emotional regulation' 
+      tooltip: 'This tests your emotional regulation',
+      options: [
+        { id: '1', text: 'Try to suppress or ignore your feelings.' },
+        { id: '2', text: 'Find healthy ways to express your emotions (e.g., talking to someone, journaling, creative activities).' },
+        { id: '3', text: 'Lash out at others.' },
+        { id: '4', text: 'Engage in self-destructive behaviors.' }
+      ]
     },
   ],
 };
@@ -138,13 +200,6 @@ const answerOptions = [
   { value: "3", label: "Neutral" },
   { value: "4", label: "Agree" },
   { value: "5", label: "Strongly Agree" }
-];
-
-const eqAnswerOptions = [
-  { value: "1", label: "Option A" },
-  { value: "2", label: "Option B" },
-  { value: "3", label: "Option C" },
-  { value: "4", label: "Option D" }
 ];
 
 const CareerVisionAssessment = () => {
@@ -308,7 +363,7 @@ const CareerVisionAssessment = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-white via-green-50 to-blue-50">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-white via-blue-50 to-blue-100">
       <Navbar />
       
       <main className="flex-grow pt-24 pb-16">
@@ -317,7 +372,7 @@ const CareerVisionAssessment = () => {
             <div className="mb-8">
               <div className="flex items-center justify-between mb-2">
                 <h1 className="text-3xl font-bold">Career Vision Assessment</h1>
-                <span className="text-sm font-medium bg-green-600 text-white px-3 py-1 rounded-full">
+                <span className="text-sm font-medium bg-blue-600 text-white px-3 py-1 rounded-full">
                   Section {currentSectionIndex + 1} of {ALL_QUESTIONS.length}
                 </span>
               </div>
@@ -370,21 +425,41 @@ const CareerVisionAssessment = () => {
                           onValueChange={(value) => handleAnswer(question.id, parseInt(value))}
                           className="flex flex-col space-y-1 sm:flex-row sm:space-y-0 sm:space-x-4 justify-between"
                         >
-                          {(currentSection.id === 'eq' ? eqAnswerOptions : answerOptions).map((option) => (
-                            <div key={option.value} className="flex items-center space-x-2">
-                              <RadioGroupItem
-                                value={option.value}
-                                id={`${question.id}-${option.value}`}
-                                className="text-green-600"
-                              />
-                              <Label 
-                                htmlFor={`${question.id}-${option.value}`}
-                                className={`text-sm ${answers[question.id]?.toString() === option.value ? 'font-medium text-green-600' : 'text-muted-foreground'}`}
-                              >
-                                {option.label}
-                              </Label>
+                          {currentSection.id === 'eq' ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full">
+                              {question.options?.map((option) => (
+                                <div key={option.id} className="flex items-center space-x-2 border rounded p-3 hover:bg-blue-50">
+                                  <RadioGroupItem
+                                    value={option.id}
+                                    id={`${question.id}-${option.id}`}
+                                    className="text-blue-600"
+                                  />
+                                  <Label 
+                                    htmlFor={`${question.id}-${option.id}`}
+                                    className={`text-sm ${answers[question.id]?.toString() === option.id ? 'font-medium text-blue-600' : 'text-muted-foreground'}`}
+                                  >
+                                    {option.text}
+                                  </Label>
+                                </div>
+                              ))}
                             </div>
-                          ))}
+                          ) : (
+                            answerOptions.map((option) => (
+                              <div key={option.value} className="flex items-center space-x-2">
+                                <RadioGroupItem
+                                  value={option.value}
+                                  id={`${question.id}-${option.value}`}
+                                  className="text-blue-600"
+                                />
+                                <Label 
+                                  htmlFor={`${question.id}-${option.value}`}
+                                  className={`text-sm ${answers[question.id]?.toString() === option.value ? 'font-medium text-blue-600' : 'text-muted-foreground'}`}
+                                >
+                                  {option.label}
+                                </Label>
+                              </div>
+                            ))
+                          )}
                         </RadioGroup>
                       </div>
                     ))}
@@ -404,7 +479,7 @@ const CareerVisionAssessment = () => {
                   <Button 
                     onClick={handleNextSection}
                     disabled={!isSectionComplete()}
-                    className={isLastSection ? "bg-green-600 hover:bg-green-700" : "bg-green-600 hover:bg-green-700"}
+                    className={isLastSection ? "bg-blue-600 hover:bg-blue-700" : "bg-blue-600 hover:bg-blue-700"}
                   >
                     {isLastSection ? "Complete Assessment" : "Next Section"}
                     <ArrowRight className="ml-2 h-4 w-4" />

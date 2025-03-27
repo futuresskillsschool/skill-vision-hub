@@ -58,15 +58,15 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
               <RadarChart cx="50%" cy="50%" outerRadius="80%" data={riasecChartData}>
                 <PolarGrid />
                 <PolarAngleAxis dataKey="name" />
-                <Radar name="Score" dataKey="score" fill="#4CAF50" fillOpacity={0.5} />
+                <Radar name="Score" dataKey="score" fill="#4285F4" fillOpacity={0.5} />
               </RadarChart>
             </ResponsiveContainer>
           </div>
         </Card>
         
-        <Card className="p-6 bg-brand-green/5">
+        <Card className="p-6 bg-brand-blue/5">
           <div className="flex items-center mb-4">
-            <Target className="h-5 w-5 text-brand-green mr-2" />
+            <Target className="h-5 w-5 text-brand-blue mr-2" />
             <p className="font-semibold">Future Pathways</p>
           </div>
           <p className="text-sm text-muted-foreground mb-4">
@@ -81,15 +81,15 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
                 <Tooltip />
-                <Bar dataKey="score" fill="#4CAF50" />
+                <Bar dataKey="score" fill="#4285F4" />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </Card>
         
-        <Card className="p-6 bg-green-50">
+        <Card className="p-6 bg-blue-50">
           <div className="flex items-center justify-center mb-4">
-            <Heart className="h-5 w-5 text-green-600 mr-2" />
+            <Heart className="h-5 w-5 text-blue-600 mr-2" />
             <p className="font-semibold">EQ<br /> Navigator</p>
           </div>
           <p className="text-sm text-muted-foreground mb-4">
@@ -101,13 +101,13 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
             <div className="w-56 h-56 relative">
               <svg className="w-FULL h-FULL" viewBox="0 0 100 100">
                 <circle 
-                  className="stroke-green-200" 
+                  className="stroke-blue-200" 
                   cx="50" cy="50" r="40" 
                   strokeWidth="8" 
                   fill="none"
                 />
                 <circle 
-                  className="stroke-green-500" 
+                  className="stroke-blue-500" 
                   cx="50" cy="50" r="40" 
                   strokeWidth="8" 
                   fill="none"
@@ -120,7 +120,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                   x="50" y="43" 
                   dominantBaseline="middle" 
                   textAnchor="middle"
-                  className="fill-green-600 text-2xl font-bold"
+                  className="fill-blue-600 text-2xl font-bold"
                 >
                   {scorePercentage}%
                 </text>
@@ -144,8 +144,8 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
         {careerRecommendations.map((rec, index) => (
           <Card key={index} className="overflow-hidden">
             <div className={`p-2 text-white text-center ${
-              index === 0 ? 'bg-green-600' : 
-              index === 1 ? 'bg-brand-blue' : 'bg-brand-green'
+              index === 0 ? 'bg-blue-600' : 
+              index === 1 ? 'bg-brand-blue' : 'bg-blue-500'
             }`}>
               <div className="text-sm font-medium">Match: {rec.match}%</div>
             </div>
@@ -155,8 +155,8 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                 {rec.careers.map((career, i) => (
                   <li key={i} className="flex items-start">
                     <span className={`inline-block w-2 h-2 rounded-full mt-1.5 mr-2 ${
-                      index === 0 ? 'bg-green-600' : 
-                      index === 1 ? 'bg-brand-blue' : 'bg-brand-green'
+                      index === 0 ? 'bg-blue-600' : 
+                      index === 1 ? 'bg-brand-blue' : 'bg-blue-500'
                     }`}></span>
                     {career}
                   </li>
@@ -167,9 +167,9 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
         ))}
       </div>
       
-      <Card className="p-6 bg-green-50 mb-6">
+      <Card className="p-6 bg-blue-50 mb-6">
         <div className="flex items-center mb-4">
-          <Sparkles className="h-5 w-5 text-green-600 mr-2" />
+          <Sparkles className="h-5 w-5 text-blue-600 mr-2" />
           <h3 className="font-semibold">Your Unique Career Profile</h3>
         </div>
         <p className="mb-4">
