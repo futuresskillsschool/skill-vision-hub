@@ -4,9 +4,23 @@ import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { ChevronRight, Download, FileText } from 'lucide-react';
+import { 
+  ChevronRight, 
+  Download, 
+  FileText, 
+  Calendar, 
+  CheckCircle,
+  Info
+} from 'lucide-react';
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
+import { useToast } from '@/components/ui/use-toast';
 
 export interface AssessmentResult {
   id: string;
@@ -60,6 +74,7 @@ interface AssessmentTableProps {
 
 const AssessmentTable = ({ assessments }: AssessmentTableProps) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const getAssessmentDetails = (type: string) => {
     return ASSESSMENT_TYPES[type] || {
@@ -79,24 +94,63 @@ const AssessmentTable = ({ assessments }: AssessmentTableProps) => {
     return result.result_data?.primary_result || 'Completed';
   };
 
+  const handleViewResults = (assessment: AssessmentResult) => {
+    navigate(`/${assessment.assessment_type}-results`, { 
+      state: { 
+        scores: assessment.result_data.scores,
+        fromDashboard: true
+      } 
+    });
+  };
+
+  const handleDownloadPDF = (assessment: AssessmentResult) => {
+    try {
+      navigate(`/${assessment.assessment_type}-results`, { 
+        state: { 
+          scores: assessment.result_data.scores,
+          downloadPdf: true,
+          fromDashboard: true
+        } 
+      });
+      
+      toast({
+        title: "Preparing Download",
+        description: "Your results are being prepared for download.",
+      });
+    } catch (error) {
+      console.error('Error navigating to download results:', error);
+      toast({
+        title: "Download Error",
+        description: "There was a problem preparing your download. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
   if (assessments.length === 0) {
     return (
       <Card className="p-6 text-center bg-muted/30">
-        <p className="text-muted-foreground">You haven't completed any assessments yet.</p>
-        <Button 
-          onClick={() => navigate('/')} 
-          variant="default"
-          className="mt-4"
-        >
-          Explore Assessments
-        </Button>
+        <div className="py-10">
+          <div className="flex justify-center mb-4">
+            <FileText className="h-12 w-12 text-muted-foreground opacity-40" />
+          </div>
+          <h3 className="text-xl font-semibold mb-2">No Assessments Found</h3>
+          <p className="text-muted-foreground mb-6">You haven't completed any assessments yet.</p>
+          <Button 
+            onClick={() => navigate('/')} 
+            variant="default"
+            className="bg-brand-purple hover:bg-brand-purple/90"
+          >
+            Explore Assessments
+          </Button>
+        </div>
       </Card>
     );
   }
 
   return (
     <div className="space-y-4">
-      {assessments.map((assessment) => {
+      {assessments.map((assessment, index) => {
         const { name, color, icon, questionCount } = getAssessmentDetails(assessment.assessment_type);
         const maxScore = assessment.result_data?.scores ? 
           Object.values<number>(assessment.result_data.scores).reduce((a, b) => a + b, 0) : null;
@@ -107,9 +161,9 @@ const AssessmentTable = ({ assessments }: AssessmentTableProps) => {
             key={assessment.id}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.3, delay: index * 0.1 }}
           >
-            <Card className="p-5 hover:shadow-md transition-shadow border border-border/40">
+            <Card className="p-5 hover:shadow-md transition-shadow border border-border/40 bg-white">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-start gap-3">
                   <div className={cn("w-10 h-10 rounded-full flex items-center justify-center", color)}>
@@ -117,19 +171,30 @@ const AssessmentTable = ({ assessments }: AssessmentTableProps) => {
                   </div>
                   <div>
                     <h3 className="font-semibold">{name}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Completed on {getFormattedDate(assessment.created_at)}
-                    </p>
-                    <div className="mt-1 flex items-center">
+                    <div className="flex items-center mt-1 text-sm text-muted-foreground">
+                      <Calendar className="h-3 w-3 mr-1" />
+                      {getFormattedDate(assessment.created_at)}
+                    </div>
+                    <div className="mt-1 flex items-center gap-2">
                       <span className={cn("text-sm font-medium px-2 py-0.5 rounded-full", 
                         `bg-${color.split('-')[1]}/10 text-${color.split('-')[1]}`
                       )}>
                         {getPrimaryResult(assessment)}
                       </span>
-                      <span className="text-sm text-muted-foreground ml-2">
-                        <FileText className="h-3 w-3 inline mr-1" />
-                        {questionCount} questions
-                      </span>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="flex items-center text-xs text-muted-foreground cursor-help">
+                              <FileText className="h-3 w-3 mr-1" />
+                              {questionCount} Q
+                              <Info className="h-3 w-3 ml-0.5" />
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>This assessment has {questionCount} questions</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </div>
                   </div>
                 </div>
@@ -137,10 +202,13 @@ const AssessmentTable = ({ assessments }: AssessmentTableProps) => {
                 {score && maxScore && (
                   <div className="w-full md:w-1/3">
                     <div className="flex justify-between text-sm mb-1">
-                      <span>Score</span>
-                      <span className="font-medium">{score}/{maxScore}</span>
+                      <span>Completion</span>
+                      <span className="font-medium">
+                        <CheckCircle className="h-3 w-3 inline mr-1 text-green-500" />
+                        100%
+                      </span>
                     </div>
-                    <Progress value={(score / maxScore) * 100} 
+                    <Progress value={100} 
                       className={cn("h-2", 
                         `bg-${color.split('-')[1]}/20`
                       )} 
@@ -152,12 +220,7 @@ const AssessmentTable = ({ assessments }: AssessmentTableProps) => {
                   <Button 
                     variant="outline" 
                     size="sm"
-                    onClick={() => navigate(`/${assessment.assessment_type}-results`, { 
-                      state: { 
-                        scores: assessment.result_data.scores,
-                        fromDashboard: true
-                      } 
-                    })}
+                    onClick={() => handleViewResults(assessment)}
                     className="text-sm"
                   >
                     View Results
@@ -167,13 +230,8 @@ const AssessmentTable = ({ assessments }: AssessmentTableProps) => {
                     variant="ghost" 
                     size="icon"
                     className="h-8 w-8"
-                    onClick={() => navigate(`/${assessment.assessment_type}-results`, { 
-                      state: { 
-                        scores: assessment.result_data.scores,
-                        downloadPdf: true,
-                        fromDashboard: true
-                      } 
-                    })}
+                    onClick={() => handleDownloadPDF(assessment)}
+                    title="Download PDF"
                   >
                     <Download className="h-4 w-4" />
                   </Button>
