@@ -5,10 +5,23 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Check, Clock, Brain, Users, Heart, Sparkles, ChevronRight } from 'lucide-react';
+import { 
+  Check, 
+  Clock, 
+  Brain, 
+  Users, 
+  Heart, 
+  Sparkles, 
+  ChevronRight,
+  ArrowRight
+} from 'lucide-react';
 
 const EQNavigatorLanding = () => {
   const navigate = useNavigate();
+  
+  const handleStartAssessment = () => {
+    navigate('/assessment/eq-navigator/take');
+  };
   
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-white via-[hsl(var(--brand-red))/5] to-[hsl(var(--brand-pink))/10]">
@@ -29,9 +42,18 @@ const EQNavigatorLanding = () => {
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 bg-gradient-to-r from-[hsl(var(--brand-red))] to-[hsl(var(--brand-red-dark))] bg-clip-text text-transparent">
                 Discover Your Emotional Intelligence
               </h1>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
                 Measure your emotional intelligence and develop crucial soft skills for personal and professional success in today's workplace.
               </p>
+              
+              <Button 
+                onClick={handleStartAssessment}
+                size="lg"
+                className="bg-gradient-to-r from-[hsl(var(--brand-red))] to-[hsl(var(--brand-red-dark))] hover:opacity-90 text-white shadow-md hover:shadow-lg transition-all duration-300 px-8 py-6 text-lg"
+              >
+                Start Assessment Now
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
             </motion.div>
             
             <motion.div
@@ -92,11 +114,11 @@ const EQNavigatorLanding = () => {
                   <div className="space-y-4 mb-8">
                     <div className="flex justify-between items-center py-3 border-b border-gray-100">
                       <span className="text-gray-600">Questions</span>
-                      <span className="font-medium text-gray-800">20 questions</span>
+                      <span className="font-medium text-gray-800">10 questions</span>
                     </div>
                     <div className="flex justify-between items-center py-3 border-b border-gray-100">
                       <span className="text-gray-600">Sections</span>
-                      <span className="font-medium text-gray-800">4 sections</span>
+                      <span className="font-medium text-gray-800">5 sections</span>
                     </div>
                     <div className="flex justify-between items-center py-3">
                       <span className="text-gray-600">Format</span>
@@ -105,8 +127,8 @@ const EQNavigatorLanding = () => {
                   </div>
                   
                   <Button 
-                    onClick={() => navigate('/eq-navigator/take')}
-                    className="w-full bg-gradient-to-r from-[hsl(var(--brand-red))] to-[hsl(var(--brand-red-dark))] hover:from-[hsl(var(--brand-red-dark))] hover:to-[hsl(var(--brand-red))] text-white shadow-md hover:shadow-lg transition-all duration-300"
+                    onClick={handleStartAssessment}
+                    className="w-full bg-gradient-to-r from-[hsl(var(--brand-red))] to-[hsl(var(--brand-red-dark))] hover:opacity-90 text-white shadow-md hover:shadow-lg transition-all duration-300 py-6"
                     size="lg"
                   >
                     <Sparkles className="mr-2 h-5 w-5" />
@@ -171,11 +193,11 @@ const EQNavigatorLanding = () => {
                   </p>
                 </div>
                 <Button 
-                  onClick={() => navigate('/eq-navigator/take')}
+                  onClick={handleStartAssessment}
                   size="lg"
-                  className="bg-white text-[hsl(var(--brand-red))] hover:bg-white/90 shadow-lg hover:shadow-xl transition-all duration-300 min-w-[200px]"
+                  className="bg-white text-[hsl(var(--brand-red))] hover:bg-white/90 shadow-lg hover:shadow-xl transition-all duration-300 min-w-[200px] py-6"
                 >
-                  Take Assessment Now
+                  Take Assessment
                   <ChevronRight className="ml-2 h-5 w-5" />
                 </Button>
               </div>
@@ -225,6 +247,15 @@ const EQNavigatorLanding = () => {
                   <p className="text-gray-600 text-sm">Manage stress and maintain a positive emotional state</p>
                 </div>
               </div>
+              
+              <Button 
+                onClick={handleStartAssessment}
+                size="lg" 
+                className="mt-10 bg-gradient-to-r from-[hsl(var(--brand-red))] to-[hsl(var(--brand-red-dark))] hover:opacity-90 text-white shadow-md hover:shadow-lg transition-all duration-300 px-8 py-6 text-lg"
+              >
+                Start Your EQ Assessment
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
             </motion.div>
           </div>
         </div>
