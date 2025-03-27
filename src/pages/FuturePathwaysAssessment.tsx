@@ -201,12 +201,16 @@ const FuturePathwaysAssessment = () => {
   };
 
   const handleViewResults = () => {
+    // Calculate the total score to pass to the student details page
+    const totalScore = Object.values(clusterScores).reduce((sum, score) => sum + score, 0);
+    
     // Navigate to the student details page before showing results
-    navigate('/assessment/eq-navigator/student-details', { 
+    navigate('/assessment/future-pathways/student-details', { 
       state: { 
-        totalScore,
+        totalScore: totalScore,
         selectedOptions,
-        questions
+        questions,
+        clusterScores
       } 
     });
   };
