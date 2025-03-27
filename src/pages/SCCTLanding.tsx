@@ -12,7 +12,7 @@ const SCCTLanding = () => {
   const navigate = useNavigate();
   
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-white via-orange-50 to-amber-50">
       <Navbar />
       
       <main className="flex-grow pt-24 pb-16">
