@@ -264,17 +264,17 @@ const EQNavigatorLanding = () => {
                     <p className="text-gray-600 text-sm">Manage stress and emotional states</p>
                   </CardContent>
                 </Card>
-              {/* </div>
+              </div>
               
-              <Button 
+              {/* <Button 
                 onClick={handleStartAssessment}
                 size="lg" 
                 className="mt-10 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 px-8"
               >
                 Start Your EQ Assessment
                 <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </div> */}
+              </Button> */}
+            </div>
           </motion.div>
         </div>
       </main>
