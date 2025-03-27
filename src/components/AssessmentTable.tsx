@@ -95,7 +95,8 @@ const AssessmentTable = ({ assessments }: AssessmentTableProps) => {
   };
 
   const handleViewResults = (assessment: AssessmentResult) => {
-    navigate(`/${assessment.assessment_type}-results`, { 
+    // Fix the route by using the assessment type with /assessment/ prefix
+    navigate(`/assessment/${assessment.assessment_type}/results`, { 
       state: { 
         scores: assessment.result_data.scores,
         fromDashboard: true
@@ -105,7 +106,8 @@ const AssessmentTable = ({ assessments }: AssessmentTableProps) => {
 
   const handleDownloadPDF = (assessment: AssessmentResult) => {
     try {
-      navigate(`/${assessment.assessment_type}-results`, { 
+      // Fix the route by using the assessment type with /assessment/ prefix
+      navigate(`/assessment/${assessment.assessment_type}/results`, { 
         state: { 
           scores: assessment.result_data.scores,
           downloadPdf: true,
