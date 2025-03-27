@@ -55,7 +55,7 @@ const EQNavigatorLanding = () => {
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
               
-              <div className="mt-8 flex items-center justify-center space-x-6 text-sm text-gray-500">
+              {/* <div className="mt-8 flex items-center justify-center space-x-6 text-sm text-gray-500">
                 <div className="flex items-center">
                   <Clock className="h-4 w-4 mr-2 text-purple-500" />
                   <span>25 minutes</span>
@@ -69,7 +69,7 @@ const EQNavigatorLanding = () => {
                   <span>Immediate results</span>
                 </div>
               </div>
-            </div>
+            </div> */}
             
             {/* Main Features Section */}
             <div className="grid md:grid-cols-2 gap-10 mb-16">
