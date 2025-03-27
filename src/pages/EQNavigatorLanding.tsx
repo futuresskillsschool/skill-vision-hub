@@ -46,14 +46,14 @@ const EQNavigatorLanding = () => {
                 Measure your emotional intelligence and develop crucial soft skills for personal and professional success in today's workplace.
               </p>
               
-              <Button 
+              {/* <Button 
                 onClick={handleStartAssessment}
                 size="lg"
                 className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold px-8 py-6 shadow-lg hover:shadow-xl transition-all duration-300"
               >
                 Start Assessment Now
                 <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
+              </Button> */}
               
               {/* <div className="mt-8 flex items-center justify-center space-x-6 text-sm text-gray-500">
                 <div className="flex items-center">
