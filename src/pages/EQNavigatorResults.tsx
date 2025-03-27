@@ -295,7 +295,6 @@ const EQNavigatorResults = () => {
       // fetchUserResults('career-vision').then(setResults);
     }
     
-    // Fetch student details if we have a studentId in the results state
     const fetchStudentDetails = async () => {
       if (results && results.studentId) {
         try {
@@ -333,8 +332,9 @@ const EQNavigatorResults = () => {
       const contentToCapture = reportRef.current.cloneNode(true) as HTMLElement;
       
       contentToCapture.style.width = '800px';
-      contentToCapture.style.backgroundColor = '#ffffff';
       contentToCapture.style.padding = '40px';
+      contentToCapture.style.background = '#ffffff';
+      contentToCapture.style.color = '#000000';
       contentToCapture.style.position = 'absolute';
       contentToCapture.style.left = '-9999px';
       contentToCapture.style.top = '-9999px';
@@ -350,6 +350,22 @@ const EQNavigatorResults = () => {
         svgs.forEach(svg => {
           svg.setAttribute('width', svg.getBoundingClientRect().width.toString());
           svg.setAttribute('height', svg.getBoundingClientRect().height.toString());
+        });
+        
+        const coloredDivs = element.querySelectorAll('.bg-purple-50, .bg-purple-100, .bg-purple-200, .bg-purple-300, .bg-purple-400, .bg-purple-500');
+        coloredDivs.forEach(div => {
+          (div as HTMLElement).style.backgroundColor = '#f3e8ff';
+          (div as HTMLElement).style.color = '#000000';
+        });
+        
+        const coloredTexts = element.querySelectorAll('.text-purple-500, .text-purple-600, .text-purple-700, .text-white');
+        coloredTexts.forEach(text => {
+          (text as HTMLElement).style.color = '#000000';
+        });
+        
+        const coloredBorders = element.querySelectorAll('.border-purple-100, .border-purple-200, .border-purple-300');
+        coloredBorders.forEach(border => {
+          (border as HTMLElement).style.borderColor = '#e9d5ff';
         });
         
         Array.from(element.children).forEach(child => {
@@ -374,7 +390,7 @@ const EQNavigatorResults = () => {
         orientation: 'portrait',
         unit: 'mm',
         format: 'a4',
-        compress: false
+        compress: true
       });
       
       const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -383,11 +399,10 @@ const EQNavigatorResults = () => {
       const imgWidth = canvas.width;
       const imgHeight = canvas.height;
       
-      const ratio = pdfWidth / imgWidth * 0.95;
+      const ratio = Math.min(pdfWidth / imgWidth, 0.8);
       const totalPdfHeight = imgHeight * ratio;
-      const pageHeight = pdfHeight - 20;
-      const pageCount = Math.ceil(totalPdfHeight / pageHeight);
       
+      const pageHeight = pdfHeight - 20;
       let heightLeft = totalPdfHeight;
       let position = 0;
       let currentPage = 0;
@@ -397,21 +412,21 @@ const EQNavigatorResults = () => {
           pdf.addPage();
         }
         
-        const currentPageHeight = Math.min(heightLeft, pageHeight);
-        const srcY = position / ratio;
-        const srcHeight = currentPageHeight / ratio;
+        const currentHeight = Math.min(heightLeft, pageHeight);
         
         pdf.addImage(
           imgData, 
           'PNG', 
           10,
-          10,
-          pdfWidth - 20,
-          currentPageHeight
+          10 + (position ? -position : 0),
+          pdfWidth - 20, 
+          totalPdfHeight,
+          '', 
+          'FAST'
         );
         
-        heightLeft -= currentPageHeight;
-        position += currentPageHeight;
+        heightLeft -= pageHeight;
+        position += pageHeight;
         currentPage++;
       }
       
@@ -474,7 +489,6 @@ const EQNavigatorResults = () => {
               </div>
             </div>
 
-             {/* Student Details Section */}
             {studentDetails && (
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
@@ -508,7 +522,7 @@ const EQNavigatorResults = () => {
               </motion.div>
             )}
 
-            <div ref={reportRef}>
+            <div ref={reportRef} className="text-gray-800">
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}

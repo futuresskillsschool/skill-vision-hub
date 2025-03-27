@@ -141,8 +141,8 @@ const EQNavigatorAssessment = () => {
   const [showResults, setShowResults] = useState(false);
   const [totalScore, setTotalScore] = useState(0);
 
-  // Group questions 1 per page for better focus
-  const questionsPerPage = 1;
+  // Group questions 3 per page
+  const questionsPerPage = 3;
   const groupedQuestions = groupQuestions(questions, questionsPerPage);
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
 
@@ -223,7 +223,7 @@ const EQNavigatorAssessment = () => {
       
       <main className="flex-grow pt-24 pb-16">
         <div className="container mx-auto px-4 md:px-6">
-          <div className="max-w-3xl mx-auto">
+          <div className="max-w-4xl mx-auto">
             {!showResults ? (
               <AnimatePresence mode="wait">
                 <motion.div 
@@ -232,18 +232,18 @@ const EQNavigatorAssessment = () => {
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
                   transition={{ duration: 0.4 }}
-                  className="bg-white/10 backdrop-blur-md rounded-xl shadow-2xl p-6 md:p-8 text-white border border-white/20"
+                  className="bg-white/10 backdrop-blur-md rounded-xl shadow-lg p-6 md:p-8 text-white border border-white/20"
                 >
                   <div className="mb-8">
                     <div className="flex justify-between items-center mb-2">
                       <h2 className="text-lg font-medium">
-                        Question {currentPageIndex + 1} of {groupedQuestions.length}
+                        Questions {currentPageIndex * questionsPerPage + 1} - {Math.min((currentPageIndex + 1) * questionsPerPage, questions.length)} of {questions.length}
                       </h2>
                       <div className="bg-purple-700/30 px-3 py-1 rounded-full text-sm font-semibold backdrop-blur-sm">
                         EQ Navigator
                       </div>
                     </div>
-                    <Progress value={progressPercentage} className="h-2 bg-white/20" indicatorClassName="bg-gradient-to-r from-white/80 to-purple-300" />
+                    <Progress value={progressPercentage} className="h-2 bg-white/20" indicatorClassName="bg-white/80" />
                   </div>
                   
                   <div className="space-y-8">
@@ -251,8 +251,8 @@ const EQNavigatorAssessment = () => {
                       const globalQuestionIndex = currentPageIndex * questionsPerPage + questionIndex;
                       return (
                         <div key={question.id} className="rounded-lg p-5 border border-white/20 bg-white/5 backdrop-blur-md">
-                          <h3 className="text-xl md:text-2xl font-semibold mb-6 flex items-start">
-                            <span className="bg-gradient-to-r from-purple-400/90 to-indigo-400/90 text-white w-10 h-10 rounded-full flex items-center justify-center mr-4 flex-shrink-0 shadow-md">
+                          <h3 className="text-xl font-semibold mb-6 flex items-start">
+                            <span className="bg-purple-500/90 text-white w-10 h-10 rounded-full flex items-center justify-center mr-4 flex-shrink-0 shadow-md">
                               {globalQuestionIndex + 1}
                             </span>
                             <span>{question.scenario}</span>
@@ -261,12 +261,12 @@ const EQNavigatorAssessment = () => {
                           <RadioGroup 
                             value={selectedOptions[globalQuestionIndex]} 
                             onValueChange={(value) => handleOptionSelect(questionIndex, value)}
-                            className="space-y-4"
+                            className="space-y-3"
                           >
                             {question.options.map((option) => (
                               <div 
                                 key={option.id} 
-                                className={`flex items-start p-4 rounded-lg transition-all duration-300 ${
+                                className={`flex items-start p-3 rounded-lg transition-all duration-300 ${
                                   selectedOptions[globalQuestionIndex] === option.id 
                                     ? 'bg-white/20 border border-white/40 shadow-md' 
                                     : 'border border-white/10 hover:border-white/30 hover:bg-white/10 bg-white/5'
@@ -291,17 +291,17 @@ const EQNavigatorAssessment = () => {
                               </div>
                             ))}
                           </RadioGroup>
-
-                          {!isCurrentPageComplete() && (
-                            <div className="flex items-center mt-4 text-yellow-100 text-sm">
-                              <AlertCircle className="h-4 w-4 mr-2" />
-                              <span>Please select an option to continue</span>
-                            </div>
-                          )}
                         </div>
                       );
                     })}
                   </div>
+                  
+                  {!isCurrentPageComplete() && (
+                    <div className="flex items-center mt-6 text-yellow-100 text-sm">
+                      <AlertCircle className="h-4 w-4 mr-2" />
+                      <span>Please answer all questions on this page to continue</span>
+                    </div>
+                  )}
                   
                   <div className="flex justify-between mt-8">
                     <Button 
@@ -329,7 +329,7 @@ const EQNavigatorAssessment = () => {
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white/10 backdrop-blur-md rounded-xl shadow-2xl p-8 text-center text-white border border-white/20"
+                className="bg-white/10 backdrop-blur-md rounded-xl shadow-xl p-8 text-center text-white border border-white/20"
               >
                 <div className="w-20 h-20 mx-auto bg-white/20 rounded-full flex items-center justify-center mb-6">
                   <Heart className="h-10 w-10 text-white" />

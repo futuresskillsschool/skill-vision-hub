@@ -136,13 +136,9 @@ const EQNavigatorLanding = () => {
                       <span className="text-white/80">Format</span>
                       <span className="font-medium">Scenario-based</span>
                     </div>
-                    <div className="flex justify-between items-center py-3 border-b border-white/10">
+                    <div className="flex justify-between items-center py-3">
                       <span className="text-white/80">Results</span>
                       <span className="font-medium">Immediate feedback</span>
-                    </div>
-                    <div className="flex justify-between items-center py-3">
-                      <span className="text-white/80">Certificate</span>
-                      <span className="font-medium">Available upon completion</span>
                     </div>
                   </div>
                   
