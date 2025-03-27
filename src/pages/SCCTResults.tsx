@@ -22,7 +22,20 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { Radar, RadarChart, PolarGrid, PolarAngleAxis, Bar, BarChart, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { 
+  ResponsiveContainer, 
+  RadarChart, 
+  PolarGrid, 
+  PolarAngleAxis, 
+  Radar, 
+  BarChart, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  Legend, 
+  Bar 
+} from 'recharts';
 
 interface StudentDetails {
   id: string;
@@ -32,7 +45,6 @@ interface StudentDetails {
   school: string;
 }
 
-// Career suggestions based on SCCT assessment sections
 const careerSuggestions = {
   self_efficacy: {
     high: [
@@ -107,7 +119,6 @@ const careerSuggestions = {
   }
 };
 
-// Development strategies based on SCCT results
 const developmentStrategies = {
   self_efficacy: {
     high: [
@@ -184,7 +195,6 @@ const developmentStrategies = {
   }
 };
 
-// Type definitions
 type Section = {
   id: string;
   title: string;
@@ -284,73 +294,28 @@ const SCCTResults = () => {
   };
   
   const getChartData = () => {
-    const labels = sections.map(section => section.title.split('(')[0].trim());
-    
-    const dataValues = sections.map(section => {
+    return sections.map(section => {
       const rawScore = scores[section.id] || 0;
       
       if (section.id === 'perceived_barriers') {
-        return ((maxSectionScore - rawScore) / maxSectionScore) * 100;
+        return {
+          name: section.title.split('(')[0].trim(),
+          score: ((maxSectionScore - rawScore) / maxSectionScore) * 100
+        };
       }
       
-      return (rawScore / maxSectionScore) * 100;
+      return {
+        name: section.title.split('(')[0].trim(),
+        score: (rawScore / maxSectionScore) * 100
+      };
     });
-    
-    return {
-      labels,
-      datasets: [
-        {
-          label: 'Your SCCT Profile',
-          data: dataValues,
-          backgroundColor: 'rgba(255, 149, 0, 0.2)',
-          borderColor: 'rgba(255, 149, 0, 1)',
-          borderWidth: 2,
-          pointBackgroundColor: 'rgba(255, 149, 0, 1)',
-          pointBorderColor: '#fff',
-          pointHoverBackgroundColor: '#fff',
-          pointHoverBorderColor: 'rgba(255, 149, 0, 1)',
-          pointRadius: 4,
-        }
-      ]
-    };
-  };
-  
-  const radarOptions = {
-    scales: {
-      r: {
-        beginAtZero: true,
-        max: 100,
-        ticks: {
-          display: false,
-          stepSize: 20
-        },
-        pointLabels: {
-          font: {
-            size: 12
-          }
-        }
-      }
-    },
-    plugins: {
-      legend: {
-        position: 'top' as const,
-      },
-      tooltip: {
-        callbacks: {
-          label: function(context: any) {
-            return `Score: ${context.raw.toFixed(1)}%`;
-          }
-        }
-      }
-    },
-    maintainAspectRatio: false
   };
   
   const getCareerInterestsData = () => {
     const careerQuestions = answers.filter(a => a.section === 'career_interests');
     const interestAreas = ['Investigative', 'Artistic', 'Enterprising', 'Social', 'Conventional'];
     
-    const questionMapping = {
+    const questionMapping: Record<number, string> = {
       11: 'Investigative',
       12: 'Artistic',
       13: 'Enterprising',
@@ -358,63 +323,15 @@ const SCCTResults = () => {
       15: 'Conventional'
     };
     
-    const interestScores = interestAreas.map(area => {
+    return interestAreas.map(area => {
       const question = careerQuestions.find(q => 
-        questionMapping[q.questionId as keyof typeof questionMapping] === area
+        questionMapping[q.questionId] === area
       );
-      return question ? (question.answer + 1) : 0;
+      return {
+        name: area,
+        score: question ? (question.answer + 1) : 0
+      };
     });
-    
-    return {
-      labels: interestAreas,
-      datasets: [
-        {
-          label: 'Interest Level',
-          data: interestScores,
-          backgroundColor: [
-            'rgba(75, 192, 192, 0.7)',
-            'rgba(153, 102, 255, 0.7)',
-            'rgba(255, 159, 64, 0.7)',
-            'rgba(255, 99, 132, 0.7)',
-            'rgba(54, 162, 235, 0.7)',
-          ],
-          borderColor: [
-            'rgba(75, 192, 192, 1)',
-            'rgba(153, 102, 255, 1)',
-            'rgba(255, 159, 64, 1)',
-            'rgba(255, 99, 132, 1)',
-            'rgba(54, 162, 235, 1)',
-          ],
-          borderWidth: 1
-        }
-      ]
-    };
-  };
-  
-  const barOptions = {
-    scales: {
-      y: {
-        beginAtZero: true,
-        max: 5,
-        ticks: {
-          stepSize: 1
-        }
-      }
-    },
-    plugins: {
-      legend: {
-        display: false
-      },
-      tooltip: {
-        callbacks: {
-          label: function(context: any) {
-            const labels = ['Very Low', 'Low', 'Moderate', 'High', 'Very High'];
-            return `${labels[context.raw-1]} (${context.raw}/5)`;
-          }
-        }
-      }
-    },
-    maintainAspectRatio: false
   };
   
   const getCareerSuggestions = () => {
@@ -640,7 +557,14 @@ const SCCTResults = () => {
                 <div className="mb-10">
                   <h3 className="text-xl font-semibold mb-6">Your SCCT Profile</h3>
                   <div className="bg-gray-50 p-6 rounded-lg border border-gray-100 h-[300px] md:h-[400px]">
-                    <Radar data={getChartData()} options={radarOptions} />
+                    <ResponsiveContainer width="100%" height="100%">
+                      <RadarChart data={getChartData()}>
+                        <PolarGrid />
+                        <PolarAngleAxis dataKey="name" />
+                        <Radar name="Score" dataKey="score" fill="#4CAF50" fillOpacity={0.6} />
+                        <Legend />
+                      </RadarChart>
+                    </ResponsiveContainer>
                   </div>
                   <p className="mt-4 text-sm text-gray-600">
                     Note: For 'Perceived Barriers,' higher scores on the chart indicate fewer barriers to career development.
@@ -689,7 +613,16 @@ const SCCTResults = () => {
                 <div className="mb-10">
                   <h3 className="text-xl font-semibold mb-6">Your Career Interests</h3>
                   <div className="bg-gray-50 p-6 rounded-lg border border-gray-100 h-[300px]">
-                    <Bar data={getCareerInterestsData()} options={barOptions} />
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={getCareerInterestsData()}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        <Bar dataKey="score" fill="#8884d8" />
+                      </BarChart>
+                    </ResponsiveContainer>
                   </div>
                   <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
