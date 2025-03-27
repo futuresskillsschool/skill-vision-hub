@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -40,7 +39,7 @@ const careerClusters = {
   "helper": "Tech-Enabled Helper & Problem Solver"
 };
 
-// Future Pathways Explorer questions
+// Future Pathways Explorer questions - updated with your provided questions
 const questions: Question[] = [
   {
     id: 1,

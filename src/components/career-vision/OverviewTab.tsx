@@ -58,7 +58,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
               <RadarChart cx="50%" cy="50%" outerRadius="80%" data={riasecChartData}>
                 <PolarGrid />
                 <PolarAngleAxis dataKey="name" />
-                <Radar name="Score" dataKey="score" fill="#9b87f5" fillOpacity={0.5} />
+                <Radar name="Score" dataKey="score" fill="#4CAF50" fillOpacity={0.5} />
               </RadarChart>
             </ResponsiveContainer>
           </div>
@@ -87,9 +87,9 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
           </div>
         </Card>
         
-        <Card className="p-6 bg-brand-purple/5">
+        <Card className="p-6 bg-green-50">
           <div className="flex items-center justify-center mb-4">
-            <Heart className="h-5 w-5 text-brand-purple mr-2" />
+            <Heart className="h-5 w-5 text-green-600 mr-2" />
             <p className="font-semibold">EQ<br /> Navigator</p>
           </div>
           <p className="text-sm text-muted-foreground mb-4">
@@ -101,13 +101,13 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
             <div className="w-56 h-56 relative">
               <svg className="w-FULL h-FULL" viewBox="0 0 100 100">
                 <circle 
-                  className="stroke-purple-200" 
+                  className="stroke-green-200" 
                   cx="50" cy="50" r="40" 
                   strokeWidth="8" 
                   fill="none"
                 />
                 <circle 
-                  className="stroke-purple-400" 
+                  className="stroke-green-500" 
                   cx="50" cy="50" r="40" 
                   strokeWidth="8" 
                   fill="none"
@@ -120,7 +120,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                   x="50" y="43" 
                   dominantBaseline="middle" 
                   textAnchor="middle"
-                  className="fill-purple-500 text-2xl font-bold"
+                  className="fill-green-600 text-2xl font-bold"
                 >
                   {scorePercentage}%
                 </text>
@@ -144,7 +144,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
         {careerRecommendations.map((rec, index) => (
           <Card key={index} className="overflow-hidden">
             <div className={`p-2 text-white text-center ${
-              index === 0 ? 'bg-brand-purple' : 
+              index === 0 ? 'bg-green-600' : 
               index === 1 ? 'bg-brand-blue' : 'bg-brand-green'
             }`}>
               <div className="text-sm font-medium">Match: {rec.match}%</div>
@@ -155,7 +155,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                 {rec.careers.map((career, i) => (
                   <li key={i} className="flex items-start">
                     <span className={`inline-block w-2 h-2 rounded-full mt-1.5 mr-2 ${
-                      index === 0 ? 'bg-brand-purple' : 
+                      index === 0 ? 'bg-green-600' : 
                       index === 1 ? 'bg-brand-blue' : 'bg-brand-green'
                     }`}></span>
                     {career}
@@ -167,9 +167,9 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
         ))}
       </div>
       
-      <Card className="p-6 bg-brand-purple/5 mb-6">
+      <Card className="p-6 bg-green-50 mb-6">
         <div className="flex items-center mb-4">
-          <Sparkles className="h-5 w-5 text-brand-purple mr-2" />
+          <Sparkles className="h-5 w-5 text-green-600 mr-2" />
           <h3 className="font-semibold">Your Unique Career Profile</h3>
         </div>
         <p className="mb-4">

@@ -34,18 +34,18 @@ const RIASEC_QUESTIONS: QuestionnaireSection = {
   title: 'RIASEC Profile',
   description: 'Indicate how much you agree or disagree with each of the following statements:',
   questions: [
-    { id: 'R1', text: 'I enjoy building something with tools and materials', tooltip: 'Activities involving hands-on work with physical objects' },
-    { id: 'I1', text: 'I like to solve puzzles or complex problems', tooltip: 'Activities that involve analysis and critical thinking' },
-    { id: 'A1', text: 'I prefer creating art, music, or creative writing', tooltip: 'Activities that involve self-expression and creativity' },
-    { id: 'S1', text: 'I enjoy teaching or helping others learn something new', tooltip: 'Activities that involve helping, teaching, or providing service to others' },
-    { id: 'E1', text: 'I like to lead a group or organization', tooltip: 'Activities that involve leadership, persuasion, or management' },
-    { id: 'C1', text: 'I prefer creating organized systems for information', tooltip: 'Activities that involve organization, attention to detail, and following procedures' },
-    { id: 'R2', text: 'I enjoy fixing mechanical or electronic devices', tooltip: 'Working with machines, tools, or physical systems' },
-    { id: 'I2', text: 'I like to research and analyze information', tooltip: 'Investigating questions and finding explanations' },
-    { id: 'A2', text: 'I prefer designing something visually appealing', tooltip: 'Creating aesthetic or artistic works' },
-    { id: 'S2', text: 'I enjoy counseling someone through a problem', tooltip: 'Supporting others through listening and guidance' },
-    { id: 'E2', text: 'I like to persuade others to do things my way', tooltip: 'Influencing others and taking initiative' },
-    { id: 'C2', text: 'I prefer work with details and follow instructions', tooltip: 'Being precise, orderly, and methodical' },
+    { id: 'R1', text: 'I enjoy building things with my hands.', tooltip: 'Activities involving hands-on work with physical objects' },
+    { id: 'R2', text: 'I like working with tools, machines, or technology.', tooltip: 'Working with machines, tools, or physical systems' },
+    { id: 'I1', text: 'I enjoy solving complex problems and puzzles.', tooltip: 'Activities that involve analysis and critical thinking' },
+    { id: 'I2', text: 'I\'m curious about how things work and why things happen.', tooltip: 'Investigating questions and finding explanations' },
+    { id: 'A1', text: 'I enjoy creative activities like art, music, or writing.', tooltip: 'Activities that involve self-expression and creativity' },
+    { id: 'A2', text: 'I prefer tasks that allow me to express myself.', tooltip: 'Creating aesthetic or artistic works' },
+    { id: 'S1', text: 'I enjoy helping others and working with people.', tooltip: 'Activities that involve helping, teaching, or providing service to others' },
+    { id: 'S2', text: 'I\'m good at explaining things to others.', tooltip: 'Supporting others through listening and guidance' },
+    { id: 'E1', text: 'I like to take charge and lead others.', tooltip: 'Activities that involve leadership, persuasion, or management' },
+    { id: 'E2', text: 'I enjoy persuading others and selling ideas or products.', tooltip: 'Influencing others and taking initiative' },
+    { id: 'C1', text: 'I like following clear procedures and rules.', tooltip: 'Activities that involve organization, attention to detail, and following procedures' },
+    { id: 'C2', text: 'I enjoy organizing information and working with data.', tooltip: 'Being precise, orderly, and methodical' },
   ],
 };
 
@@ -54,27 +54,79 @@ const PATHWAYS_QUESTIONS: QuestionnaireSection = {
   title: 'Future Pathways Explorer',
   description: 'Indicate how much you agree or disagree with these statements about possible future activities:',
   questions: [
-    { id: 'tech-innovator1', text: 'I would enjoy developing innovative technologies to solve global problems', tooltip: 'Creating new technological solutions for world challenges' },
-    { id: 'digital-creator1', text: 'I would like to create digital content or virtual experiences', tooltip: 'Producing online content, digital art, or virtual reality experiences' },
-    { id: 'data-analyst1', text: 'I would enjoy analyzing data patterns to derive meaningful insights', tooltip: 'Finding patterns and meaning in large sets of information' },
-    { id: 'entrepreneur1', text: 'I would like to start and grow my own business venture', tooltip: 'Building and scaling a business from the ground up' },
-    { id: 'helper1', text: 'I would enjoy using technology to improve health or education', tooltip: 'Applying tech solutions to social services like healthcare or education' },
+    { id: 'tech-innovator1', text: 'I enjoy figuring out how things work and how to fix them when they are broken.', tooltip: 'Tech Innovator & Builder' },
+    { id: 'digital-creator1', text: 'I like to draw, paint, create videos, or express myself through creative activities.', tooltip: 'Digital Creator & Storyteller' },
+    { id: 'data-analyst1', text: 'Numbers and patterns fascinate me. I like to find logic in things.', tooltip: 'Data Analyst & Scientist' },
+    { id: 'entrepreneur1', text: 'I have lots of ideas and often think about starting my own projects or businesses.', tooltip: 'Future-Focused Entrepreneur' },
+    { id: 'helper1', text: 'I care about making the world a better place and helping people in need.', tooltip: 'Tech-Enabled Helper' },
+    { id: 'tech-innovator2', text: 'I am curious about new technologies like robots, AI, and virtual reality.', tooltip: 'Tech Innovator & Builder, Digital Creator & Storyteller' },
+    { id: 'digital-creator2', text: 'I enjoy telling stories and communicating my ideas to others.', tooltip: 'Digital Creator & Storyteller, Future-Focused Entrepreneur' },
+    { id: 'data-analyst2', text: 'I am good at analyzing information and finding solutions to complex problems.', tooltip: 'Data Analyst & Scientist, Tech-Enabled Helper' },
+    { id: 'entrepreneur2', text: 'I am interested in learning how businesses and organizations work.', tooltip: 'Future-Focused Entrepreneur' },
+    { id: 'helper2', text: 'I believe technology can be used to solve major problems like climate change or poverty.', tooltip: 'Tech-Enabled Helper, Tech Innovator & Builder' },
+    { id: 'digital-creator3', text: 'I like playing video games or exploring virtual worlds.', tooltip: 'Digital Creator & Storyteller' },
+    { id: 'tech-innovator3', text: 'I enjoy working with computers and learning about software and coding.', tooltip: 'Tech Innovator & Builder, Data Analyst & Scientist' },
+    { id: 'data-analyst3', text: 'I like to understand trends and predict what might happen in the future.', tooltip: 'Data Analyst & Scientist, Future-Focused Entrepreneur' },
+    { id: 'entrepreneur3', text: 'I am interested in leadership roles and guiding teams to achieve goals.', tooltip: 'Future-Focused Entrepreneur' },
+    { id: 'helper3', text: 'I want to use my skills to help people improve their health and well-being.', tooltip: 'Tech-Enabled Helper' },
   ],
 };
 
 const EQ_QUESTIONS: QuestionnaireSection = {
   id: 'eq',
   title: 'EQ Navigator',
-  description: 'Indicate how much you agree or disagree with each of these statements about yourself:',
+  description: 'For each scenario, select the response that best describes how you would typically react:',
   questions: [
-    { id: 'eq1', text: 'I can identify my emotions as I experience them', tooltip: 'Being aware of your feelings in the moment' },
-    { id: 'eq2', text: 'I recognize how my emotions affect my behavior', tooltip: 'Understanding the connection between feelings and actions' },
-    { id: 'eq3', text: 'I can calm myself when upset or stressed', tooltip: 'Self-regulation and managing negative emotions' },
-    { id: 'eq4', text: 'I can understand how others feel based on their expressions', tooltip: 'Reading non-verbal cues and expressions' },
-    { id: 'eq5', text: 'I am able to maintain positive relationships', tooltip: 'Building and sustaining healthy connections with others' },
-    { id: 'eq6', text: 'I can adapt my communication style based on who I\'m talking to', tooltip: 'Adjusting how you communicate for different audiences' },
-    { id: 'eq7', text: 'I can motivate myself to achieve goals despite setbacks', tooltip: 'Persevering through challenges toward your objectives' },
-    { id: 'eq8', text: 'I consider multiple perspectives when making decisions', tooltip: 'Taking various viewpoints into account when deciding' },
+    { 
+      id: 'eq1', 
+      text: 'You\'re excited to share some good news with a friend, but they seem distracted and uninterested. You...', 
+      tooltip: 'This tests how you handle social disappointment'
+    },
+    { 
+      id: 'eq2', 
+      text: 'You witness a classmate making fun of another student\'s appearance. You...', 
+      tooltip: 'This tests your response to witnessing unkindness' 
+    },
+    { 
+      id: 'eq3', 
+      text: 'You\'re feeling really stressed about upcoming exams. You...', 
+      tooltip: 'This tests your stress management skills' 
+    },
+    { 
+      id: 'eq4', 
+      text: 'A friend is going through a tough time (e.g., family issues, break-up). You...', 
+      tooltip: 'This tests your empathy and support skills' 
+    },
+    { 
+      id: 'eq5', 
+      text: 'You receive constructive criticism on a project. You...', 
+      tooltip: 'This tests your openness to feedback' 
+    },
+    { 
+      id: 'eq6', 
+      text: 'You have a strong disagreement with a friend. You...', 
+      tooltip: 'This tests your conflict resolution skills' 
+    },
+    { 
+      id: 'eq7', 
+      text: 'You achieve a goal you\'ve been working towards. You...', 
+      tooltip: 'This tests your response to success' 
+    },
+    { 
+      id: 'eq8', 
+      text: 'You make a mistake. You...', 
+      tooltip: 'This tests your response to failure' 
+    },
+    { 
+      id: 'eq9', 
+      text: 'You see a new student struggling to fit in. You...', 
+      tooltip: 'This tests your social awareness' 
+    },
+    { 
+      id: 'eq10', 
+      text: 'You feel overwhelmed by your emotions. You...', 
+      tooltip: 'This tests your emotional regulation' 
+    },
   ],
 };
 
@@ -86,6 +138,13 @@ const answerOptions = [
   { value: "3", label: "Neutral" },
   { value: "4", label: "Agree" },
   { value: "5", label: "Strongly Agree" }
+];
+
+const eqAnswerOptions = [
+  { value: "1", label: "Option A" },
+  { value: "2", label: "Option B" },
+  { value: "3", label: "Option C" },
+  { value: "4", label: "Option D" }
 ];
 
 const CareerVisionAssessment = () => {
@@ -111,12 +170,10 @@ const CareerVisionAssessment = () => {
 
   const handleNextSection = () => {
     if (isLastSection) {
-      // Calculate results
       const riasecResults = calculateRIASECResults();
       const pathwaysResults = calculatePathwaysResults();
       const eqResults = calculateEQResults();
       
-      // Show completion animation
       confetti({
         particleCount: 100,
         spread: 70,
@@ -128,7 +185,6 @@ const CareerVisionAssessment = () => {
         description: "Your results are ready to view.",
       });
       
-      // Navigate to student details page with results
       navigate('/assessment/career-vision/student-details', {
         state: {
           riasec: riasecResults,
@@ -171,46 +227,79 @@ const CareerVisionAssessment = () => {
 
   const calculatePathwaysResults = () => {
     const clusters = {
-      'tech-innovator': ['tech-innovator1'],
-      'digital-creator': ['digital-creator1'],
-      'data-analyst': ['data-analyst1'],
-      'entrepreneur': ['entrepreneur1'],
-      'helper': ['helper1']
+      'tech-innovator': 0,
+      'digital-creator': 0,
+      'data-analyst': 0,
+      'entrepreneur': 0,
+      'helper': 0
     };
     
-    const results: Record<string, number> = {};
+    const questionMapping: Record<string, string[]> = {
+      'tech-innovator1': ['tech-innovator'],
+      'digital-creator1': ['digital-creator'],
+      'data-analyst1': ['data-analyst'],
+      'entrepreneur1': ['entrepreneur'],
+      'helper1': ['helper'],
+      'tech-innovator2': ['tech-innovator', 'digital-creator'],
+      'digital-creator2': ['digital-creator', 'entrepreneur'],
+      'data-analyst2': ['data-analyst', 'helper'],
+      'entrepreneur2': ['entrepreneur'],
+      'helper2': ['helper', 'tech-innovator'],
+      'digital-creator3': ['digital-creator'],
+      'tech-innovator3': ['tech-innovator', 'data-analyst'],
+      'data-analyst3': ['data-analyst', 'entrepreneur'],
+      'entrepreneur3': ['entrepreneur'],
+      'helper3': ['helper']
+    };
     
-    for (const [cluster, questionIds] of Object.entries(clusters)) {
-      const sum = questionIds.reduce((acc, id) => acc + (answers[id] || 0), 0);
-      // Scale up to match the expected range
-      results[cluster] = sum * 5;
+    for (const [questionId, value] of Object.entries(answers)) {
+      if (questionId.startsWith('tech-') || questionId.startsWith('digital-') || 
+          questionId.startsWith('data-') || questionId.startsWith('entrepreneur') || 
+          questionId.startsWith('helper')) {
+        
+        const clusterList = questionMapping[questionId] || [];
+        
+        for (const cluster of clusterList) {
+          clusters[cluster as keyof typeof clusters] += value;
+        }
+      }
     }
     
-    return results;
+    return clusters;
   };
 
   const calculateEQResults = () => {
-    const eqQuestionIds = Array.from({ length: 8 }, (_, i) => `eq${i + 1}`);
-    const totalScore = eqQuestionIds.reduce((acc, id) => acc + (answers[id] || 0), 0);
+    const eqQuestionIds = Array.from({ length: 10 }, (_, i) => `eq${i + 1}`);
     
-    // Self-awareness: eq1, eq2
-    const selfAwareness = (answers['eq1'] || 0) + (answers['eq2'] || 0);
+    const optionScores: Record<string, number[]> = {
+      'eq1': [1, 5, 3, 2],
+      'eq2': [1, 2, 5, 3],
+      'eq3': [1, 5, 2, 2],
+      'eq4': [5, 3, 1, 1],
+      'eq5': [1, 5, 2, 1],
+      'eq6': [1, 5, 1, 1],
+      'eq7': [2, 5, 2, 1],
+      'eq8': [1, 5, 2, 2],
+      'eq9': [1, 1, 5, 2],
+      'eq10': [2, 5, 1, 1]
+    };
     
-    // Self-regulation: eq3, eq7
-    const selfRegulation = (answers['eq3'] || 0) + (answers['eq7'] || 0);
+    let totalScore = 0;
     
-    // Social awareness: eq4, eq8
-    const socialAwareness = (answers['eq4'] || 0) + (answers['eq8'] || 0);
-    
-    // Relationship management: eq5, eq6
-    const relationshipManagement = (answers['eq5'] || 0) + (answers['eq6'] || 0);
+    for (const id of eqQuestionIds) {
+      const answer = answers[id];
+      if (answer !== undefined) {
+        const scoreArray = optionScores[id] || [1, 1, 1, 1];
+        totalScore += scoreArray[answer - 1] || 0;
+      }
+    }
     
     return {
       totalScore,
-      selfAwareness,
-      selfRegulation,
-      socialAwareness,
-      relationshipManagement
+      selfAwareness: Math.min(10, Math.round(totalScore * 0.3)),
+      selfRegulation: Math.min(10, Math.round(totalScore * 0.25)),
+      socialAwareness: Math.min(10, Math.round(totalScore * 0.25)),
+      relationshipManagement: Math.min(10, Math.round(totalScore * 0.2))
     };
   };
 
@@ -219,7 +308,7 @@ const CareerVisionAssessment = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-white via-brand-purple/5 to-brand-blue/5">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-white via-green-50 to-blue-50">
       <Navbar />
       
       <main className="flex-grow pt-24 pb-16">
@@ -228,7 +317,7 @@ const CareerVisionAssessment = () => {
             <div className="mb-8">
               <div className="flex items-center justify-between mb-2">
                 <h1 className="text-3xl font-bold">Career Vision Assessment</h1>
-                <span className="text-sm font-medium bg-brand-purple text-white px-3 py-1 rounded-full">
+                <span className="text-sm font-medium bg-green-600 text-white px-3 py-1 rounded-full">
                   Section {currentSectionIndex + 1} of {ALL_QUESTIONS.length}
                 </span>
               </div>
@@ -281,16 +370,16 @@ const CareerVisionAssessment = () => {
                           onValueChange={(value) => handleAnswer(question.id, parseInt(value))}
                           className="flex flex-col space-y-1 sm:flex-row sm:space-y-0 sm:space-x-4 justify-between"
                         >
-                          {answerOptions.map((option) => (
+                          {(currentSection.id === 'eq' ? eqAnswerOptions : answerOptions).map((option) => (
                             <div key={option.value} className="flex items-center space-x-2">
                               <RadioGroupItem
                                 value={option.value}
                                 id={`${question.id}-${option.value}`}
-                                className="text-brand-purple"
+                                className="text-green-600"
                               />
                               <Label 
                                 htmlFor={`${question.id}-${option.value}`}
-                                className={`text-sm ${answers[question.id]?.toString() === option.value ? 'font-medium text-brand-purple' : 'text-muted-foreground'}`}
+                                className={`text-sm ${answers[question.id]?.toString() === option.value ? 'font-medium text-green-600' : 'text-muted-foreground'}`}
                               >
                                 {option.label}
                               </Label>
@@ -315,7 +404,7 @@ const CareerVisionAssessment = () => {
                   <Button 
                     onClick={handleNextSection}
                     disabled={!isSectionComplete()}
-                    className={isLastSection ? "bg-green-600 hover:bg-green-700" : ""}
+                    className={isLastSection ? "bg-green-600 hover:bg-green-700" : "bg-green-600 hover:bg-green-700"}
                   >
                     {isLastSection ? "Complete Assessment" : "Next Section"}
                     <ArrowRight className="ml-2 h-4 w-4" />
