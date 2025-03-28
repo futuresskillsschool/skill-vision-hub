@@ -105,9 +105,12 @@ const AssessmentTable = ({ assessments }: AssessmentTableProps) => {
   };
 
   const handleViewResults = (assessment: AssessmentResult) => {
+    console.log('Viewing results for assessment:', assessment);
+    
+    // Navigate to the specific assessment results page with the complete result_data
     navigate(`/assessment/${assessment.assessment_type}/results`, { 
       state: { 
-        scores: assessment.result_data.scores,
+        ...assessment.result_data,
         fromDashboard: true
       } 
     });
@@ -115,9 +118,11 @@ const AssessmentTable = ({ assessments }: AssessmentTableProps) => {
 
   const handleDownloadPDF = (assessment: AssessmentResult) => {
     try {
+      console.log('Downloading PDF for assessment:', assessment);
+      
       navigate(`/assessment/${assessment.assessment_type}/results`, { 
         state: { 
-          scores: assessment.result_data.scores,
+          ...assessment.result_data,
           downloadPdf: true,
           fromDashboard: true
         } 

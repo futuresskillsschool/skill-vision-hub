@@ -37,7 +37,7 @@ const CareerVisionResults = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [results, setResults] = useState<AssessmentResults | null>(location.state || null);
+  const [results, setResults] = useState<AssessmentResults | null>(null);
   const [activeTab, setActiveTab] = useState("overview");
   
   const [studentDetails, setStudentDetails] = useState<StudentDetails | null>(null);
@@ -51,19 +51,39 @@ const CareerVisionResults = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
     
-    if (!results && user) {
-      // This would be implemented if we had a function to fetch results
-      // fetchUserResults('career-vision').then(setResults);
+    // Extract results from location state
+    console.log('Location state:', location.state);
+    
+    // Initialize results from location state, handling both formats (direct or nested)
+    if (location.state) {
+      if (location.state.riasec || location.state.pathways || location.state.eq) {
+        // Direct format (already has the required structure)
+        setResults(location.state as AssessmentResults);
+      } else if (location.state.scores) {
+        // Scores format from dashboard (transform to expected structure)
+        const transformedResults: AssessmentResults = {
+          riasec: location.state.scores.riasec || {},
+          pathways: location.state.scores.pathways || {},
+          eq: location.state.scores.eq || { totalScore: 0 },
+          studentId: location.state.studentId
+        };
+        setResults(transformedResults);
+      }
+    } else if (user) {
+      // TODO: Implement fetching results from database if needed
+      console.log('No location state, could fetch results for user:', user.id);
     }
     
     // Fetch student details if we have a studentId in the results state
     const fetchStudentDetails = async () => {
-      if (results && results.studentId) {
+      console.log('Checking for studentId:', location.state?.studentId);
+      
+      if (location.state?.studentId) {
         try {
           const { data, error } = await supabase
             .from('student_details')
             .select('*')
-            .eq('id', results.studentId)
+            .eq('id', location.state.studentId)
             .single();
             
           if (error) {
@@ -72,6 +92,7 @@ const CareerVisionResults = () => {
           }
           
           if (data) {
+            console.log('Found student details:', data);
             setStudentDetails(data as StudentDetails);
           }
         } catch (error) {
@@ -81,7 +102,12 @@ const CareerVisionResults = () => {
     };
     
     fetchStudentDetails();
-  }, [results, user]);
+    
+    // Check if we should automatically download the PDF
+    if (location.state?.downloadPdf) {
+      setTimeout(() => handleDownloadPDF(), 1000);
+    }
+  }, [location.state, user]);
   
   if (!results) {
     return (
@@ -104,6 +130,8 @@ const CareerVisionResults = () => {
   }
   
   const { riasec, pathways, eq } = results;
+  
+  console.log('Rendering with results:', { riasec, pathways, eq });
   
   const riasecChartData = Object.entries(riasec).map(([category, score]) => ({
     name: riasecDescriptions[category as keyof typeof riasecDescriptions]?.title || category,
