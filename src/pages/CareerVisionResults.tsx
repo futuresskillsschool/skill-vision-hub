@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -12,7 +11,6 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { supabase } from '@/integrations/supabase/client';
 
-// Import refactored components
 import OverviewTab from '@/components/career-vision/OverviewTab';
 import RIASECTab from '@/components/career-vision/RIASECTab';
 import PathwaysTab from '@/components/career-vision/PathwaysTab';
@@ -103,6 +101,39 @@ const CareerVisionResults = () => {
     
     fetchStudentDetails();
     
+    // Save assessment results to database if user is logged in
+    const saveResultsToDB = async () => {
+      if (user && location.state && !location.state.fromDashboard) {
+        try {
+          console.log('Saving Career Vision results to database for user:', user.id);
+          const resultData = {
+            riasec: location.state.riasec || (location.state.scores?.riasec || {}),
+            pathways: location.state.pathways || (location.state.scores?.pathways || {}),
+            eq: location.state.eq || (location.state.scores?.eq || { totalScore: 0 }),
+            studentId: location.state.studentId
+          };
+          
+          const { error } = await supabase
+            .from('assessment_results')
+            .upsert({
+              user_id: user.id,
+              assessment_type: 'career-vision',
+              result_data: resultData
+            });
+            
+          if (error) {
+            console.error('Error saving results to database:', error);
+          } else {
+            console.log('Career Vision results saved successfully');
+          }
+        } catch (error) {
+          console.error('Exception when saving results:', error);
+        }
+      }
+    };
+    
+    saveResultsToDB();
+    
     // Check if we should automatically download the PDF
     if (location.state?.downloadPdf) {
       setTimeout(() => handleDownloadPDF(), 1000);
@@ -186,7 +217,18 @@ const CareerVisionResults = () => {
           useCORS: true,
           logging: false,
           allowTaint: true,
-          backgroundColor: '#FFFFFF'
+          backgroundColor: '#FFFFFF',
+          onclone: (document, element) => {
+            // Remove any overlay elements that might cause transparency issues
+            const overlays = element.querySelectorAll('.bg-white');
+            overlays.forEach(overlay => {
+              if (overlay.classList.contains('bg-opacity-50') || 
+                  overlay.classList.contains('bg-opacity-25') || 
+                  overlay.classList.contains('backdrop-blur-sm')) {
+                overlay.classList.remove('bg-opacity-50', 'bg-opacity-25', 'backdrop-blur-sm');
+              }
+            });
+          }
         });
         
         const imgData = canvas.toDataURL('image/png');

@@ -222,7 +222,36 @@ const RIASECResults = () => {
     };
     
     fetchStudentDetails();
-  }, [location.state, navigate]);
+    
+    const saveResultsToDB = async () => {
+      if (user && scores) {
+        try {
+          console.log('Saving RIASEC results to database for user:', user.id);
+          const { error } = await supabase
+            .from('assessment_results')
+            .upsert({
+              user_id: user.id,
+              assessment_type: 'riasec',
+              result_data: {
+                scores: scores,
+                studentId: location.state?.studentId
+              }
+            });
+            
+          if (error) {
+            console.error('Error saving results to database:', error);
+          } else {
+            console.log('RIASEC results saved successfully');
+          }
+        } catch (error) {
+          console.error('Exception when saving results:', error);
+        }
+      }
+    };
+    
+    saveResultsToDB();
+    
+  }, [location.state, navigate, user, scores]);
   
   const sortedTypes = Object.entries(scores)
     .sort(([, scoreA], [, scoreB]) => scoreB - scoreA)
@@ -249,7 +278,18 @@ const RIASECResults = () => {
         logging: false,
         useCORS: true,
         backgroundColor: '#ffffff',
-        allowTaint: true
+        allowTaint: true,
+        windowWidth: 1200,
+        onclone: (document, element) => {
+          const overlays = element.querySelectorAll('.bg-white');
+          overlays.forEach(overlay => {
+            if (overlay.classList.contains('bg-opacity-50') || 
+                overlay.classList.contains('bg-opacity-25') || 
+                overlay.classList.contains('backdrop-blur-sm')) {
+              overlay.classList.remove('bg-opacity-50', 'bg-opacity-25', 'backdrop-blur-sm');
+            }
+          });
+        }
       });
       
       const imgData = canvas.toDataURL('image/png', 1.0);
