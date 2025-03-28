@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -106,10 +107,27 @@ const CareerVisionResults = () => {
       if (user && location.state && !location.state.fromDashboard) {
         try {
           console.log('Saving Career Vision results to database for user:', user.id);
+          
+          // Ensure we're creating a JSON-compatible object with string keys
+          const processObjectForJSON = (obj: any): Record<string, any> => {
+            const result: Record<string, any> = {};
+            if (obj && typeof obj === 'object') {
+              Object.entries(obj).forEach(([key, value]) => {
+                if (typeof value === 'object' && value !== null) {
+                  result[key] = processObjectForJSON(value);
+                } else {
+                  result[key] = value;
+                }
+              });
+              return result;
+            }
+            return obj;
+          };
+          
           const resultData = {
-            riasec: location.state.riasec || (location.state.scores?.riasec || {}),
-            pathways: location.state.pathways || (location.state.scores?.pathways || {}),
-            eq: location.state.eq || (location.state.scores?.eq || { totalScore: 0 }),
+            riasec: processObjectForJSON(location.state.riasec || (location.state.scores?.riasec || {})),
+            pathways: processObjectForJSON(location.state.pathways || (location.state.scores?.pathways || {})),
+            eq: processObjectForJSON(location.state.eq || (location.state.scores?.eq || { totalScore: 0 })),
             studentId: location.state.studentId
           };
           

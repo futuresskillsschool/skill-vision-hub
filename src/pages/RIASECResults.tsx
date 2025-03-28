@@ -1,3 +1,4 @@
+
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -227,15 +228,24 @@ const RIASECResults = () => {
       if (user && scores) {
         try {
           console.log('Saving RIASEC results to database for user:', user.id);
+          
+          // Convert scores to a plain object to ensure JSON compatibility
+          const scoresObject: Record<string, number> = {};
+          Object.entries(scores).forEach(([key, value]) => {
+            scoresObject[key] = value;
+          });
+          
+          const resultData = {
+            scores: scoresObject,
+            studentId: location.state?.studentId
+          };
+          
           const { error } = await supabase
             .from('assessment_results')
             .upsert({
               user_id: user.id,
               assessment_type: 'riasec',
-              result_data: {
-                scores: scores,
-                studentId: location.state?.studentId
-              }
+              result_data: resultData
             });
             
           if (error) {
