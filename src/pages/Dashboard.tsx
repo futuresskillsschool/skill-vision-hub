@@ -6,12 +6,13 @@ import { Button } from '@/components/ui/button';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Card } from '@/components/ui/card';
-import { 
-  Brain, 
-  ArrowRight, 
-  BarChart3, 
-  History,
-  AlertCircle
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  ArrowRight,
+  User,
+  FileText,
+  Settings,
+  Calendar
 } from 'lucide-react';
 import AssessmentTable from '@/components/AssessmentTable';
 import { useAuth } from '@/contexts/AuthContext';
@@ -19,6 +20,24 @@ import { supabase } from '@/integrations/supabase/client';
 import type { AssessmentResult } from '@/components/AssessmentTable';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/components/ui/use-toast';
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+
+// Form schema for user profile
+const profileFormSchema = z.object({
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+  email: z.string().email("Invalid email address"),
+  phone: z.string().optional(),
+  school: z.string().optional(),
+  class: z.string().optional(),
+  section: z.string().optional(),
+});
+
+type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -26,77 +45,174 @@ const Dashboard = () => {
   const { toast } = useToast();
   const [assessments, setAssessments] = useState<AssessmentResult[]>([]);
   const [loading, setLoading] = useState(true);
-  
+  const [profileLoading, setProfileLoading] = useState(true);
+  const [studentDetails, setStudentDetails] = useState<any>(null);
+
+  // Setup form with react-hook-form
+  const form = useForm<ProfileFormValues>({
+    resolver: zodResolver(profileFormSchema),
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      email: '',
+      phone: '',
+      school: '',
+      class: '',
+      section: '',
+    }
+  });
+
   useEffect(() => {
     window.scrollTo(0, 0);
 
-    const fetchAssessments = async () => {
+    const fetchUserData = async () => {
       if (!user) return;
 
       try {
         setLoading(true);
-        const { data, error } = await supabase
+        setProfileLoading(true);
+
+        // Fetch assessment results
+        const { data: assessmentData, error: assessmentError } = await supabase
           .from('assessment_results')
           .select('*')
           .eq('user_id', user.id)
           .order('created_at', { ascending: false });
 
-        if (error) {
-          throw error;
+        if (assessmentError) {
+          throw assessmentError;
         }
 
-        if (data) {
-          setAssessments(data as AssessmentResult[]);
+        if (assessmentData) {
+          setAssessments(assessmentData as AssessmentResult[]);
+        }
+
+        // Fetch user profile data
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+
+        if (profileError && profileError.code !== 'PGRST116') {
+          throw profileError;
+        }
+
+        // Fetch latest student details
+        const { data: studentData, error: studentError } = await supabase
+          .from('student_details')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(1);
+
+        if (studentError) {
+          throw studentError;
+        }
+
+        // Combine profile and student details
+        if (profileData || (studentData && studentData.length > 0)) {
+          const latestStudentDetail = studentData?.[0];
+          setStudentDetails(latestStudentDetail);
+
+          // Set form values based on combined data
+          form.reset({
+            firstName: profileData?.first_name || latestStudentDetail?.name?.split(' ')[0] || '',
+            lastName: profileData?.last_name || (latestStudentDetail?.name?.split(' ').slice(1).join(' ')) || '',
+            email: profileData?.email || user.email || '',
+            phone: profileData?.phone || '',
+            school: latestStudentDetail?.school || '',
+            class: latestStudentDetail?.class || '',
+            section: latestStudentDetail?.section || '',
+          });
         }
       } catch (error) {
-        console.error('Error fetching assessment results:', error);
+        console.error('Error fetching data:', error);
         toast({
-          title: "Failed to load assessments",
-          description: "There was a problem loading your assessments. Please try again later.",
+          title: "Failed to load data",
+          description: "There was a problem loading your information. Please try again later.",
           variant: "destructive"
         });
       } finally {
         setLoading(false);
+        setProfileLoading(false);
       }
     };
 
-    fetchAssessments();
-  }, [user, toast]);
+    fetchUserData();
+  }, [user, toast, form]);
 
-  // Get the last completed assessment
-  const lastAssessment = assessments.length > 0 ? assessments[0] : null;
+  const onSubmitProfile = async (data: ProfileFormValues) => {
+    if (!user) return;
 
-  const getAssessmentName = (type: string) => {
-    const assessmentTypes: Record<string, string> = {
-      'riasec': 'RIASEC Model Assessment',
-      'eq-navigator': 'EQ Navigator Assessment',
-      'future-pathways': 'Future Pathways Assessment',
-      'career-vision': 'Career Vision Assessment',
-      'scct': 'SCCT Assessment'
-    };
-    
-    return assessmentTypes[type] || type.charAt(0).toUpperCase() + type.slice(1).replace(/-/g, ' ') + ' Assessment';
+    try {
+      toast({
+        title: "Saving changes...",
+        description: "Please wait while we update your profile."
+      });
+
+      // Update profiles table
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .upsert({
+          id: user.id,
+          first_name: data.firstName,
+          last_name: data.lastName,
+          email: data.email,
+          phone: data.phone,
+          updated_at: new Date().toISOString()
+        });
+
+      if (profileError) throw profileError;
+
+      // Update or create student details if school information was provided
+      if (data.school || data.class || data.section) {
+        // Check if we need to update existing record or create new one
+        if (studentDetails?.id) {
+          const { error: studentError } = await supabase
+            .from('student_details')
+            .update({
+              name: `${data.firstName} ${data.lastName}`,
+              school: data.school,
+              class: data.class,
+              section: data.section
+            })
+            .eq('id', studentDetails.id);
+
+          if (studentError) throw studentError;
+        } else {
+          // Create new student detail record
+          const { error: studentError } = await supabase
+            .from('student_details')
+            .insert({
+              user_id: user.id,
+              name: `${data.firstName} ${data.lastName}`,
+              school: data.school || '',
+              class: data.class || '',
+              section: data.section || '',
+              assessment_type: 'profile' // Marking this as coming from profile
+            });
+
+          if (studentError) throw studentError;
+        }
+      }
+
+      toast({
+        title: "Profile updated",
+        description: "Your profile has been updated successfully."
+      });
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast({
+        title: "Update failed",
+        description: "There was a problem updating your profile. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
-
-  // Fix the assessment type stats calculation to prevent unlimited counting
-  const getAssessmentTypeStats = () => {
-    // Count unique assessment types
-    const uniqueTypes = new Set<string>();
-    
-    assessments.forEach(assessment => {
-      uniqueTypes.add(assessment.assessment_type);
-    });
-    
-    // Return the number of unique assessment types completed
-    return uniqueTypes.size;
-  };
-
-  // Calculate how many unique assessment types the user has completed
-  const completedAssessmentTypes = getAssessmentTypeStats();
-  const totalAvailableAssessments = 5; // Total assessments available in the system
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-white to-blue-50">
       <Navbar />
       
       <main className="flex-grow pt-24 pb-16">
@@ -108,145 +224,237 @@ const Dashboard = () => {
               transition={{ duration: 0.5 }}
             >
               <header className="mb-8">
-                <h1 className="text-3xl font-bold mb-2">Your Assessment Dashboard</h1>
-                <p className="text-muted-foreground">Track your assessments and review your results</p>
+                <h1 className="text-3xl font-bold mb-2 text-gray-800">Your Personal Dashboard</h1>
+                <p className="text-muted-foreground">Manage your profile and review your assessment results</p>
               </header>
             </motion.div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.1 }}
-              >
-                <Card className="p-6 bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 hover:shadow-md transition-all">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 bg-brand-purple/20 rounded-full flex items-center justify-center">
-                      <Brain className="h-5 w-5 text-brand-purple" />
-                    </div>
-                    <h3 className="font-semibold">Completed Assessments</h3>
-                  </div>
-                  <p className="text-3xl font-bold text-brand-purple">{assessments.length}</p>
-                  {assessments.length === 0 && !loading && (
-                    <p className="text-sm text-muted-foreground mt-2">
-                      You haven't taken any assessments yet.
-                    </p>
-                  )}
-                </Card>
-              </motion.div>
+            <Tabs defaultValue="assessments" className="space-y-8">
+              <TabsList className="grid w-full md:w-auto md:inline-flex grid-cols-2 md:grid-cols-none h-auto p-1 bg-muted/20 mb-4">
+                <TabsTrigger value="assessments" className="flex items-center gap-2 py-2.5">
+                  <FileText className="h-4 w-4" />
+                  <span>My Assessments</span>
+                </TabsTrigger>
+                <TabsTrigger value="profile" className="flex items-center gap-2 py-2.5">
+                  <User className="h-4 w-4" />
+                  <span>Profile</span>
+                </TabsTrigger>
+              </TabsList>
               
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-              >
-                <Card className="p-6 bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200 hover:shadow-md transition-all">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 bg-brand-orange/20 rounded-full flex items-center justify-center">
-                      <BarChart3 className="h-5 w-5 text-brand-orange" />
-                    </div>
-                    <h3 className="font-semibold">Assessment Types</h3>
-                  </div>
-                  <p className="text-3xl font-bold text-brand-orange">{completedAssessmentTypes} <span className="text-lg font-medium text-muted-foreground">of {totalAvailableAssessments}</span></p>
-                  <div className="w-full bg-orange-200/50 h-1.5 rounded-full mt-2">
-                    <div
-                      className="bg-brand-orange h-1.5 rounded-full"
-                      style={{ width: `${(completedAssessmentTypes / totalAvailableAssessments) * 100}%` }}
-                    ></div>
-                  </div>
-                </Card>
-              </motion.div>
-              
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.3 }}
-              >
-                <Card className="p-6 bg-gradient-to-br from-green-50 to-green-100 border-green-200 hover:shadow-md transition-all">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 bg-brand-green/20 rounded-full flex items-center justify-center">
-                      <History className="h-5 w-5 text-brand-green" />
-                    </div>
-                    <h3 className="font-semibold">Last Assessment</h3>
-                  </div>
-                  {lastAssessment ? (
+              <TabsContent value="assessments" className="space-y-6">
+                <Card className="p-6 border border-blue-100 bg-white/80 backdrop-blur-sm shadow-sm">
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
                     <div>
-                      <p className="text-lg font-medium text-brand-green">{getAssessmentName(lastAssessment.assessment_type)}</p>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {new Date(lastAssessment.created_at).toLocaleDateString(undefined, { 
-                          year: 'numeric', 
-                          month: 'short', 
-                          day: 'numeric' 
-                        })}
+                      <h2 className="text-xl font-semibold text-gray-800 flex items-center">
+                        <FileText className="h-5 w-5 mr-2 text-brand-blue" />
+                        Assessment History
+                      </h2>
+                      <p className="text-muted-foreground text-sm mt-1">
+                        Review and download your completed assessments
                       </p>
                     </div>
+                    
+                    {assessments.length > 0 && (
+                      <Button 
+                        onClick={() => navigate('/')}
+                        className="bg-brand-blue hover:bg-brand-blue/90 text-white"
+                      >
+                        Take New Assessment
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                  
+                  <Separator className="mb-6" />
+                  
+                  {loading ? (
+                    <div className="text-center py-8">
+                      <div className="animate-spin h-8 w-8 border-4 border-brand-blue border-t-transparent rounded-full mx-auto mb-3"></div>
+                      <p className="text-muted-foreground">Loading your assessments...</p>
+                    </div>
                   ) : (
-                    <p className="text-lg text-muted-foreground">No assessments completed</p>
+                    <AssessmentTable assessments={assessments} />
                   )}
                 </Card>
-              </motion.div>
-            </div>
-            
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              className="mb-10"
-            >
-              <Card className="p-6 border-blue-200">
-                <div className="flex items-start gap-4">
-                  <div className="bg-blue-100 p-3 rounded-full">
-                    <AlertCircle className="h-6 w-6 text-blue-600" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-medium mb-1">Explore More Career Insights</h3>
-                    <p className="text-muted-foreground mb-4">
-                      Taking multiple assessments gives you a more complete picture of your career potential.
-                      Each assessment measures different aspects of your skills, interests, and aptitudes.
-                    </p>
-                    <Button 
-                      variant="outline" 
-                      onClick={() => navigate('/')}
-                      className="text-brand-purple border-brand-purple hover:bg-brand-purple/5"
-                    >
-                      Explore Assessments
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </Card>
-            </motion.div>
-            
-            <motion.section
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.5 }}
-            >
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold">Assessment History</h2>
-                {assessments.length > 0 && (
-                  <Button 
-                    variant="outline" 
-                    onClick={() => navigate('/')}
-                    className="text-brand-purple hover:text-brand-dark-purple hover:bg-brand-purple/5"
-                  >
-                    Take New Assessment
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                )}
-              </div>
+              </TabsContent>
               
-              <Separator className="mb-6" />
-              
-              {loading ? (
-                <div className="text-center py-8">
-                  <div className="animate-spin h-8 w-8 border-4 border-brand-purple border-t-transparent rounded-full mx-auto mb-3"></div>
-                  <p className="text-muted-foreground">Loading your assessments...</p>
-                </div>
-              ) : (
-                <AssessmentTable assessments={assessments} />
-              )}
-            </motion.section>
+              <TabsContent value="profile" className="space-y-6">
+                <Card className="p-6 border border-blue-100 bg-white/80 backdrop-blur-sm shadow-sm">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="bg-blue-100 p-2 rounded-full">
+                      <Settings className="h-5 w-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-semibold text-gray-800">Profile Information</h2>
+                      <p className="text-muted-foreground text-sm">
+                        Manage your personal information and preferences
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <Separator className="mb-6" />
+                  
+                  {profileLoading ? (
+                    <div className="text-center py-8">
+                      <div className="animate-spin h-8 w-8 border-4 border-brand-blue border-t-transparent rounded-full mx-auto mb-3"></div>
+                      <p className="text-muted-foreground">Loading your profile...</p>
+                    </div>
+                  ) : (
+                    <Form {...form}>
+                      <form onSubmit={form.handleSubmit(onSubmitProfile)} className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <FormField
+                            control={form.control}
+                            name="firstName"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-base">First Name</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    placeholder="Your first name" 
+                                    {...field} 
+                                    className="border-gray-300 focus-visible:ring-brand-blue/50"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={form.control}
+                            name="lastName"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-base">Last Name</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    placeholder="Your last name" 
+                                    {...field} 
+                                    className="border-gray-300 focus-visible:ring-brand-blue/50"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={form.control}
+                            name="email"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-base">Email</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    type="email"
+                                    placeholder="Your email address" 
+                                    {...field} 
+                                    className="border-gray-300 focus-visible:ring-brand-blue/50"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={form.control}
+                            name="phone"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-base">Phone Number</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    placeholder="Your phone number (optional)" 
+                                    {...field} 
+                                    className="border-gray-300 focus-visible:ring-brand-blue/50"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                        
+                        <div className="pt-4">
+                          <h3 className="text-lg font-medium mb-4 flex items-center">
+                            <Calendar className="h-4 w-4 mr-2 text-brand-blue" />
+                            School Information
+                          </h3>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <FormField
+                              control={form.control}
+                              name="school"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-base">School Name</FormLabel>
+                                  <FormControl>
+                                    <Input 
+                                      placeholder="Your school name" 
+                                      {...field} 
+                                      className="border-gray-300 focus-visible:ring-brand-blue/50"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            
+                            <FormField
+                              control={form.control}
+                              name="class"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-base">Class</FormLabel>
+                                  <FormControl>
+                                    <Input 
+                                      placeholder="e.g., 10th, 11th, 12th" 
+                                      {...field} 
+                                      className="border-gray-300 focus-visible:ring-brand-blue/50"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            
+                            <FormField
+                              control={form.control}
+                              name="section"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-base">Section</FormLabel>
+                                  <FormControl>
+                                    <Input 
+                                      placeholder="e.g., A, B, C" 
+                                      {...field} 
+                                      className="border-gray-300 focus-visible:ring-brand-blue/50"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                        </div>
+                        
+                        <div className="pt-4">
+                          <Button 
+                            type="submit" 
+                            className="w-full md:w-auto bg-brand-blue hover:bg-brand-blue/90 text-white"
+                            disabled={form.formState.isSubmitting}
+                          >
+                            {form.formState.isSubmitting ? "Saving..." : "Save Profile Changes"}
+                          </Button>
+                        </div>
+                      </form>
+                    </Form>
+                  )}
+                </Card>
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
       </main>

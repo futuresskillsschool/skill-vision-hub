@@ -10,7 +10,8 @@ import {
   FileText, 
   Calendar, 
   CheckCircle,
-  Info
+  Info,
+  User
 } from 'lucide-react';
 import { 
   Tooltip,
@@ -21,6 +22,14 @@ import {
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { useToast } from '@/components/ui/use-toast';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 export interface AssessmentResult {
   id: string;
@@ -75,6 +84,7 @@ interface AssessmentTableProps {
 const AssessmentTable = ({ assessments }: AssessmentTableProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [viewType, setViewType] = useState<'cards' | 'table'>('cards');
 
   const getAssessmentDetails = (type: string) => {
     return ASSESSMENT_TYPES[type] || {
@@ -95,7 +105,6 @@ const AssessmentTable = ({ assessments }: AssessmentTableProps) => {
   };
 
   const handleViewResults = (assessment: AssessmentResult) => {
-    // Fix the route by using the assessment type with /assessment/ prefix
     navigate(`/assessment/${assessment.assessment_type}/results`, { 
       state: { 
         scores: assessment.result_data.scores,
@@ -106,7 +115,6 @@ const AssessmentTable = ({ assessments }: AssessmentTableProps) => {
 
   const handleDownloadPDF = (assessment: AssessmentResult) => {
     try {
-      // Fix the route by using the assessment type with /assessment/ prefix
       navigate(`/assessment/${assessment.assessment_type}/results`, { 
         state: { 
           scores: assessment.result_data.scores,
@@ -131,118 +139,212 @@ const AssessmentTable = ({ assessments }: AssessmentTableProps) => {
 
   if (assessments.length === 0) {
     return (
-      <Card className="p-6 text-center bg-muted/30">
-        <div className="py-10">
-          <div className="flex justify-center mb-4">
-            <FileText className="h-12 w-12 text-muted-foreground opacity-40" />
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <Card className="p-8 text-center bg-white/70 backdrop-blur-sm">
+          <div className="py-10">
+            <div className="flex justify-center mb-4">
+              <FileText className="h-12 w-12 text-muted-foreground opacity-40" />
+            </div>
+            <h3 className="text-xl font-semibold mb-2">No Assessments Found</h3>
+            <p className="text-muted-foreground mb-6">You haven't completed any assessments yet.</p>
+            <Button 
+              onClick={() => navigate('/')} 
+              variant="default"
+              className="bg-brand-blue hover:bg-brand-blue/90 text-white"
+            >
+              Explore Assessments
+            </Button>
           </div>
-          <h3 className="text-xl font-semibold mb-2">No Assessments Found</h3>
-          <p className="text-muted-foreground mb-6">You haven't completed any assessments yet.</p>
-          <Button 
-            onClick={() => navigate('/')} 
-            variant="default"
-            className="bg-brand-purple hover:bg-brand-purple/90"
-          >
-            Explore Assessments
-          </Button>
-        </div>
-      </Card>
+        </Card>
+      </motion.div>
     );
   }
-
+  
   return (
     <div className="space-y-4">
-      {assessments.map((assessment, index) => {
-        const { name, color, icon, questionCount } = getAssessmentDetails(assessment.assessment_type);
-        const maxScore = assessment.result_data?.scores ? 
-          Object.values<number>(assessment.result_data.scores).reduce((a, b) => a + b, 0) : null;
-        const score = maxScore;
-
-        return (
-          <motion.div
-            key={assessment.id}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: index * 0.1 }}
+      <div className="flex justify-end mb-4">
+        <div className="bg-muted/20 p-1 rounded-lg inline-flex">
+          <Button 
+            variant={viewType === 'cards' ? 'default' : 'ghost'} 
+            size="sm" 
+            onClick={() => setViewType('cards')}
+            className={viewType === 'cards' ? 'bg-white shadow-sm' : ''}
           >
-            <Card className="p-5 hover:shadow-md transition-shadow border border-border/40 bg-white">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="flex items-start gap-3">
-                  <div className={cn("w-10 h-10 rounded-full flex items-center justify-center", color)}>
-                    {icon}
-                  </div>
-                  <div>
-                    <h3 className="font-semibold">{name}</h3>
-                    <div className="flex items-center mt-1 text-sm text-muted-foreground">
-                      <Calendar className="h-3 w-3 mr-1" />
-                      {getFormattedDate(assessment.created_at)}
+            Cards
+          </Button>
+          <Button 
+            variant={viewType === 'table' ? 'default' : 'ghost'} 
+            size="sm" 
+            onClick={() => setViewType('table')}
+            className={viewType === 'table' ? 'bg-white shadow-sm' : ''}
+          >
+            Table
+          </Button>
+        </div>
+      </div>
+      
+      {viewType === 'cards' ? (
+        <div className="space-y-4">
+          {assessments.map((assessment, index) => {
+            const { name, color, icon, questionCount } = getAssessmentDetails(assessment.assessment_type);
+            const maxScore = assessment.result_data?.scores ? 
+              Object.values<number>(assessment.result_data.scores).reduce((a, b) => a + b, 0) : null;
+            const score = maxScore;
+
+            return (
+              <motion.div
+                key={assessment.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.1 }}
+              >
+                <Card className="p-5 hover:shadow-md transition-shadow border border-border/40 bg-white">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="flex items-start gap-3">
+                      <div className={cn("w-10 h-10 rounded-full flex items-center justify-center", color)}>
+                        {icon}
+                      </div>
+                      <div>
+                        <h3 className="font-semibold">{name}</h3>
+                        <div className="flex items-center mt-1 text-sm text-muted-foreground">
+                          <Calendar className="h-3 w-3 mr-1" />
+                          {getFormattedDate(assessment.created_at)}
+                        </div>
+                        <div className="mt-1 flex items-center gap-2">
+                          <span className={cn("text-sm font-medium px-2 py-0.5 rounded-full", 
+                            `bg-${color.split('-')[1]}/10 text-${color.split('-')[1]}`
+                          )}>
+                            {getPrimaryResult(assessment)}
+                          </span>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div className="flex items-center text-xs text-muted-foreground cursor-help">
+                                  <FileText className="h-3 w-3 mr-1" />
+                                  {questionCount} Q
+                                  <Info className="h-3 w-3 ml-0.5" />
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>This assessment has {questionCount} questions</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </div>
+                      </div>
                     </div>
-                    <div className="mt-1 flex items-center gap-2">
-                      <span className={cn("text-sm font-medium px-2 py-0.5 rounded-full", 
-                        `bg-${color.split('-')[1]}/10 text-${color.split('-')[1]}`
-                      )}>
-                        {getPrimaryResult(assessment)}
-                      </span>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <div className="flex items-center text-xs text-muted-foreground cursor-help">
-                              <FileText className="h-3 w-3 mr-1" />
-                              {questionCount} Q
-                              <Info className="h-3 w-3 ml-0.5" />
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>This assessment has {questionCount} questions</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+                    
+                    {score && maxScore && (
+                      <div className="w-full md:w-1/3">
+                        <div className="flex justify-between text-sm mb-1">
+                          <span>Completion</span>
+                          <span className="font-medium">
+                            <CheckCircle className="h-3 w-3 inline mr-1 text-green-500" />
+                            100%
+                          </span>
+                        </div>
+                        <Progress value={100} 
+                          className={cn("h-2", 
+                            `bg-${color.split('-')[1]}/20`
+                          )} 
+                        />
+                      </div>
+                    )}
+                    
+                    <div className="flex space-x-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleViewResults(assessment)}
+                        className="text-sm text-brand-blue border-brand-blue hover:bg-brand-blue/5"
+                      >
+                        View Results
+                        <ChevronRight className="ml-1 h-3 w-3" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        className="h-8 w-8 text-brand-blue hover:bg-brand-blue/5"
+                        onClick={() => handleDownloadPDF(assessment)}
+                        title="Download PDF"
+                      >
+                        <Download className="h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
-                </div>
-                
-                {score && maxScore && (
-                  <div className="w-full md:w-1/3">
-                    <div className="flex justify-between text-sm mb-1">
-                      <span>Completion</span>
-                      <span className="font-medium">
-                        <CheckCircle className="h-3 w-3 inline mr-1 text-green-500" />
-                        100%
-                      </span>
-                    </div>
-                    <Progress value={100} 
-                      className={cn("h-2", 
-                        `bg-${color.split('-')[1]}/20`
-                      )} 
-                    />
-                  </div>
-                )}
-                
-                <div className="flex space-x-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => handleViewResults(assessment)}
-                    className="text-sm"
-                  >
-                    View Results
-                    <ChevronRight className="ml-1 h-3 w-3" />
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={() => handleDownloadPDF(assessment)}
-                    title="Download PDF"
-                  >
-                    <Download className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          </motion.div>
-        );
-      })}
+                </Card>
+              </motion.div>
+            );
+          })}
+        </div>
+      ) : (
+        <Card className="border overflow-hidden backdrop-blur-sm bg-white/90">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Assessment Type</TableHead>
+                  <TableHead>Date Completed</TableHead>
+                  <TableHead>Primary Result</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {assessments.map((assessment) => {
+                  const { name, color, icon } = getAssessmentDetails(assessment.assessment_type);
+                  
+                  return (
+                    <TableRow key={assessment.id} className="hover:bg-muted/50">
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-2">
+                          <div className={cn("w-8 h-8 rounded-full flex items-center justify-center", color)}>
+                            {icon}
+                          </div>
+                          <span>{name}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>{getFormattedDate(assessment.created_at)}</TableCell>
+                      <TableCell>
+                        <span className={cn("text-xs font-medium px-2 py-1 rounded-full", 
+                          `bg-${color.split('-')[1]}/10 text-${color.split('-')[1]}`
+                        )}>
+                          {getPrimaryResult(assessment)}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end space-x-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleViewResults(assessment)}
+                            className="text-xs text-brand-blue border-brand-blue hover:bg-brand-blue/5"
+                          >
+                            View
+                            <ChevronRight className="ml-1 h-3 w-3" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            className="h-7 w-7 text-brand-blue hover:bg-brand-blue/5"
+                            onClick={() => handleDownloadPDF(assessment)}
+                            title="Download PDF"
+                          >
+                            <Download className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+        </Card>
+      )}
     </div>
   );
 };
