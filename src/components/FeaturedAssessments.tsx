@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Clock, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Assessment {
   id: string;
@@ -68,6 +69,7 @@ const assessments: Assessment[] = [
 const FeaturedAssessments = () => {
   const sectionRef = useRef<HTMLElement>(null);
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -95,9 +97,15 @@ const FeaturedAssessments = () => {
   // Filter out the featured assessment from the regular grid
   const regularAssessments = assessments.filter(a => a.id !== featuredAssessment.id).slice(0, 4);
   
-  const handleAssessmentClick = (e: React.MouseEvent) => {
+  const handleAssessmentClick = (e: React.MouseEvent, assessment: Assessment) => {
     e.preventDefault();
-    navigate('/login');
+    if (user) {
+      // User is logged in, navigate to assessment path
+      navigate(assessment.path || `/assessment/${assessment.id}`);
+    } else {
+      // User is not logged in, redirect to login
+      navigate('/login');
+    }
   };
 
   return (
@@ -110,7 +118,7 @@ const FeaturedAssessments = () => {
           </div>
           <div 
             className="animate-on-scroll mt-4 md:mt-0 cursor-pointer"
-            onClick={handleAssessmentClick}
+            onClick={(e) => handleAssessmentClick(e, assessments[0])}
           >
             <Button variant="outline" className="group">
               View All <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
@@ -122,7 +130,7 @@ const FeaturedAssessments = () => {
         <div className="animate-on-scroll mb-12 overflow-hidden">
           <div 
             className="group relative flex flex-col md:flex-row bg-white rounded-2xl shadow-card overflow-hidden card-hover border border-border/40 cursor-pointer"
-            onClick={handleAssessmentClick}
+            onClick={(e) => handleAssessmentClick(e, featuredAssessment)}
           >
             <div className="md:w-1/2 h-64 md:h-auto overflow-hidden">
               <img 
@@ -167,7 +175,7 @@ const FeaturedAssessments = () => {
                 "animate-on-scroll group flex flex-col bg-white rounded-xl overflow-hidden shadow-card card-hover border border-border/40 cursor-pointer",
               )}
               style={{ animationDelay: `${index * 100}ms` }}
-              onClick={handleAssessmentClick}
+              onClick={(e) => handleAssessmentClick(e, assessment)}
             >
               <div className="h-48 overflow-hidden">
                 <img 

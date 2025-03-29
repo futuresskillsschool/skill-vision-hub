@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -10,6 +9,7 @@ import Footer from '@/components/Footer';
 import { useToast } from '@/hooks/use-toast';
 import { LogIn, User, KeyRound, Mail, Phone, School, BookOpen } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -22,6 +22,13 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      navigate('/');
+    }
+  }, [user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,7 +36,6 @@ const Login = () => {
     
     try {
       if (isLogin) {
-        // Login flow
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
@@ -44,7 +50,6 @@ const Login = () => {
         
         navigate('/dashboard');
       } else {
-        // Signup flow
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
@@ -81,6 +86,10 @@ const Login = () => {
   const toggleAuthMode = () => {
     setIsLogin(!isLogin);
   };
+
+  if (user) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen flex flex-col">

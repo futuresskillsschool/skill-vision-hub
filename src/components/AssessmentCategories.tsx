@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { useAuth } from '@/contexts/AuthContext';
 
 const assessmentCategories = [
   {
@@ -54,10 +55,17 @@ const assessmentCategories = [
 
 const AssessmentCategories = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   
-  const handleLearnMore = (e: React.MouseEvent) => {
+  const handleLearnMore = (e: React.MouseEvent, category: any) => {
     e.preventDefault();
-    navigate('/login');
+    if (user) {
+      // User is logged in, navigate to assessment landing page
+      navigate(category.path);
+    } else {
+      // User is not logged in, redirect to login page
+      navigate('/login');
+    }
   };
 
   return (
@@ -82,7 +90,11 @@ const AssessmentCategories = () => {
                 <h3 className="text-xl font-semibold mb-2">{category.title}</h3>
                 <p className="text-muted-foreground mb-6">{category.description}</p>
                 
-                <Button variant="outline" className="group" onClick={handleLearnMore}>
+                <Button 
+                  variant="outline" 
+                  className="group" 
+                  onClick={(e) => handleLearnMore(e, category)}
+                >
                   Learn More <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </div>
