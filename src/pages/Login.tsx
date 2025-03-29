@@ -8,12 +8,17 @@ import { Label } from '@/components/ui/label';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useToast } from '@/hooks/use-toast';
-import { LogIn, User, KeyRound } from 'lucide-react';
+import { LogIn, User, KeyRound, Mail, Phone, School, BookOpen } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [classSection, setClassSection] = useState('');
+  const [school, setSchool] = useState('');
+  const [phone, setPhone] = useState('');
+  const [isLogin, setIsLogin] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -23,28 +28,58 @@ const Login = () => {
     setIsLoading(true);
     
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      
-      if (error) throw error;
-      
-      toast({
-        title: "Login successful",
-        description: "Welcome back to Future Skills School!",
-      });
-      
-      navigate('/dashboard');
+      if (isLogin) {
+        // Login flow
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        
+        if (error) throw error;
+        
+        toast({
+          title: "Login successful",
+          description: "Welcome back to Future Skills School!",
+        });
+        
+        navigate('/dashboard');
+      } else {
+        // Signup flow
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              name,
+              class_section: classSection,
+              school,
+              phone
+            }
+          }
+        });
+        
+        if (error) throw error;
+        
+        toast({
+          title: "Account created successfully",
+          description: "Welcome to Future Skills School!",
+        });
+        
+        navigate('/dashboard');
+      }
     } catch (error: any) {
       toast({
-        title: "Login failed",
+        title: isLogin ? "Login failed" : "Signup failed",
         description: error.message || "Something went wrong. Please try again.",
         variant: "destructive",
       });
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const toggleAuthMode = () => {
+    setIsLogin(!isLogin);
   };
 
   return (
@@ -63,11 +98,83 @@ const Login = () => {
               <div className="w-16 h-16 bg-brand-purple/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <LogIn className="h-8 w-8 text-brand-purple" />
               </div>
-              <h1 className="text-2xl font-bold mb-2">Welcome Back</h1>
-              <p className="text-muted-foreground">Sign in to access your assessments and results</p>
+              <h1 className="text-2xl font-bold mb-2">{isLogin ? 'Welcome Back' : 'Create an Account'}</h1>
+              <p className="text-muted-foreground">
+                {isLogin 
+                  ? 'Sign in to access your assessments and results' 
+                  : 'Join Future Skills School to access our assessments'}
+              </p>
             </div>
             
             <form onSubmit={handleSubmit} className="space-y-4">
+              {!isLogin && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Full Name</Label>
+                    <div className="relative">
+                      <Input
+                        id="name"
+                        type="text"
+                        placeholder="Your full name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        required={!isLogin}
+                        className="pl-10"
+                      />
+                      <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="classSection">Class Section</Label>
+                    <div className="relative">
+                      <Input
+                        id="classSection"
+                        type="text"
+                        placeholder="Your class and section"
+                        value={classSection}
+                        onChange={(e) => setClassSection(e.target.value)}
+                        required={!isLogin}
+                        className="pl-10"
+                      />
+                      <BookOpen className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="school">School</Label>
+                    <div className="relative">
+                      <Input
+                        id="school"
+                        type="text"
+                        placeholder="Your school name"
+                        value={school}
+                        onChange={(e) => setSchool(e.target.value)}
+                        required={!isLogin}
+                        className="pl-10"
+                      />
+                      <School className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Phone Number</Label>
+                    <div className="relative">
+                      <Input
+                        id="phone"
+                        type="tel"
+                        placeholder="Your phone number"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        required={!isLogin}
+                        className="pl-10"
+                      />
+                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    </div>
+                  </div>
+                </>
+              )}
+              
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <div className="relative">
@@ -80,14 +187,14 @@ const Login = () => {
                     required
                     className="pl-10"
                   />
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 </div>
               </div>
               
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <Label htmlFor="password">Password</Label>
-                  <a href="#" className="text-sm text-brand-purple hover:underline">Forgot password?</a>
+                  {isLogin && <a href="#" className="text-sm text-brand-purple hover:underline">Forgot password?</a>}
                 </div>
                 <div className="relative">
                   <Input
@@ -108,11 +215,24 @@ const Login = () => {
                 className="w-full bg-brand-purple hover:bg-brand-dark-purple"
                 disabled={isLoading}
               >
-                {isLoading ? 'Signing in...' : 'Sign In'}
+                {isLoading 
+                  ? (isLogin ? 'Signing in...' : 'Creating Account...') 
+                  : (isLogin ? 'Sign In' : 'Sign Up')}
               </Button>
               
               <div className="text-center text-sm text-muted-foreground mt-6">
-                <p>Don't have an account? <Link to="/signup" className="text-brand-purple hover:underline">Sign up</Link></p>
+                <p>
+                  {isLogin 
+                    ? "Don't have an account? " 
+                    : "Already have an account? "}
+                  <Button 
+                    variant="link" 
+                    className="p-0 text-brand-purple hover:underline"
+                    onClick={toggleAuthMode}
+                  >
+                    {isLogin ? 'Sign up' : 'Sign in'}
+                  </Button>
+                </p>
               </div>
             </form>
           </motion.div>

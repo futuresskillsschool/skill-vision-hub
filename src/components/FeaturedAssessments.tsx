@@ -1,5 +1,6 @@
+
 import { useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Clock, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -66,6 +67,7 @@ const assessments: Assessment[] = [
 
 const FeaturedAssessments = () => {
   const sectionRef = useRef<HTMLElement>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -92,6 +94,11 @@ const FeaturedAssessments = () => {
   
   // Filter out the featured assessment from the regular grid
   const regularAssessments = assessments.filter(a => a.id !== featuredAssessment.id).slice(0, 4);
+  
+  const handleAssessmentClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    navigate('/login');
+  };
 
   return (
     <section ref={sectionRef} className="py-16 md:py-24">
@@ -101,18 +108,21 @@ const FeaturedAssessments = () => {
             <h3 className="animate-on-scroll text-brand-purple font-medium mb-3">Our Assessments</h3>
             <h2 className="animate-on-scroll mb-4">Most Popular <span className="text-brand-purple">Assessments</span></h2>
           </div>
-          <Link to="/assessments" className="animate-on-scroll mt-4 md:mt-0">
+          <div 
+            className="animate-on-scroll mt-4 md:mt-0 cursor-pointer"
+            onClick={handleAssessmentClick}
+          >
             <Button variant="outline" className="group">
               View All <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </Button>
-          </Link>
+          </div>
         </div>
 
         {/* Featured Assessment (Larger Card) */}
         <div className="animate-on-scroll mb-12 overflow-hidden">
-          <Link 
-            to={featuredAssessment.path || `/assessment/${featuredAssessment.id}`}
-            className="group relative flex flex-col md:flex-row bg-white rounded-2xl shadow-card overflow-hidden card-hover border border-border/40"
+          <div 
+            className="group relative flex flex-col md:flex-row bg-white rounded-2xl shadow-card overflow-hidden card-hover border border-border/40 cursor-pointer"
+            onClick={handleAssessmentClick}
           >
             <div className="md:w-1/2 h-64 md:h-auto overflow-hidden">
               <img 
@@ -145,19 +155,19 @@ const FeaturedAssessments = () => {
                 <Button className="button-primary w-full sm:w-auto">Start Assessment</Button>
               </div>
             </div>
-          </Link>
+          </div>
         </div>
 
         {/* Regular Assessment Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {regularAssessments.map((assessment, index) => (
-            <Link 
+            <div 
               key={assessment.id}
-              to={assessment.path || `/assessment/${assessment.id}`}
               className={cn(
-                "animate-on-scroll group flex flex-col bg-white rounded-xl overflow-hidden shadow-card card-hover border border-border/40",
+                "animate-on-scroll group flex flex-col bg-white rounded-xl overflow-hidden shadow-card card-hover border border-border/40 cursor-pointer",
               )}
               style={{ animationDelay: `${index * 100}ms` }}
+              onClick={handleAssessmentClick}
             >
               <div className="h-48 overflow-hidden">
                 <img 
@@ -189,7 +199,7 @@ const FeaturedAssessments = () => {
                   </Button>
                 </div>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
       </div>

@@ -1,5 +1,5 @@
 
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -53,6 +53,13 @@ const assessmentCategories = [
 ];
 
 const AssessmentCategories = () => {
+  const navigate = useNavigate();
+  
+  const handleLearnMore = (e: React.MouseEvent) => {
+    e.preventDefault();
+    navigate('/login');
+  };
+
   return (
     <section id="assessment-categories" className="py-16 md:py-24 bg-background/80">
       <div className="container mx-auto px-4 md:px-6">
@@ -75,11 +82,9 @@ const AssessmentCategories = () => {
                 <h3 className="text-xl font-semibold mb-2">{category.title}</h3>
                 <p className="text-muted-foreground mb-6">{category.description}</p>
                 
-                <Link to={category.path}>
-                  <Button variant="outline" className="group">
-                    Learn More <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                  </Button>
-                </Link>
+                <Button variant="outline" className="group" onClick={handleLearnMore}>
+                  Learn More <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                </Button>
               </div>
             </Card>
           ))}
