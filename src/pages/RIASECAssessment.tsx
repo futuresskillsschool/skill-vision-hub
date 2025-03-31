@@ -131,12 +131,12 @@ const RIASECAssessment = () => {
       description: "Your results are ready to view.",
     });
     
-    // Navigate to student details page with scores
-    navigate('/assessment/riasec/student-details', {
-      state: {
-        scores,
-        assessmentType: 'riasec'
-      }
+    // // Navigate to student details page with scores
+    // navigate('/assessment/riasec/student-details', {
+    //   state: {
+    //     scores,
+    //     assessmentType: 'riasec'
+    //   }
     });
   };
   
