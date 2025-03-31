@@ -1,5 +1,5 @@
 
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -61,10 +61,15 @@ const AssessmentCategories = () => {
     e.preventDefault();
     if (user) {
       // User is logged in, navigate to assessment landing page
-      navigate(category.path);
+      navigate(`/assessment/${category.id}`);
     } else {
       // User is not logged in, redirect to login page
-      navigate('/login');
+      navigate('/login', { 
+        state: { 
+          returnPath: `/assessment/${category.id}`,
+          message: 'Please log in to access the assessment' 
+        } 
+      });
     }
   };
 

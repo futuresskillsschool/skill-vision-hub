@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -131,12 +132,12 @@ const RIASECAssessment = () => {
       description: "Your results are ready to view.",
     });
     
-    // // Navigate to student details page with scores
-    // navigate('/assessment/riasec/student-details', {
-    //   state: {
-    //     scores,
-    //     assessmentType: 'riasec'
-    //   }
+    // Navigate directly to results page with scores
+    navigate('/assessment/riasec/results', {
+      state: {
+        scores,
+        assessmentType: 'riasec'
+      }
     });
   };
   

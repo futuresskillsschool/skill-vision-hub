@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import StudentDetailsForm from '@/components/assessment/StudentDetailsForm';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -25,113 +24,92 @@ const StudentDetailsPage = () => {
       return;
     }
     
-    // If user is logged in, bypass the student details form
-    const checkForExistingDetails = async () => {
-      if (user) {
-        try {
-          setLoading(true);
-          
-          // Check if the user already has student details
-          const { data, error } = await supabase
-            .from('student_details')
+    const processUserData = async () => {
+      try {
+        setLoading(true);
+        
+        if (user) {
+          // Get user profile from profiles table
+          const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
             .select('*')
-            .eq('user_id', user.id)
-            .order('created_at', { ascending: false })
-            .limit(1);
+            .eq('id', user.id)
+            .single();
             
-          if (error) {
-            console.error('Error fetching user details:', error);
+          if (profileError) {
+            console.error('Error fetching user profile:', profileError);
+          }
+          
+          // Create a student record from the profile data
+          const { data: studentData, error: studentError } = await supabase
+            .from('student_details')
+            .insert({
+              name: profileData?.first_name && profileData?.last_name 
+                ? `${profileData.first_name} ${profileData.last_name}` 
+                : 'Anonymous User',
+              class: profileData?.stream || 'Not specified',
+              section: profileData?.interest || 'Not specified',
+              school: 'Not specified',
+              assessment_type: id || resultsData.assessmentType || 'scct',
+              user_id: user.id
+            })
+            .select('id')
+            .single();
+            
+          if (studentError) {
+            console.error('Error creating student record:', studentError);
             setLoading(false);
             return;
           }
           
-          // If the user has existing details, use the latest one
-          if (data && data.length > 0) {
-            console.log('Found existing student details:', data[0]);
-            
-            const assessmentType = id || resultsData.assessmentType || 'scct';
-            
-            // Navigate directly to results page with the student ID
-            navigate(`/assessment/${assessmentType}/results`, {
-              state: {
-                ...resultsData,
-                studentId: data[0].id
-              }
-            });
-          } else {
-            // No existing details, show the form
-            setLoading(false);
-          }
-        } catch (error) {
-          console.error('Error checking for existing details:', error);
-          setLoading(false);
+          console.log('Created student record:', studentData);
+          
+          const assessmentType = id || resultsData.assessmentType || 'scct';
+          
+          // Navigate directly to results page with the student ID
+          navigate(`/assessment/${assessmentType}/results`, {
+            state: {
+              ...resultsData,
+              studentId: studentData.id
+            }
+          });
+        } else {
+          // Not logged in, redirect to login
+          navigate('/login', { 
+            state: { 
+              returnPath: `/assessment/${id || 'scct'}/take`,
+              message: 'Please log in to view assessment results' 
+            } 
+          });
         }
-      } else {
-        // Not logged in, show the form
+      } catch (error) {
+        console.error('Error processing user data:', error);
         setLoading(false);
       }
     };
     
-    checkForExistingDetails();
+    processUserData();
   }, [resultsData, navigate, id, user]);
   
-  // Determine which assessment type based on the URL or the results data
-  let assessmentType = id || resultsData?.assessmentType || 'scct';
-  
-  console.log("StudentDetailsPage - Assessment type:", assessmentType);
-  console.log("StudentDetailsPage - Results data:", resultsData);
-  
-  const handleSubmitSuccess = (studentId: string) => {
-    console.log("Student details submitted, navigating to results page with:", { ...resultsData, studentId });
-    
-    // Navigate to the results page with the results data
-    navigate(`/assessment/${assessmentType}/results`, {
-      state: {
-        ...resultsData,
-        studentId
-      }
-    });
-  };
-  
-  // If loading or redirecting, show minimal content
-  if (loading || !resultsData) {
-    return (
-      <div className="min-h-screen flex flex-col bg-gradient-to-br from-white via-orange-50 to-amber-50">
-        <Navbar />
-        <main className="flex-grow pt-24 pb-16 px-4 flex items-center justify-center">
-          <div className="animate-pulse flex space-x-4">
-            <div className="rounded-full bg-slate-200 h-10 w-10"></div>
-            <div className="flex-1 space-y-6 py-1">
-              <div className="h-2 bg-slate-200 rounded"></div>
-              <div className="space-y-3">
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="h-2 bg-slate-200 rounded col-span-2"></div>
-                  <div className="h-2 bg-slate-200 rounded col-span-1"></div>
-                </div>
-                <div className="h-2 bg-slate-200 rounded"></div>
-              </div>
-            </div>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
-  
+  // If loading, show minimal content
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-white via-orange-50 to-amber-50">
       <Navbar />
-      
-      <main className="flex-grow pt-24 pb-16 px-4">
-        <div className="container mx-auto">
-          <StudentDetailsForm 
-            assessmentType={assessmentType}
-            resultsData={resultsData}
-            onSubmitSuccess={handleSubmitSuccess}
-          />
+      <main className="flex-grow pt-24 pb-16 px-4 flex items-center justify-center">
+        <div className="animate-pulse flex space-x-4">
+          <div className="rounded-full bg-slate-200 h-10 w-10"></div>
+          <div className="flex-1 space-y-6 py-1">
+            <div className="h-2 bg-slate-200 rounded"></div>
+            <div className="space-y-3">
+              <div className="grid grid-cols-3 gap-4">
+                <div className="h-2 bg-slate-200 rounded col-span-2"></div>
+                <div className="h-2 bg-slate-200 rounded col-span-1"></div>
+              </div>
+              <div className="h-2 bg-slate-200 rounded"></div>
+            </div>
+          </div>
         </div>
       </main>
-      
       <Footer />
     </div>
   );
