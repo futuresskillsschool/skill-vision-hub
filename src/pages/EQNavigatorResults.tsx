@@ -803,7 +803,7 @@ const EQNavigatorResults = () => {
                           <h3 className="font-semibold text-lg mb-1 text-gray-800">{resource.title}</h3>
                           <p className="text-sm text-gray-600 flex-grow">{resource.description}</p>
                           <div className="mt-4 pt-3 border-t border-gray-100 text-purple-500 font-medium text-sm flex items-center">
-                            Learn More <ArrowRight className="h-3 w-3 ml-1 group-hover:translate-x-1 transition-transform" />
+                            {/* Learn More <ArrowRight className="h-3 w-3 ml-1 group-hover:translate-x-1 transition-transform" /> */}
                           </div>
                         </Card>
                       </motion.div>
