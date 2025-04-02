@@ -381,6 +381,19 @@ const EQNavigatorResults = () => {
           (card as HTMLElement).style.padding = '15px';
         });
         
+        // Ensure all content is properly sized for the page
+        const contentBlocks = element.querySelectorAll('.pdf-report > div > div');
+        contentBlocks.forEach((block, index) => {
+          // Apply page-break-inside: avoid to main sections to prevent awkward breaks
+          (block as HTMLElement).style.pageBreakInside = 'avoid';
+          (block as HTMLElement).style.marginBottom = '20px';
+          
+          // Force page breaks before main sections (except the first)
+          if (index > 0) {
+            (block as HTMLElement).style.pageBreakBefore = 'always';
+          }
+        });
+        
         // Process child elements
         Array.from(element.children).forEach(child => {
           processElements(child as HTMLElement);
@@ -430,17 +443,22 @@ const EQNavigatorResults = () => {
         const srcY = (pdfHeight * 0.9 * i) / ratio;
         const sectionHeight = Math.min(imgHeight - srcY, (pdfHeight * 0.9) / ratio);
         
-        // Fixed: Using the correct ImageOptions properties for jsPDF v3.0.1
-        pdf.addImage({
-          imageData: imgData,
-          format: 'PNG',
-          x: pdfWidth * 0.05, // 5% margin on left
-          y: pdfHeight * 0.05, // 5% margin on top
-          width: pdfWidth * 0.9, // 90% of page width
-          height: (sectionHeight * ratio), // Scaled height for this section
-          compression: 'FAST',
-          rotation: 0
-        });
+        pdf.addImage(
+          imgData,
+          'PNG',
+          pdfWidth * 0.05, // 5% margin on left
+          pdfHeight * 0.05, // 5% margin on top
+          pdfWidth * 0.9, // 90% of page width
+          (sectionHeight * ratio), // Scaled height for this section
+          `page-${i}`,
+          'FAST',
+          0
+        );
+        
+        // Add page number
+        pdf.setFontSize(8);
+        pdf.setTextColor(100, 100, 100);
+        pdf.text(`Page ${i + 1} of ${totalPages}`, pdfWidth / 2, pdfHeight - 5, { align: 'center' });
       }
       
       // Save the PDF

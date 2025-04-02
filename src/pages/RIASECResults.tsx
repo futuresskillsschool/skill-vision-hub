@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -285,18 +284,26 @@ const RIASECResults = () => {
       
       const canvas = await html2canvas(resultsRef.current, {
         scale: 2,
-        logging: false,
+        logging: true,
         useCORS: true,
         backgroundColor: '#ffffff',
         allowTaint: true,
-        windowWidth: 1200,
         onclone: (document, element) => {
-          const overlays = element.querySelectorAll('.bg-white');
-          overlays.forEach(overlay => {
-            if (overlay.classList.contains('bg-opacity-50') || 
-                overlay.classList.contains('bg-opacity-25') || 
-                overlay.classList.contains('backdrop-blur-sm')) {
-              overlay.classList.remove('bg-opacity-50', 'bg-opacity-25', 'backdrop-blur-sm');
+          const allElements = element.querySelectorAll('*');
+          allElements.forEach(el => {
+            if (el instanceof HTMLElement) {
+              el.style.display = el.style.display === 'none' ? 'block' : el.style.display;
+              
+              if (el.classList.contains('bg-white')) {
+                el.style.backgroundColor = '#ffffff';
+              }
+              
+              if (el.classList.contains('bg-opacity-50') || 
+                  el.classList.contains('bg-opacity-25') || 
+                  el.classList.contains('backdrop-blur-sm')) {
+                el.classList.remove('bg-opacity-50', 'bg-opacity-25', 'backdrop-blur-sm');
+                el.style.backgroundColor = '#ffffff';
+              }
             }
           });
         }
@@ -322,16 +329,42 @@ const RIASECResults = () => {
       const scaledHeight = imgHeight * ratio;
       
       const x = (pdfWidth - scaledWidth) / 2;
-      const y = 10;
       
-      pdf.addImage(
-        imgData, 
-        'PNG', 
-        x, 
-        y, 
-        scaledWidth, 
-        scaledHeight
-      );
+      if (scaledHeight > pdfHeight) {
+        const pageHeight = pdfHeight * 0.9;
+        const totalPages = Math.ceil(scaledHeight / pageHeight);
+        
+        for (let i = 0; i < totalPages; i++) {
+          if (i > 0) pdf.addPage();
+          
+          const sourceY = (i * pageHeight / ratio);
+          const sourceHeight = Math.min(imgHeight - sourceY, pageHeight / ratio);
+          
+          pdf.addImage(
+            imgData,
+            'PNG',
+            x,
+            10,
+            scaledWidth,
+            (sourceHeight * ratio),
+            `page-${i}`,
+            'FAST',
+            0
+          );
+          
+          pdf.setFontSize(10);
+          pdf.text(`Page ${i + 1} of ${totalPages}`, pdfWidth / 2, pdfHeight - 10, { align: 'center' });
+        }
+      } else {
+        pdf.addImage(
+          imgData, 
+          'PNG', 
+          x, 
+          10, 
+          scaledWidth, 
+          scaledHeight
+        );
+      }
       
       pdf.save('RIASEC-Assessment-Results.pdf');
     } catch (error) {

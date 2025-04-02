@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Navbar from '@/components/Navbar';
@@ -66,11 +65,15 @@ const StudentDetailsPage = () => {
           
           const assessmentType = id || resultsData.assessmentType || 'scct';
           
+          // Add download flag for the first pass if needed
+          const shouldDownloadPdf = resultsData.downloadPdf || false;
+          
           // Navigate directly to results page with the student ID
           navigate(`/assessment/${assessmentType}/results`, {
             state: {
               ...resultsData,
-              studentId: studentData.id
+              studentId: studentData.id,
+              downloadPdf: shouldDownloadPdf
             }
           });
         } else {

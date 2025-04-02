@@ -230,24 +230,57 @@ const CareerVisionResults = () => {
       ) => {
         if (!container) return;
         
-        const canvas = await html2canvas(container, {
+        // Clone the container to avoid modifying the original
+        const clone = container.cloneNode(true) as HTMLElement;
+        
+        // Create a temporary container for the clone
+        const tempContainer = document.createElement('div');
+        tempContainer.style.position = 'absolute';
+        tempContainer.style.left = '-9999px';
+        tempContainer.style.top = '0';
+        tempContainer.style.width = '1000px'; // Fixed width for consistent rendering
+        tempContainer.style.backgroundColor = '#FFFFFF';
+        tempContainer.appendChild(clone);
+        document.body.appendChild(tempContainer);
+        
+        // Process the cloned container to ensure all content is visible
+        const processElement = (el: HTMLElement) => {
+          // Make sure element is visible
+          el.style.display = 'block';
+          el.style.visibility = 'visible';
+          el.style.opacity = '1';
+          el.style.height = 'auto';
+          el.style.overflow = 'visible';
+          
+          // Remove opacity classes and set solid backgrounds
+          if (el.classList.contains('bg-opacity-50') || 
+              el.classList.contains('bg-opacity-25') || 
+              el.classList.contains('backdrop-blur-sm')) {
+            el.classList.remove('bg-opacity-50', 'bg-opacity-25', 'backdrop-blur-sm');
+            el.style.backgroundColor = '#FFFFFF';
+          }
+          
+          // Process all child elements
+          Array.from(el.children).forEach(child => {
+            if (child instanceof HTMLElement) {
+              processElement(child);
+            }
+          });
+        };
+        
+        processElement(clone);
+        
+        // Render to canvas
+        const canvas = await html2canvas(clone, {
           scale: 2,
           useCORS: true,
           logging: false,
           allowTaint: true,
-          backgroundColor: '#FFFFFF',
-          onclone: (document, element) => {
-            // Remove any overlay elements that might cause transparency issues
-            const overlays = element.querySelectorAll('.bg-white');
-            overlays.forEach(overlay => {
-              if (overlay.classList.contains('bg-opacity-50') || 
-                  overlay.classList.contains('bg-opacity-25') || 
-                  overlay.classList.contains('backdrop-blur-sm')) {
-                overlay.classList.remove('bg-opacity-50', 'bg-opacity-25', 'backdrop-blur-sm');
-              }
-            });
-          }
+          backgroundColor: '#FFFFFF'
         });
+        
+        // Remove temporary container
+        document.body.removeChild(tempContainer);
         
         const imgData = canvas.toDataURL('image/png');
         
@@ -274,47 +307,47 @@ const CareerVisionResults = () => {
         pdf.text(`Page ${pageNumber + 1}`, 10, 287);
       };
       
-      // Add cover page
+      // Add cover page with student details
       pdf.setFontSize(24);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('Career Vision Assessment', 105, 100, { align: 'center' });
+      pdf.text('Career Vision Assessment', 105, 70, { align: 'center' });
       pdf.setFontSize(16);
-      pdf.text('Comprehensive Results Report', 105, 115, { align: 'center' });
+      pdf.text('Comprehensive Results Report', 105, 85, { align: 'center' });
       
+      // Add student information to cover page
       if (studentDetails) {
         pdf.setFontSize(14);
         pdf.setFont('helvetica', 'normal');
-        pdf.text(`Student: ${studentDetails.name}`, 105, 140, { align: 'center' });
-        pdf.text(`Class: ${studentDetails.class} - ${studentDetails.section}`, 105, 150, { align: 'center' });
-        pdf.text(`School: ${studentDetails.school}`, 105, 160, { align: 'center' });
+        pdf.text(`Student: ${studentDetails.name}`, 105, 120, { align: 'center' });
+        pdf.text(`Class: ${studentDetails.class} - ${studentDetails.section}`, 105, 130, { align: 'center' });
+        pdf.text(`School: ${studentDetails.school}`, 105, 140, { align: 'center' });
       }
       
       pdf.setFontSize(10);
       pdf.text('Page 1', 10, 287);
       
-      // Force each tab to be visible temporarily for capturing
-      // We'll need to store original active tab to restore later
+      // Store original active tab to restore later
       const originalActiveTab = activeTab;
       
-      // Make sure overview tab is visible first and capture it
+      // Make overview tab visible and capture it
       setActiveTab("overview");
       // Give time for the state to update and components to render
-      await new Promise(resolve => setTimeout(resolve, 200));
+      await new Promise(resolve => setTimeout(resolve, 300));
       await addSectionToPDF(overviewRef.current, 'Overview', 1);
       
       // Capture RIASEC tab
       setActiveTab("riasec");
-      await new Promise(resolve => setTimeout(resolve, 200));
+      await new Promise(resolve => setTimeout(resolve, 300));
       await addSectionToPDF(riasecRef.current, 'RIASEC Profile', 2);
       
       // Capture Pathways tab
       setActiveTab("pathways");
-      await new Promise(resolve => setTimeout(resolve, 200));
+      await new Promise(resolve => setTimeout(resolve, 300));
       await addSectionToPDF(pathwaysRef.current, 'Future Pathways', 3);
       
       // Capture EQ tab
       setActiveTab("eq");
-      await new Promise(resolve => setTimeout(resolve, 200));
+      await new Promise(resolve => setTimeout(resolve, 300));
       await addSectionToPDF(eqRef.current, 'EQ Navigator', 4);
       
       // Restore original active tab
