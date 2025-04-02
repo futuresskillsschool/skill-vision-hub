@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -410,34 +409,18 @@ const RIASECResults = () => {
               x,
               y,
               scaledWidth,
-              Math.min(contentPerPage, scaledHeight),
-              `page-${i}`,
-              'FAST'
+              Math.min(contentPerPage, scaledHeight)
             );
           } else {
-            const sourceY = (contentPerPage / ratio) * i;
-            const remainingHeight = imgHeight - sourceY;
-            const currentHeight = Math.min(remainingHeight, contentPerPage / ratio);
-            
-            // Fixed: Use the correct approach for partial image rendering
-            // Instead of object parameters, use the clipPath option with jsPDF
+            const virtualYPos = contentPerPage * i;
             pdf.addImage(
               imgData,
               'PNG',
               x,
-              15,
+              15 - virtualYPos * (ratio / 2),
               scaledWidth,
-              currentHeight * ratio,
-              `page-${i}`,
-              'FAST'
+              scaledHeight
             );
-            
-            // Apply a clipping path to show only a portion of the image
-            const svgClip = `<svg><defs><clipPath id="clip"><rect x="0" y="${sourceY}" width="${imgWidth}" height="${currentHeight}"/></clipPath></defs></svg>`;
-            pdf.svg(svgClip, {
-              width: 0,
-              height: 0
-            });
           }
           
           pdf.setFontSize(10);
