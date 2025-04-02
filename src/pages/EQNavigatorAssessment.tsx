@@ -140,6 +140,7 @@ const EQNavigatorAssessment = () => {
   const [selectedOptions, setSelectedOptions] = useState<string[]>(Array(questions.length).fill(''));
   const [showResults, setShowResults] = useState(false);
   const [totalScore, setTotalScore] = useState(0);
+  const [navigatingToResults, setNavigatingToResults] = useState(false);
 
   // Group questions 5 per page
   const questionsPerPage = 5;
@@ -195,6 +196,11 @@ const EQNavigatorAssessment = () => {
   };
 
   const handleViewResults = () => {
+    // Prevent multiple navigations
+    if (navigatingToResults) return;
+    
+    setNavigatingToResults(true);
+    
     // Navigate to the student details page before showing results
     navigate('/assessment/eq-navigator/student-details', { 
       state: { 
@@ -342,6 +348,7 @@ const EQNavigatorAssessment = () => {
                   onClick={handleViewResults}
                   size="lg"
                   className="bg-purple-500 hover:bg-purple-600 text-white"
+                  disabled={navigatingToResults}
                 >
                   View Your Results
                 </Button>
