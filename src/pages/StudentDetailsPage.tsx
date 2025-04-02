@@ -1,9 +1,11 @@
+
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from "sonner";
 
 const StudentDetailsPage = () => {
   const location = useLocation();
@@ -37,6 +39,7 @@ const StudentDetailsPage = () => {
             
           if (profileError) {
             console.error('Error fetching user profile:', profileError);
+            toast.error("Could not load your profile information");
           }
           
           // Create a student record from the profile data
@@ -45,7 +48,7 @@ const StudentDetailsPage = () => {
             .insert({
               name: profileData?.first_name && profileData?.last_name 
                 ? `${profileData.first_name} ${profileData.last_name}` 
-                : 'Anonymous User',
+                : (user.email || 'Anonymous User'),
               class: profileData?.stream || 'Not specified',
               section: profileData?.interest || 'Not specified',
               school: 'Not specified',
@@ -57,8 +60,8 @@ const StudentDetailsPage = () => {
             
           if (studentError) {
             console.error('Error creating student record:', studentError);
-            setLoading(false);
-            return;
+            toast.error("Could not save your assessment details");
+            // Still continue to results even if there's an error creating the student record
           }
           
           console.log('Created student record:', studentData);
@@ -72,7 +75,7 @@ const StudentDetailsPage = () => {
           navigate(`/assessment/${assessmentType}/results`, {
             state: {
               ...resultsData,
-              studentId: studentData.id,
+              studentId: studentData?.id,
               downloadPdf: shouldDownloadPdf
             }
           });
@@ -87,30 +90,22 @@ const StudentDetailsPage = () => {
         }
       } catch (error) {
         console.error('Error processing user data:', error);
-        setLoading(false);
+        toast.error("There was an error processing your assessment results");
+        navigate(`/assessment/${id || 'scct'}`);
       }
     };
     
     processUserData();
   }, [resultsData, navigate, id, user]);
   
-  // If loading, show minimal content
+  // Return a minimal component (which should never be visible for more than a moment)
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-white via-orange-50 to-amber-50">
       <Navbar />
       <main className="flex-grow pt-24 pb-16 px-4 flex items-center justify-center">
-        <div className="animate-pulse flex space-x-4">
-          <div className="rounded-full bg-slate-200 h-10 w-10"></div>
-          <div className="flex-1 space-y-6 py-1">
-            <div className="h-2 bg-slate-200 rounded"></div>
-            <div className="space-y-3">
-              <div className="grid grid-cols-3 gap-4">
-                <div className="h-2 bg-slate-200 rounded col-span-2"></div>
-                <div className="h-2 bg-slate-200 rounded col-span-1"></div>
-              </div>
-              <div className="h-2 bg-slate-200 rounded"></div>
-            </div>
-          </div>
+        <div className="text-center">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-brand-purple border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
+          <p className="mt-4 text-gray-600">Processing your results...</p>
         </div>
       </main>
       <Footer />

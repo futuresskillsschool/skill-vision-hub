@@ -9,6 +9,7 @@ import jsPDF from 'jspdf';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 
 const riasecTypes = {
   R: {
@@ -209,6 +210,30 @@ const RIASECResults = () => {
             
           if (error) {
             console.error('Error fetching student details:', error);
+            if (user) {
+              const { data: profileData, error: profileError } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', user.id)
+                .single();
+                
+              if (profileError) {
+                console.error('Error fetching profile as fallback:', profileError);
+                return;
+              }
+              
+              if (profileData) {
+                setStudentDetails({
+                  id: user.id,
+                  name: profileData.first_name && profileData.last_name 
+                    ? `${profileData.first_name} ${profileData.last_name}` 
+                    : (user.email || 'Anonymous User'),
+                  class: profileData.stream || 'Not specified',
+                  section: profileData.interest || 'Not specified',
+                  school: 'Not specified'
+                });
+              }
+            }
             return;
           }
           
@@ -217,6 +242,33 @@ const RIASECResults = () => {
           }
         } catch (error) {
           console.error('Error in student details fetch:', error);
+        }
+      } else if (user) {
+        try {
+          const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', user.id)
+            .single();
+            
+          if (profileError) {
+            console.error('Error fetching profile data:', profileError);
+            return;
+          }
+          
+          if (profileData) {
+            setStudentDetails({
+              id: user.id,
+              name: profileData.first_name && profileData.last_name 
+                ? `${profileData.first_name} ${profileData.last_name}` 
+                : (user.email || 'Anonymous User'),
+              class: profileData.stream || 'Not specified',
+              section: profileData.interest || 'Not specified',
+              school: 'Not specified'
+            });
+          }
+        } catch (error) {
+          console.error('Error fetching profile data:', error);
         }
       }
     };
@@ -228,7 +280,6 @@ const RIASECResults = () => {
         try {
           console.log('Saving RIASEC results to database for user:', user.id);
           
-          // Convert scores to a plain object to ensure JSON compatibility
           const scoresObject: Record<string, number> = {};
           Object.entries(scores).forEach(([key, value]) => {
             scoresObject[key] = value;
@@ -281,10 +332,11 @@ const RIASECResults = () => {
     
     try {
       setIsDownloading(true);
+      toast.loading("Generating your PDF report...");
       
       const canvas = await html2canvas(resultsRef.current, {
         scale: 2,
-        logging: true,
+        logging: false,
         useCORS: true,
         backgroundColor: '#ffffff',
         allowTaint: true,
@@ -321,36 +373,70 @@ const RIASECResults = () => {
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
       
+      pdf.setFontSize(20);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('RIASEC Assessment Results', pdfWidth / 2, 20, { align: 'center' });
+      
+      if (studentDetails) {
+        pdf.setFontSize(12);
+        pdf.setFont('helvetica', 'normal');
+        pdf.text(`Student: ${studentDetails.name}`, 15, 35);
+        pdf.text(`Class: ${studentDetails.class} - ${studentDetails.section}`, 15, 43);
+        pdf.text(`School: ${studentDetails.school}`, 15, 51);
+      }
+      
       const imgWidth = canvas.width;
       const imgHeight = canvas.height;
-      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight) * 0.95;
+      const ratio = Math.min((pdfWidth - 20) / imgWidth, (pdfHeight - 60) / imgHeight);
       
       const scaledWidth = imgWidth * ratio;
       const scaledHeight = imgHeight * ratio;
       
       const x = (pdfWidth - scaledWidth) / 2;
+      const y = studentDetails ? 60 : 30;
       
-      if (scaledHeight > pdfHeight) {
-        const pageHeight = pdfHeight * 0.9;
-        const totalPages = Math.ceil(scaledHeight / pageHeight);
+      if (scaledHeight > (pdfHeight - y - 10)) {
+        const contentPerPage = (pdfHeight - y - 20);
+        const totalPages = Math.ceil(scaledHeight / contentPerPage);
         
         for (let i = 0; i < totalPages; i++) {
           if (i > 0) pdf.addPage();
           
-          const sourceY = (i * pageHeight / ratio);
-          const sourceHeight = Math.min(imgHeight - sourceY, pageHeight / ratio);
-          
-          pdf.addImage(
-            imgData,
-            'PNG',
-            x,
-            10,
-            scaledWidth,
-            (sourceHeight * ratio),
-            `page-${i}`,
-            'FAST',
-            0
-          );
+          if (i === 0) {
+            pdf.addImage(
+              imgData,
+              'PNG',
+              x,
+              y,
+              scaledWidth,
+              Math.min(contentPerPage, scaledHeight),
+              `page-${i}`,
+              'FAST',
+              0
+            );
+          } else {
+            const sourceY = (contentPerPage / ratio) * i;
+            const remainingHeight = imgHeight - sourceY;
+            const currentHeight = Math.min(remainingHeight, contentPerPage / ratio);
+            
+            pdf.addImage(
+              imgData,
+              'PNG',
+              x,
+              15,
+              scaledWidth,
+              currentHeight * ratio,
+              `page-${i}`,
+              'FAST',
+              0,
+              {
+                sourceX: 0,
+                sourceY: sourceY,
+                sourceWidth: imgWidth,
+                sourceHeight: currentHeight
+              }
+            );
+          }
           
           pdf.setFontSize(10);
           pdf.text(`Page ${i + 1} of ${totalPages}`, pdfWidth / 2, pdfHeight - 10, { align: 'center' });
@@ -360,15 +446,17 @@ const RIASECResults = () => {
           imgData, 
           'PNG', 
           x, 
-          10, 
+          y, 
           scaledWidth, 
           scaledHeight
         );
       }
       
       pdf.save('RIASEC-Assessment-Results.pdf');
+      toast.success("Your PDF report is ready!");
     } catch (error) {
       console.error('Error generating PDF:', error);
+      toast.error("There was an error generating your PDF. Please try again.");
     } finally {
       setIsDownloading(false);
     }
