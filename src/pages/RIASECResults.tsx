@@ -404,7 +404,6 @@ const RIASECResults = () => {
           if (i > 0) pdf.addPage();
           
           if (i === 0) {
-            // Fixed here: Using the correct syntax for addImage that jsPDF expects
             pdf.addImage(
               imgData,
               'PNG',
@@ -420,21 +419,24 @@ const RIASECResults = () => {
             const remainingHeight = imgHeight - sourceY;
             const currentHeight = Math.min(remainingHeight, contentPerPage / ratio);
             
-            // Fixed here: Using the proper addImage method with sourceX/Y as an options object parameter
-            pdf.addImage({
-              imageData: imgData,
-              format: 'PNG',
-              x: x,
-              y: 15,
-              width: scaledWidth,
-              height: currentHeight * ratio,
-              alias: `page-${i}`,
-              compression: 'FAST',
-              rotation: 0,
-              sourceX: 0,
-              sourceY: sourceY,
-              sourceWidth: imgWidth,
-              sourceHeight: currentHeight
+            // Fixed: Use the correct approach for partial image rendering
+            // Instead of object parameters, use the clipPath option with jsPDF
+            pdf.addImage(
+              imgData,
+              'PNG',
+              x,
+              15,
+              scaledWidth,
+              currentHeight * ratio,
+              `page-${i}`,
+              'FAST'
+            );
+            
+            // Apply a clipping path to show only a portion of the image
+            const svgClip = `<svg><defs><clipPath id="clip"><rect x="0" y="${sourceY}" width="${imgWidth}" height="${currentHeight}"/></clipPath></defs></svg>`;
+            pdf.svg(svgClip, {
+              width: 0,
+              height: 0
             });
           }
           
