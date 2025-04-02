@@ -12,6 +12,7 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface EQResultsProps {
   totalScore: number;
@@ -254,6 +255,7 @@ const EQNavigatorResults = () => {
   const [studentDetails, setStudentDetails] = useState<StudentDetails | null>(null);
   const { user } = useAuth();
   const [results, setResults] = useState<any | null>(location.state || null);
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -290,12 +292,12 @@ const EQNavigatorResults = () => {
     setProfile(selectedProfile);
     setIsLoading(false);
 
-    if (!results && user) {
-      // This would be implemented if we had a function to fetch results
-      // fetchUserResults('career-vision').then(setResults);
+    if (state.downloadPdf) {
+      setTimeout(() => {
+        downloadAsPDF();
+      }, 1500);
     }
     
-    // Fetch student details if we have a studentId in the results state
     const fetchStudentDetails = async () => {
       if (results && results.studentId) {
         try {
@@ -327,35 +329,32 @@ const EQNavigatorResults = () => {
   };
 
   const downloadAsPDF = async () => {
-    if (!reportRef.current) return;
+    if (!reportRef.current || isGeneratingPDF) return;
     
     try {
-      // Create a cloned element for PDF generation
+      setIsGeneratingPDF(true);
+      toast.info("Preparing your PDF. This may take a moment...");
+      
       const originalContent = reportRef.current;
       const contentClone = originalContent.cloneNode(true) as HTMLElement;
       
-      // Add styles for PDF generation
       contentClone.style.width = '800px';
       contentClone.style.padding = '40px';
       contentClone.style.backgroundColor = '#ffffff';
       contentClone.style.fontFamily = 'Arial, sans-serif';
       contentClone.style.color = '#333333';
       
-      // Hide the element off-screen for rendering
       contentClone.style.position = 'fixed';
       contentClone.style.left = '-9999px';
       contentClone.style.top = '0';
       document.body.appendChild(contentClone);
       
-      // Process all elements for proper PDF rendering
       const processElements = (element: HTMLElement) => {
-        // Ensure all sections are visible
         element.style.display = 'block';
         element.style.overflow = 'visible';
         element.style.height = 'auto';
         element.style.maxHeight = 'none';
         
-        // Fix SVG rendering
         const svgs = element.querySelectorAll('svg');
         svgs.forEach(svg => {
           svg.setAttribute('width', '100%');
@@ -363,7 +362,6 @@ const EQNavigatorResults = () => {
           svg.style.display = 'block';
         });
         
-        // Ensure text is visible
         const textElements = element.querySelectorAll('p, h1, h2, h3, h4, h5, h6, span');
         textElements.forEach(el => {
           (el as HTMLElement).style.color = '#333333';
@@ -371,7 +369,6 @@ const EQNavigatorResults = () => {
           (el as HTMLElement).style.fontSize = (el as HTMLElement).style.fontSize || '14px';
         });
         
-        // Fix background colors
         const cards = element.querySelectorAll('.bg-white, .bg-purple-50, .bg-purple-100');
         cards.forEach(card => {
           (card as HTMLElement).style.backgroundColor = '#ffffff';
@@ -381,20 +378,21 @@ const EQNavigatorResults = () => {
           (card as HTMLElement).style.padding = '15px';
         });
         
-        // Ensure all content is properly sized for the page
-        const contentBlocks = element.querySelectorAll('.pdf-report > div > div');
+        const buttons = element.querySelectorAll('button');
+        buttons.forEach(button => {
+          (button as HTMLElement).style.display = 'none';
+        });
+        
+        const contentBlocks = element.querySelectorAll('.pdf-report > div');
         contentBlocks.forEach((block, index) => {
-          // Apply page-break-inside: avoid to main sections to prevent awkward breaks
           (block as HTMLElement).style.pageBreakInside = 'avoid';
-          (block as HTMLElement).style.marginBottom = '20px';
+          (block as HTMLElement).style.marginBottom = '30px';
           
-          // Force page breaks before main sections (except the first)
           if (index > 0) {
             (block as HTMLElement).style.pageBreakBefore = 'always';
           }
         });
         
-        // Process child elements
         Array.from(element.children).forEach(child => {
           processElements(child as HTMLElement);
         });
@@ -402,7 +400,6 @@ const EQNavigatorResults = () => {
       
       processElements(contentClone);
       
-      // Render the content to canvas
       const canvas = await html2canvas(contentClone, {
         scale: 2,
         useCORS: true,
@@ -411,10 +408,8 @@ const EQNavigatorResults = () => {
         logging: false
       });
       
-      // Remove the cloned element
       document.body.removeChild(contentClone);
       
-      // Create PDF from canvas
       const imgData = canvas.toDataURL('image/png', 1.0);
       const pdf = new jsPDF({
         orientation: 'portrait',
@@ -423,20 +418,16 @@ const EQNavigatorResults = () => {
         compress: true
       });
       
-      // PDF dimensions
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
       
-      // Image dimensions and scaling
       const imgWidth = canvas.width;
       const imgHeight = canvas.height;
       const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight) * 0.9;
       
-      // Calculate pages
       const scaledImgHeight = imgHeight * ratio;
       const totalPages = Math.ceil(scaledImgHeight / (pdfHeight * 0.9));
       
-      // Add each page
       for (let i = 0; i < totalPages; i++) {
         if (i > 0) pdf.addPage();
         
@@ -446,25 +437,27 @@ const EQNavigatorResults = () => {
         pdf.addImage(
           imgData,
           'PNG',
-          pdfWidth * 0.05, // 5% margin on left
-          pdfHeight * 0.05, // 5% margin on top
-          pdfWidth * 0.9, // 90% of page width
-          (sectionHeight * ratio), // Scaled height for this section
+          pdfWidth * 0.05,
+          pdfHeight * 0.05,
+          pdfWidth * 0.9,
+          (sectionHeight * ratio),
           `page-${i}`,
           'FAST',
           0
         );
         
-        // Add page number
         pdf.setFontSize(8);
         pdf.setTextColor(100, 100, 100);
         pdf.text(`Page ${i + 1} of ${totalPages}`, pdfWidth / 2, pdfHeight - 5, { align: 'center' });
       }
       
-      // Save the PDF
-      pdf.save('EQ-Navigator-Results.pdf');
+      pdf.save(`EQ-Navigator-Results-${new Date().toISOString().slice(0, 10)}.pdf`);
+      toast.success("PDF downloaded successfully!");
     } catch (error) {
       console.error('Error generating PDF:', error);
+      toast.error("Could not generate PDF. Please try again.");
+    } finally {
+      setIsGeneratingPDF(false);
     }
   };
 
@@ -514,14 +507,23 @@ const EQNavigatorResults = () => {
                   onClick={downloadAsPDF} 
                   variant="outline" 
                   className="flex items-center gap-2 border-purple-200 text-purple-600 hover:bg-purple-50"
+                  disabled={isGeneratingPDF}
                 >
-                  <Download className="h-4 w-4" />
-                  Download PDF
+                  {isGeneratingPDF ? (
+                    <>
+                      <div className="h-4 w-4 border-2 border-purple-600 border-r-transparent rounded-full animate-spin mr-2"></div>
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Download className="h-4 w-4" />
+                      Download PDF
+                    </>
+                  )}
                 </Button>
               </div>
             </div>
 
-            {/* Student Details Section */}
             {studentDetails && (
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
@@ -561,7 +563,6 @@ const EQNavigatorResults = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
               >
-                {/* Results Header */}
                 <div className="rounded-xl p-8 mb-8 text-center relative overflow-hidden bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-md">
                   <motion.div 
                     initial={{ scale: 0.8, opacity: 0 }}
@@ -634,7 +635,6 @@ const EQNavigatorResults = () => {
                   </div>
                 </div>
                 
-                {/* EQ Profile Section */}
                 <motion.div 
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -649,7 +649,6 @@ const EQNavigatorResults = () => {
                   </h2>
                   <p className="text-gray-700 text-lg leading-relaxed">{profile?.description}</p>
                   
-                  {/* EQ Breakdown */}
                   <div className="mt-8 pt-6 border-t border-gray-100">
                     <h3 className="text-lg font-medium mb-4 text-gray-800">Emotional Intelligence Breakdown</h3>
                     
@@ -718,7 +717,6 @@ const EQNavigatorResults = () => {
                   </div>
                 </motion.div>
                 
-                {/* Strengths Section */}
                 <motion.div 
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -752,7 +750,6 @@ const EQNavigatorResults = () => {
                   </div>
                 </motion.div>
                 
-                {/* Growth Opportunities Section */}
                 <motion.div 
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -790,7 +787,6 @@ const EQNavigatorResults = () => {
                   </div>
                 </motion.div>
                 
-                {/* Resources Section */}
                 <motion.div 
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}

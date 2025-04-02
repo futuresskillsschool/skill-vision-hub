@@ -101,6 +101,9 @@ const AssessmentTable = ({ assessments }: AssessmentTableProps) => {
   };
 
   const getPrimaryResult = (result: AssessmentResult) => {
+    if (result.assessment_type === 'eq-navigator') {
+      return result.result_data?.primary_result || 'Completed';
+    }
     return result.result_data?.primary_result || 'Completed';
   };
 

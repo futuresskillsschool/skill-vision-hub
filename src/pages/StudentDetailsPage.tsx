@@ -68,6 +68,28 @@ const StudentDetailsPage = () => {
           
           const assessmentType = id || resultsData.assessmentType || 'scct';
           
+          // Save the assessment results to the assessment_results table
+          if (assessmentType === 'eq-navigator' && resultsData.totalScore !== undefined) {
+            const { error: resultError } = await supabase
+              .from('assessment_results')
+              .insert({
+                user_id: user.id,
+                assessment_type: assessmentType,
+                result_data: {
+                  totalScore: resultsData.totalScore,
+                  selectedOptions: resultsData.selectedOptions,
+                  primary_result: getPrimaryResult(resultsData.totalScore)
+                }
+              });
+              
+            if (resultError) {
+              console.error('Error saving assessment results:', resultError);
+              toast.error("Could not save your assessment results");
+            } else {
+              console.log('Assessment results saved successfully');
+            }
+          }
+          
           // Add download flag for the first pass if needed
           const shouldDownloadPdf = resultsData.downloadPdf || false;
           
@@ -97,6 +119,19 @@ const StudentDetailsPage = () => {
     
     processUserData();
   }, [resultsData, navigate, id, user]);
+  
+  // Helper function to determine the primary result based on the score
+  const getPrimaryResult = (totalScore: number) => {
+    if (totalScore >= 32) {
+      return 'Empathetic Explorer';
+    } else if (totalScore >= 24) {
+      return 'Developing Navigator';
+    } else if (totalScore >= 16) {
+      return 'Emerging Explorer';
+    } else {
+      return 'Compass Explorer';
+    }
+  };
   
   // Return a minimal component (which should never be visible for more than a moment)
   return (
