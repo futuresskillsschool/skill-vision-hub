@@ -1,3 +1,4 @@
+
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -403,6 +404,7 @@ const RIASECResults = () => {
           if (i > 0) pdf.addPage();
           
           if (i === 0) {
+            // Fixed here: Using the correct syntax for addImage that jsPDF expects
             pdf.addImage(
               imgData,
               'PNG',
@@ -411,31 +413,29 @@ const RIASECResults = () => {
               scaledWidth,
               Math.min(contentPerPage, scaledHeight),
               `page-${i}`,
-              'FAST',
-              0
+              'FAST'
             );
           } else {
             const sourceY = (contentPerPage / ratio) * i;
             const remainingHeight = imgHeight - sourceY;
             const currentHeight = Math.min(remainingHeight, contentPerPage / ratio);
             
-            pdf.addImage(
-              imgData,
-              'PNG',
-              x,
-              15,
-              scaledWidth,
-              currentHeight * ratio,
-              `page-${i}`,
-              'FAST',
-              0,
-              {
-                sourceX: 0,
-                sourceY: sourceY,
-                sourceWidth: imgWidth,
-                sourceHeight: currentHeight
-              }
-            );
+            // Fixed here: Using the proper addImage method with sourceX/Y as an options object parameter
+            pdf.addImage({
+              imageData: imgData,
+              format: 'PNG',
+              x: x,
+              y: 15,
+              width: scaledWidth,
+              height: currentHeight * ratio,
+              alias: `page-${i}`,
+              compression: 'FAST',
+              rotation: 0,
+              sourceX: 0,
+              sourceY: sourceY,
+              sourceWidth: imgWidth,
+              sourceHeight: currentHeight
+            });
           }
           
           pdf.setFontSize(10);
