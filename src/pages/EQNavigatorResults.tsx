@@ -1,4 +1,3 @@
-
 import { useEffect, useState, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -339,82 +338,7 @@ const EQNavigatorResults = () => {
       setIsGeneratingPDF(true);
       toast.info("Preparing your PDF. This may take a moment...");
       
-      const originalContent = reportRef.current;
-      const contentClone = originalContent.cloneNode(true) as HTMLElement;
-      
-      contentClone.style.width = '800px';
-      contentClone.style.padding = '40px';
-      contentClone.style.backgroundColor = '#ffffff';
-      contentClone.style.fontFamily = 'Arial, sans-serif';
-      contentClone.style.color = '#333333';
-      
-      contentClone.style.position = 'fixed';
-      contentClone.style.left = '-9999px';
-      contentClone.style.top = '0';
-      document.body.appendChild(contentClone);
-      
-      const processElements = (element: HTMLElement) => {
-        element.style.display = 'block';
-        element.style.overflow = 'visible';
-        element.style.height = 'auto';
-        element.style.maxHeight = 'none';
-        
-        const svgs = element.querySelectorAll('svg');
-        svgs.forEach(svg => {
-          svg.setAttribute('width', '100%');
-          svg.setAttribute('height', '100%');
-          svg.style.display = 'block';
-        });
-        
-        const textElements = element.querySelectorAll('p, h1, h2, h3, h4, h5, h6, span');
-        textElements.forEach(el => {
-          (el as HTMLElement).style.color = '#333333';
-          (el as HTMLElement).style.fontFamily = 'Arial, sans-serif';
-          (el as HTMLElement).style.fontSize = (el as HTMLElement).style.fontSize || '14px';
-        });
-        
-        const cards = element.querySelectorAll('.bg-white, .bg-purple-50, .bg-purple-100');
-        cards.forEach(card => {
-          (card as HTMLElement).style.backgroundColor = '#ffffff';
-          (card as HTMLElement).style.border = '1px solid #e5e7eb';
-          (card as HTMLElement).style.borderRadius = '8px';
-          (card as HTMLElement).style.margin = '15px 0';
-          (card as HTMLElement).style.padding = '15px';
-        });
-        
-        const buttons = element.querySelectorAll('button');
-        buttons.forEach(button => {
-          (button as HTMLElement).style.display = 'none';
-        });
-        
-        const contentBlocks = element.querySelectorAll('.pdf-report > div');
-        contentBlocks.forEach((block, index) => {
-          (block as HTMLElement).style.pageBreakInside = 'avoid';
-          (block as HTMLElement).style.marginBottom = '30px';
-          
-          if (index > 0) {
-            (block as HTMLElement).style.pageBreakBefore = 'always';
-          }
-        });
-        
-        Array.from(element.children).forEach(child => {
-          processElements(child as HTMLElement);
-        });
-      };
-      
-      processElements(contentClone);
-      
-      const canvas = await html2canvas(contentClone, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#ffffff',
-        logging: false
-      });
-      
-      document.body.removeChild(contentClone);
-      
-      const imgData = canvas.toDataURL('image/png', 1.0);
+      // Create a new jsPDF instance with portrait orientation
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
@@ -422,39 +346,365 @@ const EQNavigatorResults = () => {
         compress: true
       });
       
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 15;
+      const contentWidth = pageWidth - (margin * 2);
       
-      const imgWidth = canvas.width;
-      const imgHeight = canvas.height;
-      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight) * 0.9;
+      // Create header
+      pdf.setFillColor(103, 58, 183); // Purple header
+      pdf.rect(0, 0, pageWidth, 50, 'F');
       
-      const scaledImgHeight = imgHeight * ratio;
-      const totalPages = Math.ceil(scaledImgHeight / (pdfHeight * 0.9));
-      
-      for (let i = 0; i < totalPages; i++) {
-        if (i > 0) pdf.addPage();
-        
-        const srcY = (pdfHeight * 0.9 * i) / ratio;
-        const sectionHeight = Math.min(imgHeight - srcY, (pdfHeight * 0.9) / ratio);
-        
-        pdf.addImage(
-          imgData,
-          'PNG',
-          pdfWidth * 0.05,
-          pdfHeight * 0.05,
-          pdfWidth * 0.9,
-          (sectionHeight * ratio),
-          `page-${i}`,
-          'FAST',
-          0
-        );
-        
-        pdf.setFontSize(8);
-        pdf.setTextColor(100, 100, 100);
-        pdf.text(`Page ${i + 1} of ${totalPages}`, pdfWidth / 2, pdfHeight - 5, { align: 'center' });
+      // Add slight gradient to header
+      for (let i = 0; i < 50; i++) {
+        const alpha = 0.03 - (i * 0.0006);
+        pdf.setFillColor(255, 255, 255, alpha);
+        pdf.rect(0, i, pageWidth, 1, 'F');
       }
       
+      // Add title
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFontSize(28);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('EQ Navigator Assessment', pageWidth / 2, 25, { align: 'center' });
+      
+      pdf.setFontSize(16);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text('Emotional Intelligence Profile', pageWidth / 2, 35, { align: 'center' });
+      
+      // Add decorative line
+      pdf.setDrawColor(255, 255, 255, 0.5);
+      pdf.setLineWidth(0.5);
+      pdf.line(margin + 20, 42, pageWidth - margin - 20, 42);
+      
+      // Add score section
+      pdf.setFillColor(245, 245, 245);
+      pdf.roundedRect(margin, 60, contentWidth, 50, 3, 3, 'F');
+      
+      // Add score details
+      pdf.setTextColor(80, 80, 80);
+      pdf.setFontSize(14);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('Your EQ Assessment Results', margin + 10, 75);
+      
+      // Add score chart
+      const scoreData = location.state as EQResultsProps;
+      const scorePercentage = calculatePercentage(scoreData.totalScore);
+      
+      // Draw score circle
+      const circleX = margin + 35;
+      const circleY = 95;
+      const circleRadius = 15;
+      
+      pdf.setDrawColor(220, 220, 220);
+      pdf.setLineWidth(1);
+      pdf.circle(circleX, circleY, circleRadius, 'S');
+      
+      // Draw progress arc (score percentage)
+      const startAngle = -90 * (Math.PI / 180); // Start from top
+      const endAngle = startAngle + (scorePercentage / 100) * 2 * Math.PI;
+      
+      pdf.setDrawColor(103, 58, 183);
+      pdf.setLineWidth(3);
+      
+      // Draw arc manually with small line segments
+      const segments = 60;
+      const angleIncrement = (endAngle - startAngle) / segments;
+      
+      for (let i = 0; i < segments; i++) {
+        const angle1 = startAngle + (i * angleIncrement);
+        const angle2 = startAngle + ((i + 1) * angleIncrement);
+        
+        const x1 = circleX + Math.cos(angle1) * circleRadius;
+        const y1 = circleY + Math.sin(angle1) * circleRadius;
+        const x2 = circleX + Math.cos(angle2) * circleRadius;
+        const y2 = circleY + Math.sin(angle2) * circleRadius;
+        
+        pdf.line(x1, y1, x2, y2);
+      }
+      
+      // Add score text inside circle
+      pdf.setTextColor(103, 58, 183);
+      pdf.setFontSize(12);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text(`${scorePercentage}%`, circleX, circleY + 1, { align: 'center' });
+      
+      pdf.setFontSize(6);
+      pdf.text('EQ Score', circleX, circleY + 6, { align: 'center' });
+      
+      // Add score details boxes
+      const boxWidth = 30;
+      const boxY = 85;
+      
+      // Your Score box
+      pdf.setFillColor(250, 250, 250);
+      pdf.roundedRect(margin + 65, boxY, boxWidth, 20, 2, 2, 'F');
+      pdf.setTextColor(80, 80, 80);
+      pdf.setFontSize(10);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text(`${scoreData.totalScore}`, margin + 65 + boxWidth/2, boxY + 10, { align: 'center' });
+      pdf.setFontSize(6);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text('Your Score', margin + 65 + boxWidth/2, boxY + 15, { align: 'center' });
+      
+      // Max Score box
+      pdf.setFillColor(250, 250, 250);
+      pdf.roundedRect(margin + 65 + boxWidth + 5, boxY, boxWidth, 20, 2, 2, 'F');
+      pdf.setTextColor(80, 80, 80);
+      pdf.setFontSize(10);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('40', margin + 65 + boxWidth + 5 + boxWidth/2, boxY + 10, { align: 'center' });
+      pdf.setFontSize(6);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text('Max Score', margin + 65 + boxWidth + 5 + boxWidth/2, boxY + 15, { align: 'center' });
+      
+      // Range box
+      pdf.setFillColor(250, 250, 250);
+      pdf.roundedRect(margin + 65 + (boxWidth + 5) * 2, boxY, boxWidth, 20, 2, 2, 'F');
+      pdf.setTextColor(80, 80, 80);
+      pdf.setFontSize(10);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text(scoreRange, margin + 65 + (boxWidth + 5) * 2 + boxWidth/2, boxY + 10, { align: 'center' });
+      pdf.setFontSize(6);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text('Range', margin + 65 + (boxWidth + 5) * 2 + boxWidth/2, boxY + 15, { align: 'center' });
+      
+      // Add profile title
+      if (profile) {
+        pdf.setTextColor(80, 80, 80);
+        pdf.setFontSize(18);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text(`${profile.title}`, pageWidth / 2, 125, { align: 'center' });
+        
+        pdf.setTextColor(120, 120, 120);
+        pdf.setFontSize(12);
+        pdf.setFont('helvetica', 'normal');
+        pdf.text(`${profile.subtitle}`, pageWidth / 2, 135, { align: 'center' });
+        
+        // Add profile description
+        pdf.setTextColor(80, 80, 80);
+        pdf.setFontSize(10);
+        const splitDescription = pdf.splitTextToSize(profile.description, contentWidth - 20);
+        pdf.text(splitDescription, margin + 10, 150);
+      }
+      
+      // Add student info if available
+      if (studentDetails) {
+        const infoY = 180;
+        pdf.setFillColor(250, 250, 250);
+        pdf.roundedRect(margin, infoY, contentWidth, 50, 3, 3, 'F');
+        
+        pdf.setTextColor(80, 80, 80);
+        pdf.setFontSize(14);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('Student Profile', margin + 10, infoY + 15);
+        
+        pdf.setFontSize(10);
+        pdf.setFont('helvetica', 'normal');
+        
+        const infoX = margin + 15;
+        pdf.setTextColor(120, 120, 120);
+        pdf.text('Name:', infoX, infoY + 25);
+        pdf.text('Class & Section:', infoX, infoY + 35);
+        pdf.text('School:', infoX, infoY + 45);
+        
+        const valueX = margin + 50;
+        pdf.setTextColor(60, 60, 60);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text(studentDetails.name, valueX, infoY + 25);
+        pdf.text(`${studentDetails.class} - ${studentDetails.section}`, valueX, infoY + 35);
+        pdf.text(studentDetails.school, valueX, infoY + 45);
+      }
+      
+      // Add page number and date
+      const today = new Date();
+      const dateString = today.toLocaleDateString('en-US', { 
+        year: 'numeric', month: 'long', day: 'numeric' 
+      });
+      
+      pdf.setTextColor(150, 150, 150);
+      pdf.setFontSize(8);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text(`Generated on ${dateString}`, pageWidth / 2, pageHeight - 15, { align: 'center' });
+      pdf.text('Page 1 of 3', pageWidth / 2, pageHeight - 10, { align: 'center' });
+      
+      // Add second page with EQ breakdown
+      pdf.addPage();
+      
+      pdf.setFillColor(103, 58, 183, 0.8);
+      pdf.rect(0, 0, pageWidth, 15, 'F');
+      
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFontSize(10);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('EQ NAVIGATOR ASSESSMENT RESULTS', pageWidth / 2, 10, { align: 'center' });
+      
+      // EQ breakdown section
+      pdf.setTextColor(80, 80, 80);
+      pdf.setFontSize(18);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('Emotional Intelligence Breakdown', margin, 30);
+      
+      pdf.setFontSize(10);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text('Your EQ score represents your emotional intelligence across several key dimensions:', margin, 40);
+      
+      // Create skills bars
+      const skillsStartY = 50;
+      const skillHeight = 25;
+      const skills = [
+        { name: 'Self-Awareness', percentage: scorePercentage * 0.9 },
+        { name: 'Self-Regulation', percentage: scorePercentage * 0.85 },
+        { name: 'Empathy', percentage: scorePercentage * 0.95 },
+        { name: 'Social Skills', percentage: scorePercentage * 0.8 }
+      ];
+      
+      skills.forEach((skill, index) => {
+        const y = skillsStartY + (index * skillHeight);
+        
+        // Skill name
+        pdf.setTextColor(80, 80, 80);
+        pdf.setFontSize(10);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text(skill.name, margin, y);
+        
+        // Percentage
+        pdf.text(`${Math.round(skill.percentage)}%`, margin + contentWidth - 10, y, { align: 'right' });
+        
+        // Bar background
+        pdf.setFillColor(220, 220, 220);
+        pdf.roundedRect(margin, y + 5, contentWidth, 8, 2, 2, 'F');
+        
+        // Bar fill
+        pdf.setFillColor(103, 58, 183);
+        pdf.roundedRect(margin, y + 5, contentWidth * (skill.percentage / 100), 8, 2, 2, 'F');
+      });
+      
+      // Add strengths section if profile exists
+      if (profile) {
+        const strengthsY = skillsStartY + (skills.length * skillHeight) + 20;
+        
+        pdf.setTextColor(80, 80, 80);
+        pdf.setFontSize(16);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('Your Strengths', margin, strengthsY);
+        
+        pdf.setFontSize(10);
+        pdf.setFont('helvetica', 'normal');
+        pdf.text(profile.strengthsIntro, margin, strengthsY + 10);
+        
+        // Add strength bullets
+        profile.strengths.forEach((strength, index) => {
+          const bulletY = strengthsY + 20 + (index * 10);
+          pdf.setFillColor(103, 58, 183);
+          pdf.circle(margin + 3, bulletY - 2, 1.5, 'F');
+          pdf.text(strength, margin + 8, bulletY);
+        });
+        
+        // Add growth areas
+        const growthY = strengthsY + 20 + (profile.strengths.length * 10) + 20;
+        
+        pdf.setTextColor(80, 80, 80);
+        pdf.setFontSize(16);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('Growth Opportunities', margin, growthY);
+        
+        pdf.setFontSize(10);
+        pdf.setFont('helvetica', 'normal');
+        pdf.text(profile.growthIntro, margin, growthY + 10);
+        
+        let currentY = growthY + 20;
+        
+        // Add growth area boxes
+        profile.growthAreas.forEach((area, index) => {
+          if (currentY > pageHeight - 30) {
+            pdf.addPage();
+            
+            pdf.setFillColor(103, 58, 183, 0.8);
+            pdf.rect(0, 0, pageWidth, 15, 'F');
+            
+            pdf.setTextColor(255, 255, 255);
+            pdf.setFontSize(10);
+            pdf.setFont('helvetica', 'bold');
+            pdf.text('EQ NAVIGATOR ASSESSMENT RESULTS', pageWidth / 2, 10, { align: 'center' });
+            
+            currentY = 30;
+          }
+          
+          // Growth area box
+          pdf.setFillColor(250, 250, 250);
+          pdf.roundedRect(margin, currentY, contentWidth, 25, 3, 3, 'F');
+          
+          // Area title
+          pdf.setTextColor(103, 58, 183);
+          pdf.setFontSize(11);
+          pdf.setFont('helvetica', 'bold');
+          pdf.text(area.area, margin + 8, currentY + 10);
+          
+          // Tip text
+          pdf.setTextColor(80, 80, 80);
+          pdf.setFontSize(9);
+          pdf.setFont('helvetica', 'normal');
+          pdf.text(area.tip, margin + 10, currentY + 18);
+          
+          currentY += 30;
+        });
+        
+        // Add resources if they fit on the current page
+        if (currentY + 30 + (profile.resources.length * 25) > pageHeight - 25) {
+          pdf.addPage();
+          
+          pdf.setFillColor(103, 58, 183, 0.8);
+          pdf.rect(0, 0, pageWidth, 15, 'F');
+          
+          pdf.setTextColor(255, 255, 255);
+          pdf.setFontSize(10);
+          pdf.setFont('helvetica', 'bold');
+          pdf.text('EQ NAVIGATOR ASSESSMENT RESULTS', pageWidth / 2, 10, { align: 'center' });
+          
+          currentY = 30;
+        } else {
+          currentY += 20;
+        }
+        
+        // Add resources section
+        pdf.setTextColor(80, 80, 80);
+        pdf.setFontSize(16);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('Helpful Resources', margin, currentY);
+        
+        currentY += 15;
+        
+        // Add resource boxes
+        profile.resources.forEach((resource, index) => {
+          pdf.setFillColor(250, 250, 250);
+          pdf.roundedRect(margin, currentY, contentWidth, 22, 3, 3, 'F');
+          
+          pdf.setTextColor(103, 58, 183);
+          pdf.setFontSize(11);
+          pdf.setFont('helvetica', 'bold');
+          pdf.text(resource.title, margin + 8, currentY + 9);
+          
+          pdf.setTextColor(80, 80, 80);
+          pdf.setFontSize(9);
+          pdf.setFont('helvetica', 'normal');
+          pdf.text(resource.description, margin + 8, currentY + 17);
+          
+          currentY += 27;
+        });
+      }
+      
+      // Add footer to the page
+      const totalPages = pdf.getNumberOfPages();
+      for (let i = 1; i <= totalPages; i++) {
+        pdf.setPage(i);
+        pdf.setTextColor(150, 150, 150);
+        pdf.setFontSize(8);
+        pdf.setFont('helvetica', 'normal');
+        pdf.text(`Page ${i} of ${totalPages}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
+      }
+      
+      // Save the PDF
       pdf.save(`EQ-Navigator-Results-${new Date().toISOString().slice(0, 10)}.pdf`);
       toast.success("PDF downloaded successfully!");
     } catch (error) {
