@@ -1,3 +1,4 @@
+
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -793,4 +794,18 @@ const RIASECResults = () => {
                 </Button>
               </Link>
               <Link to="/assessment/future-pathways">
-                <Button variant="outline" className="border-brand-purple text-brand-purple hover:bg-
+                <Button variant="outline" className="border-brand-purple text-brand-purple hover:bg-brand-purple/5">
+                  Try Future Pathways Assessment
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </main>
+      
+      <Footer />
+    </div>
+  );
+};
+
+export default RIASECResults;
