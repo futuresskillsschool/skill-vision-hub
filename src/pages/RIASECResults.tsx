@@ -328,41 +328,13 @@ const RIASECResults = () => {
   };
   
   const downloadResults = async () => {
-    if (!resultsRef.current) return;
+    if (isDownloading) return;
     
     try {
       setIsDownloading(true);
       toast.loading("Generating your PDF report...");
       
-      const canvas = await html2canvas(resultsRef.current, {
-        scale: 2,
-        logging: false,
-        useCORS: true,
-        backgroundColor: '#ffffff',
-        allowTaint: true,
-        onclone: (document, element) => {
-          const allElements = element.querySelectorAll('*');
-          allElements.forEach(el => {
-            if (el instanceof HTMLElement) {
-              el.style.display = el.style.display === 'none' ? 'block' : el.style.display;
-              
-              if (el.classList.contains('bg-white')) {
-                el.style.backgroundColor = '#ffffff';
-              }
-              
-              if (el.classList.contains('bg-opacity-50') || 
-                  el.classList.contains('bg-opacity-25') || 
-                  el.classList.contains('backdrop-blur-sm')) {
-                el.classList.remove('bg-opacity-50', 'bg-opacity-25', 'backdrop-blur-sm');
-                el.style.backgroundColor = '#ffffff';
-              }
-            }
-          });
-        }
-      });
-      
-      const imgData = canvas.toDataURL('image/png', 1.0);
-      
+      // Create PDF document
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
@@ -370,73 +342,237 @@ const RIASECResults = () => {
         compress: true
       });
       
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 10;
+      const contentWidth = pageWidth - (margin * 2);
       
-      pdf.setFontSize(20);
+      // Add title page
+      pdf.setFillColor(103, 58, 183); // Purple header
+      pdf.rect(0, 0, pageWidth, 40, 'F');
+      
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFontSize(24);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('RIASEC Assessment Results', pdfWidth / 2, 20, { align: 'center' });
+      pdf.text('RIASEC Assessment Results', pageWidth / 2, 25, { align: 'center' });
       
+      // Add student info section
       if (studentDetails) {
+        pdf.setTextColor(0, 0, 0);
+        pdf.setFontSize(14);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('Student Information', margin, 60);
+        
         pdf.setFontSize(12);
         pdf.setFont('helvetica', 'normal');
-        pdf.text(`Student: ${studentDetails.name}`, 15, 35);
-        pdf.text(`Class: ${studentDetails.class} - ${studentDetails.section}`, 15, 43);
-        pdf.text(`School: ${studentDetails.school}`, 15, 51);
-      }
-      
-      const imgWidth = canvas.width;
-      const imgHeight = canvas.height;
-      const ratio = Math.min((pdfWidth - 20) / imgWidth, (pdfHeight - 60) / imgHeight);
-      
-      const scaledWidth = imgWidth * ratio;
-      const scaledHeight = imgHeight * ratio;
-      
-      const x = (pdfWidth - scaledWidth) / 2;
-      const y = studentDetails ? 60 : 30;
-      
-      if (scaledHeight > (pdfHeight - y - 10)) {
-        const contentPerPage = (pdfHeight - y - 20);
-        const totalPages = Math.ceil(scaledHeight / contentPerPage);
         
-        for (let i = 0; i < totalPages; i++) {
-          if (i > 0) pdf.addPage();
-          
-          if (i === 0) {
-            pdf.addImage(
-              imgData,
-              'PNG',
-              x,
-              y,
-              scaledWidth,
-              Math.min(contentPerPage, scaledHeight)
-            );
-          } else {
-            const virtualYPos = contentPerPage * i;
-            pdf.addImage(
-              imgData,
-              'PNG',
-              x,
-              15 - virtualYPos * (ratio / 2),
-              scaledWidth,
-              scaledHeight
-            );
-          }
-          
-          pdf.setFontSize(10);
-          pdf.text(`Page ${i + 1} of ${totalPages}`, pdfWidth / 2, pdfHeight - 10, { align: 'center' });
-        }
-      } else {
-        pdf.addImage(
-          imgData, 
-          'PNG', 
-          x, 
-          y, 
-          scaledWidth, 
-          scaledHeight
-        );
+        const studentInfoY = 70;
+        
+        // Create info boxes with gray backgrounds
+        pdf.setFillColor(245, 245, 245);
+        pdf.roundedRect(margin, studentInfoY - 5, contentWidth / 2 - 5, 15, 2, 2, 'F');
+        pdf.roundedRect(margin + contentWidth / 2, studentInfoY - 5, contentWidth / 2, 15, 2, 2, 'F');
+        pdf.roundedRect(margin, studentInfoY + 15, contentWidth, 15, 2, 2, 'F');
+        
+        // Add student details with icons (represented as text)
+        pdf.setFontSize(10);
+        pdf.text('👤 Name:', margin + 5, studentInfoY);
+        pdf.text(studentDetails.name, margin + 25, studentInfoY);
+        
+        pdf.text('📚 Class & Section:', margin + contentWidth / 2 + 5, studentInfoY);
+        pdf.text(`${studentDetails.class} - ${studentDetails.section}`, margin + contentWidth / 2 + 45, studentInfoY);
+        
+        pdf.text('🏫 School:', margin + 5, studentInfoY + 20);
+        pdf.text(studentDetails.school, margin + 25, studentInfoY + 20);
       }
       
+      // Add Holland Code section
+      const hollandCodeY = studentDetails ? 105 : 60;
+      
+      pdf.setFillColor(103, 58, 183, 0.1); // Light purple background
+      pdf.roundedRect(margin, hollandCodeY - 5, contentWidth, 25, 3, 3, 'F');
+      
+      pdf.setTextColor(0, 0, 0);
+      pdf.setFontSize(14);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('Your Holland Code:', margin + 5, hollandCodeY + 5);
+      
+      pdf.setFontSize(16);
+      pdf.setTextColor(103, 58, 183);
+      pdf.text(`${primaryType}${secondaryType}${tertiaryType}`, margin + 50, hollandCodeY + 5);
+      
+      pdf.setTextColor(80, 80, 80);
+      pdf.setFontSize(10);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text('(Based on your strongest personality types)', margin + 80, hollandCodeY + 5);
+      
+      // Add primary type section
+      const primaryTypeY = hollandCodeY + 35;
+      
+      pdf.setTextColor(0, 0, 0);
+      pdf.setFontSize(14);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text(`Your Primary Type: ${riasecTypes[primaryType].name} (${riasecTypes[primaryType].title})`, margin, primaryTypeY);
+      
+      pdf.setFillColor(245, 245, 245);
+      pdf.roundedRect(margin, primaryTypeY + 5, contentWidth, 40, 3, 3, 'F');
+      
+      pdf.setFontSize(10);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text(riasecTypes[primaryType].description, margin + 5, primaryTypeY + 15, { 
+        maxWidth: contentWidth - 10 
+      });
+      
+      // Add top 3 types chart
+      const typesChartY = primaryTypeY + 55;
+      
+      pdf.setFontSize(14);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('Your RIASEC Profile', margin, typesChartY);
+      
+      // Draw the score bars
+      const barColors = {
+        R: '#4285F4', // Blue
+        I: '#9C27B0', // Purple
+        A: '#E53935', // Red
+        S: '#FFB300', // Yellow
+        E: '#FF9800', // Orange
+        C: '#43A047'  // Green
+      };
+      
+      Object.entries(scores).forEach(([type, score], index) => {
+        const barY = typesChartY + 15 + (index * 15);
+        const percentage = getPercentage(score);
+        const barWidth = (contentWidth - 60) * (percentage / 100);
+        
+        // Type label
+        pdf.setFontSize(10);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setTextColor(0, 0, 0);
+        pdf.text(riasecTypes[type as keyof typeof riasecTypes].name, margin, barY);
+        
+        // Background bar
+        pdf.setFillColor(220, 220, 220);
+        pdf.roundedRect(margin + 40, barY - 5, contentWidth - 60, 8, 2, 2, 'F');
+        
+        // Score bar
+        pdf.setFillColor(barColors[type as keyof typeof barColors] || '#4285F4');
+        pdf.roundedRect(margin + 40, barY - 5, barWidth, 8, 2, 2, 'F');
+        
+        // Percentage
+        pdf.setFontSize(8);
+        pdf.setTextColor(0, 0, 0);
+        pdf.text(`${percentage}%`, margin + contentWidth - 15, barY);
+      });
+      
+      // Add page number
+      pdf.setFontSize(8);
+      pdf.setTextColor(100, 100, 100);
+      pdf.text(`Page 1 of 2`, pageWidth / 2, pageHeight - 10, { align: 'center' });
+      
+      // Second page - Career recommendations
+      pdf.addPage();
+      
+      // Add header to second page
+      pdf.setFillColor(103, 58, 183);
+      pdf.rect(0, 0, pageWidth, 20, 'F');
+      
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFontSize(14);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('RIASEC Career Recommendations', pageWidth / 2, 13, { align: 'center' });
+      
+      // Career recommendations
+      pdf.setTextColor(0, 0, 0);
+      pdf.setFontSize(14);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('Potential Career Paths', margin, 30);
+      
+      pdf.setFontSize(10);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text('Based on your Holland Code, these career paths might be a good fit for your personality type:', 
+        margin, 40, { maxWidth: contentWidth });
+      
+      // Draw career recommendation boxes
+      const careersPerColumn = 5;
+      const columnWidth = contentWidth / 3;
+      
+      const types = [primaryType, secondaryType, tertiaryType];
+      types.forEach((type, typeIndex) => {
+        const colX = margin + (columnWidth * typeIndex);
+        const headerY = 55;
+        
+        // Type header with color
+        pdf.setFillColor(barColors[type as keyof typeof barColors] || '#4285F4');
+        pdf.roundedRect(colX, headerY - 5, columnWidth - 5, 12, 2, 2, 'F');
+        
+        pdf.setTextColor(255, 255, 255);
+        pdf.setFontSize(10);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text(riasecTypes[type as keyof typeof riasecTypes].name, colX + 5, headerY + 2);
+        
+        // Career list
+        pdf.setTextColor(0, 0, 0);
+        pdf.setFontSize(9);
+        pdf.setFont('helvetica', 'normal');
+        
+        const careers = riasecTypes[type as keyof typeof riasecTypes].careers.slice(0, careersPerColumn);
+        careers.forEach((career, careerIndex) => {
+          const careerY = headerY + 20 + (careerIndex * 10);
+          pdf.text(`• ${career}`, colX + 5, careerY);
+        });
+      });
+      
+      // Add skills section
+      const skillsY = 130;
+      
+      pdf.setTextColor(0, 0, 0);
+      pdf.setFontSize(14);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('Key Skills For Your Type', margin, skillsY);
+      
+      pdf.setFillColor(103, 58, 183, 0.1);
+      pdf.roundedRect(margin, skillsY + 5, contentWidth, 50, 3, 3, 'F');
+      
+      pdf.setFontSize(10);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text('Your primary personality type includes these key skills:', margin + 5, skillsY + 15);
+      
+      const skills = riasecTypes[primaryType].skills;
+      let skillsText = '';
+      skills.forEach((skill, index) => {
+        skillsText += `• ${skill}\n`;
+      });
+      
+      pdf.text(skillsText, margin + 10, skillsY + 25);
+      
+      // Add next steps section
+      const nextStepsY = 190;
+      
+      pdf.setTextColor(0, 0, 0);
+      pdf.setFontSize(14);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('Next Steps', margin, nextStepsY);
+      
+      pdf.setFontSize(10);
+      pdf.setFont('helvetica', 'normal');
+      const nextStepsText = 
+        '1. Explore careers related to your top RIASEC types\n' +
+        '2. Research the educational requirements for these careers\n' +
+        '3. Consider taking more specific career assessments\n' +
+        '4. Talk to professionals in fields that interest you\n' +
+        '5. Try job shadowing or internships in these areas';
+        
+      pdf.text(nextStepsText, margin + 5, nextStepsY + 10);
+      
+      // Add footer
+      pdf.setFontSize(8);
+      pdf.setTextColor(100, 100, 100);
+      pdf.text('This assessment is based on the Holland Occupational Themes (RIASEC) model developed by psychologist John Holland.',
+        pageWidth / 2, pageHeight - 15, { align: 'center', maxWidth: contentWidth });
+      pdf.text('Page 2 of 2', pageWidth / 2, pageHeight - 10, { align: 'center' });
+      
+      // Save the PDF
       pdf.save('RIASEC-Assessment-Results.pdf');
       toast.success("Your PDF report is ready!");
     } catch (error) {
@@ -447,7 +583,6 @@ const RIASECResults = () => {
     }
   };
   
-  if (!primaryType) return null;
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -658,18 +793,4 @@ const RIASECResults = () => {
                 </Button>
               </Link>
               <Link to="/assessment/future-pathways">
-                <Button variant="outline" className="border-brand-purple text-brand-purple hover:bg-brand-purple/5">
-                  Explore Future Pathways
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </main>
-      
-      <Footer />
-    </div>
-  );
-};
-
-export default RIASECResults;
+                <Button variant="outline" className="border-brand-purple text-brand-purple hover:bg-
