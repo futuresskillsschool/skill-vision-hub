@@ -46,6 +46,7 @@ const CareerVisionResults = () => {
   const pathwaysRef = useRef<HTMLDivElement>(null);
   const eqRef = useRef<HTMLDivElement>(null);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const [resultsAlreadySaved, setResultsAlreadySaved] = useState(false);
   
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -104,7 +105,7 @@ const CareerVisionResults = () => {
     
     // Save assessment results to database if user is logged in
     const saveResultsToDB = async () => {
-      if (user && location.state && !location.state.fromDashboard) {
+      if (user && location.state && !location.state.fromDashboard && !resultsAlreadySaved) {
         try {
           console.log('Saving Career Vision results to database for user:', user.id);
           
@@ -143,6 +144,7 @@ const CareerVisionResults = () => {
             console.error('Error saving results to database:', error);
           } else {
             console.log('Career Vision results saved successfully');
+            setResultsAlreadySaved(true);
           }
         } catch (error) {
           console.error('Exception when saving results:', error);
@@ -156,7 +158,7 @@ const CareerVisionResults = () => {
     if (location.state?.downloadPdf) {
       setTimeout(() => handleDownloadPDF(), 1000);
     }
-  }, [location.state, user]);
+  }, [location.state, user, resultsAlreadySaved]);
   
   if (!results) {
     return (
