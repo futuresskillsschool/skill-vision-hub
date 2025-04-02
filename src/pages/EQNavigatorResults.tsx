@@ -1,3 +1,4 @@
+
 import { useEffect, useState, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -17,6 +18,9 @@ import { toast } from 'sonner';
 interface EQResultsProps {
   totalScore: number;
   selectedOptions: string[];
+  downloadPdf?: boolean;
+  studentId?: string;
+  fromDashboard?: boolean;
   questions: Array<{
     id: number;
     scenario: string;
