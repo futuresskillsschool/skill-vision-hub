@@ -1,3 +1,4 @@
+
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -506,6 +507,9 @@ const RIASECResults = () => {
         pdf.setTextColor(60, 60, 60);
         pdf.text(`${percentage}%`, barX + barWidth/2, chartY + chartHeight - 18 - barHeight, { align: 'center' });
       });
+      
+      // Define the missing legendY variable
+      const legendY = chartY + chartHeight + 15;
       
       Object.entries(riasecTypes).forEach(([type, info], index) => {
         const colIndex = index % 3;
