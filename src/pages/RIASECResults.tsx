@@ -458,10 +458,14 @@ const RIASECResults = () => {
         });
       });
       
+      const skillsY = 250;
+      
       pdf.setTextColor(80, 80, 80);
       pdf.setFontSize(14);
       pdf.setFont('helvetica', 'bold');
       pdf.text('Key Skills For Your Primary Type', margin, skillsY);
+      
+      const skills = riasecTypes[primaryType].skills || [];
       
       pdf.setFillColor(parseInt(pastelColors[primaryType].substring(1, 3), 16),
                        parseInt(pastelColors[primaryType].substring(3, 5), 16),
