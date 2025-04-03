@@ -424,35 +424,42 @@ const SCCTResults = () => {
       
       // Create cover page
       const coverPageElement = document.createElement('div');
+      coverPageElement.style.width = '800px';
+      coverPageElement.style.padding = '40px';
+      coverPageElement.style.backgroundColor = 'white';
+      coverPageElement.style.fontFamily = 'Arial, sans-serif';
+      
       coverPageElement.innerHTML = `
-        <div style="padding: 40px; height: 100%; display: flex; flex-direction: column; background-color: white; font-family: Arial, sans-serif;">
+        <div style="padding: 20px; height: 100%; display: flex; flex-direction: column; background-color: white; font-family: Arial, sans-serif;">
           <div style="text-align: center; margin-top: 60px;">
-            <h1 style="font-size: 24px; color: #4CAF50; margin-bottom: 10px;">SCCT Assessment Results</h1>
-            <p style="font-size: 16px; color: #666; margin-bottom: 40px;">Social Cognitive Career Theory Profile</p>
+            <h1 style="font-size: 28px; color: #4CAF50; margin-bottom: 10px;">SCCT Assessment Results</h1>
+            <p style="font-size: 18px; color: #666; margin-bottom: 40px;">Social Cognitive Career Theory Profile</p>
             <div style="margin: 50px auto; width: 100px; height: 100px; background-color: #e6f7e6; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
               <span style="font-size: 40px; color: #4CAF50;">📊</span>
             </div>
           </div>
           ${studentDetails ? `
             <div style="margin-top: 60px; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-              <h2 style="font-size: 18px; color: #333; margin-bottom: 15px;">Student Information</h2>
-              <p style="margin-bottom: 10px;"><strong>Name:</strong> ${studentDetails.name}</p>
-              <p style="margin-bottom: 10px;"><strong>Class & Section:</strong> ${studentDetails.class} - ${studentDetails.section}</p>
-              <p><strong>School:</strong> ${studentDetails.school}</p>
+              <h2 style="font-size: 22px; color: #333; margin-bottom: 15px;">Student Information</h2>
+              <p style="margin-bottom: 10px; font-size: 16px;"><strong>Name:</strong> ${studentDetails.name}</p>
+              <p style="margin-bottom: 10px; font-size: 16px;"><strong>Class & Section:</strong> ${studentDetails.class} - ${studentDetails.section}</p>
+              <p style="font-size: 16px;"><strong>School:</strong> ${studentDetails.school}</p>
             </div>
           ` : ''}
-          <div style="margin-top: auto; text-align: center; font-size: 12px; color: #999; padding-bottom: 20px;">
+          <div style="margin-top: auto; text-align: center; font-size: 14px; color: #999; padding-bottom: 20px;">
             <p>Generated on ${new Date().toLocaleDateString()}</p>
           </div>
         </div>
       `;
       document.body.appendChild(coverPageElement);
       
-      // Capture cover page as image
+      // Capture cover page as image with higher quality
       const coverPageCanvas = await html2canvas(coverPageElement, {
         scale: 2,
         backgroundColor: '#FFFFFF',
-        logging: false
+        logging: false,
+        useCORS: true,
+        allowTaint: true
       });
       document.body.removeChild(coverPageElement);
       
@@ -472,10 +479,8 @@ const SCCTResults = () => {
       
       if (sectionsToCapture.length > 0) {
         for (let i = 0; i < sectionsToCapture.length; i++) {
-          // Add a new page for each section after the first one
-          if (i > 0 || true) { // Always add new page after cover
-            pdf.addPage();
-          }
+          // Add a new page for each section
+          pdf.addPage();
           
           const section = sectionsToCapture[i] as HTMLElement;
           
@@ -485,13 +490,32 @@ const SCCTResults = () => {
           tempSection.style.backgroundColor = 'white';
           tempSection.style.padding = '20px';
           tempSection.style.boxSizing = 'border-box';
+          tempSection.style.fontSize = '14px'; // Ensure readable font size
+          
+          // Increase size of headings and text
+          const headings = tempSection.querySelectorAll('h1, h2, h3, h4, h5, h6');
+          headings.forEach((heading: HTMLElement) => {
+            heading.style.fontSize = '22px';
+            heading.style.marginBottom = '12px';
+            heading.style.color = '#333';
+          });
+          
+          // Improve text readability
+          const paragraphs = tempSection.querySelectorAll('p, li, span');
+          paragraphs.forEach((p: HTMLElement) => {
+            p.style.fontSize = '14px';
+            p.style.lineHeight = '1.5';
+          });
+          
           document.body.appendChild(tempSection);
           
-          // Capture the section
+          // Capture the section with higher quality
           const canvas = await html2canvas(tempSection, {
             scale: 2,
             backgroundColor: '#FFFFFF',
             logging: false,
+            useCORS: true,
+            allowTaint: true
           });
           document.body.removeChild(tempSection);
           
@@ -500,7 +524,7 @@ const SCCTResults = () => {
           const imgWidth = canvas.width;
           const imgHeight = canvas.height;
           
-          // Calculate the aspect ratio
+          // Calculate the aspect ratio to fit within the page
           const ratio = Math.min((pdfWidth - 20) / imgWidth, (pdfHeight - 20) / imgHeight);
           const scaledWidth = imgWidth * ratio;
           const scaledHeight = imgHeight * ratio;
@@ -528,12 +552,31 @@ const SCCTResults = () => {
         tempResults.style.width = '800px';
         tempResults.style.backgroundColor = 'white';
         tempResults.style.padding = '20px';
+        tempResults.style.fontSize = '14px'; // Ensure readable font size
+        
+        // Increase size of headings
+        const headings = tempResults.querySelectorAll('h1, h2, h3, h4, h5, h6');
+        headings.forEach((heading: HTMLElement) => {
+          heading.style.fontSize = '22px';
+          heading.style.marginBottom = '12px';
+          heading.style.color = '#333';
+        });
+        
+        // Improve text readability
+        const paragraphs = tempResults.querySelectorAll('p, li, span');
+        paragraphs.forEach((p: HTMLElement) => {
+          p.style.fontSize = '14px';
+          p.style.lineHeight = '1.5';
+        });
+        
         document.body.appendChild(tempResults);
         
         const canvas = await html2canvas(tempResults, {
           scale: 2,
           backgroundColor: '#FFFFFF',
           logging: false,
+          useCORS: true,
+          allowTaint: true
         });
         document.body.removeChild(tempResults);
         
