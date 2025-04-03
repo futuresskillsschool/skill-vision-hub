@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -35,19 +34,16 @@ const SCCTResults = () => {
   const interestsRef = useRef<HTMLDivElement>(null);
   const [studentDetails, setStudentDetails] = useState<StudentDetails | null>(null);
   
-  // Scroll to top whenever location or active tab changes
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location, activeTab]);
   
   useEffect(() => {
-    // Redirect if no results data
     if (!resultsData) {
       navigate('/assessment/scct');
       return;
     }
     
-    // Fetch student details if we have a studentId in the results state
     const fetchStudentDetails = async () => {
       if (resultsData?.studentId) {
         try {
@@ -79,12 +75,12 @@ const SCCTResults = () => {
   }
   
   const { 
-    selfEfficacyScores, 
-    outcomeExpectationScores, 
-    interestScores,
-    selfEfficacyAverage,
-    outcomeExpectationAverage,
-    interestAverage
+    selfEfficacyScores = [], 
+    outcomeExpectationScores = [], 
+    interestScores = [],
+    selfEfficacyAverage = 0,
+    outcomeExpectationAverage = 0,
+    interestAverage = 0
   } = resultsData;
   
   const categories = [
@@ -109,17 +105,44 @@ const SCCTResults = () => {
     return 'Low';
   };
   
-  // Career recommendations based on highest scores
   const getCareerRecommendations = () => {
-    const combinedScores = categories.map((category, index) => {
-      const combinedScore = 
-        (selfEfficacyScores[index] + outcomeExpectationScores[index] + interestScores[index]) / 3;
+    if (!Array.isArray(selfEfficacyScores) || !Array.isArray(outcomeExpectationScores) || !Array.isArray(interestScores)) {
+      return [
+        { category: 'Science & Technology', score: 0 },
+        { category: 'Creative & Arts', score: 0 },
+        { category: 'Business & Leadership', score: 0 }
+      ];
+    }
+    
+    const minLength = Math.min(
+      selfEfficacyScores.length,
+      outcomeExpectationScores.length,
+      interestScores.length,
+      categories.length
+    );
+    
+    if (minLength === 0) {
+      return [
+        { category: 'Science & Technology', score: 0 },
+        { category: 'Creative & Arts', score: 0 },
+        { category: 'Business & Leadership', score: 0 }
+      ];
+    }
+    
+    const safeCategories = categories.slice(0, minLength);
+    
+    const combinedScores = safeCategories.map((category, index) => {
+      const selfEfficacy = typeof selfEfficacyScores[index] === 'number' ? selfEfficacyScores[index] : 0;
+      const outcomeExpectation = typeof outcomeExpectationScores[index] === 'number' ? outcomeExpectationScores[index] : 0;
+      const interest = typeof interestScores[index] === 'number' ? interestScores[index] : 0;
+      
+      const combinedScore = (selfEfficacy + outcomeExpectation + interest) / 3;
       return { category, score: combinedScore };
     });
     
     return combinedScores
       .sort((a, b) => b.score - a.score)
-      .slice(0, 3);
+      .slice(0, Math.min(3, combinedScores.length));
   };
   
   const topRecommendations = getCareerRecommendations();
@@ -131,14 +154,12 @@ const SCCTResults = () => {
     toast("Generating your comprehensive PDF report...");
     
     try {
-      // This will store our PDF document
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
         format: 'a4'
       });
       
-      // Function to capture a specific section and add it to the PDF
       const addSectionToPDF = async (
         container: HTMLDivElement | null, 
         title: string, 
@@ -146,35 +167,28 @@ const SCCTResults = () => {
       ) => {
         if (!container) return;
         
-        // Clone the container to avoid modifying the original
         const clone = container.cloneNode(true) as HTMLElement;
         
-        // Create a temporary container for the clone with controlled width
         const tempContainer = document.createElement('div');
         tempContainer.style.position = 'absolute';
         tempContainer.style.left = '-9999px';
         tempContainer.style.top = '0';
-        tempContainer.style.width = '800px'; // Fixed width for consistent rendering
+        tempContainer.style.width = '800px';
         tempContainer.style.backgroundColor = '#FFFFFF';
         tempContainer.style.padding = '20px';
         tempContainer.style.boxSizing = 'border-box';
         tempContainer.appendChild(clone);
         document.body.appendChild(tempContainer);
         
-        // Process the cloned container to ensure all content is visible
         const processElement = (el: HTMLElement) => {
-          // Make sure element is visible
           el.style.display = 'block';
           el.style.visibility = 'visible';
           el.style.opacity = '1';
           el.style.height = 'auto';
           el.style.overflow = 'visible';
-          el.style.fontSize = '12px'; // Ensure readable font size
-          
-          // Set text to black for better printing
+          el.style.fontSize = '14px';
           el.style.color = '#000000';
           
-          // Remove opacity classes and set solid backgrounds
           if (el.classList.contains('bg-opacity-50') || 
               el.classList.contains('bg-opacity-25') || 
               el.classList.contains('backdrop-blur-sm')) {
@@ -182,7 +196,6 @@ const SCCTResults = () => {
             el.style.backgroundColor = '#FFFFFF';
           }
           
-          // Process all child elements
           Array.from(el.children).forEach(child => {
             if (child instanceof HTMLElement) {
               processElement(child);
@@ -192,57 +205,48 @@ const SCCTResults = () => {
         
         processElement(clone);
         
-        // Render to canvas
         const canvas = await html2canvas(clone, {
-          scale: 2, // Higher scale for better quality
+          scale: 2.5,
           useCORS: true,
           logging: false,
           allowTaint: true,
           backgroundColor: '#FFFFFF'
         });
         
-        // Remove temporary container
         document.body.removeChild(tempContainer);
         
         const imgData = canvas.toDataURL('image/png');
         
-        // Add a new page for sections after the first one
         if (pageNumber > 0) {
           pdf.addPage();
         }
         
-        const pdfWidth = 210 - 20; // A4 width - margins
-        const pdfHeight = 297 - 20; // A4 height - margins
+        const pdfWidth = 210 - 20;
+        const pdfHeight = 297 - 40;
         
-        // Calculate image dimensions while maintaining aspect ratio
         const imgWidth = pdfWidth;
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
         
-        // Add title to the page
-        pdf.setFontSize(16);
+        pdf.setFontSize(18);
         pdf.setFont('helvetica', 'bold');
         pdf.text(title, 10, 15);
         
-        // Add the image below the title
-        pdf.addImage(imgData, 'PNG', 10, 20, imgWidth, imgHeight);
+        pdf.addImage(imgData, 'PNG', 10, 20, imgWidth, Math.min(imgHeight, pdfHeight - 30));
         
-        // Add page number at the bottom
         pdf.setFontSize(10);
         pdf.setFont('helvetica', 'normal');
         pdf.text(`Page ${pageNumber + 1}`, 10, 287);
       };
       
-      // Add cover page with title and student details
       pdf.setFontSize(24);
       pdf.setFont('helvetica', 'bold');
-      pdf.setTextColor(76, 175, 80); // Green color for the title
+      pdf.setTextColor(76, 175, 80);
       pdf.text('SCCT Assessment Results', 105, 70, { align: 'center' });
       
-      pdf.setTextColor(0, 0, 0); // Reset to black
+      pdf.setTextColor(0, 0, 0);
       pdf.setFontSize(16);
       pdf.text('Social Cognitive Career Theory Profile', 105, 85, { align: 'center' });
       
-      // Add student information to cover page if available
       if (studentDetails) {
         pdf.setFontSize(14);
         pdf.setFont('helvetica', 'normal');
@@ -251,37 +255,36 @@ const SCCTResults = () => {
         pdf.text(`School: ${studentDetails.school}`, 105, 140, { align: 'center' });
       }
       
+      const currentDate = new Date().toLocaleDateString('en-US', {
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric'
+      });
+      pdf.text(`Assessment Date: ${currentDate}`, 105, 160, { align: 'center' });
+      
       pdf.setFontSize(10);
       pdf.text('Page 1', 10, 287);
       
-      // Store original active tab to restore later
       const originalActiveTab = activeTab;
       
-      // Make overview tab visible and capture it
       setActiveTab("overview");
-      // Give time for the state to update and components to render
       await new Promise(resolve => setTimeout(resolve, 300));
       await addSectionToPDF(overviewRef.current, 'Overview', 1);
       
-      // Capture Self-Efficacy tab
       setActiveTab("self-efficacy");
       await new Promise(resolve => setTimeout(resolve, 300));
       await addSectionToPDF(selfEfficacyRef.current, 'Self-Efficacy', 2);
       
-      // Capture Outcome Expectations tab
       setActiveTab("outcomes");
       await new Promise(resolve => setTimeout(resolve, 300));
       await addSectionToPDF(outcomesRef.current, 'Outcome Expectations', 3);
       
-      // Capture Interests tab
       setActiveTab("interests");
       await new Promise(resolve => setTimeout(resolve, 300));
       await addSectionToPDF(interestsRef.current, 'Interests', 4);
       
-      // Restore original active tab
       setActiveTab(originalActiveTab);
       
-      // Save PDF
       pdf.save('SCCT-Assessment-Results.pdf');
       toast("Your comprehensive PDF report is ready!");
     } catch (error) {
@@ -322,7 +325,6 @@ const SCCTResults = () => {
               </Button>
             </div>
             
-            {/* Student Details Section */}
             {studentDetails && (
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
@@ -459,7 +461,7 @@ const SCCTResults = () => {
                       
                       <div className="space-y-6 mb-8">
                         {categories.map((category, index) => {
-                          const score = selfEfficacyScores[index];
+                          const score = selfEfficacyScores[index] || 0;
                           return (
                             <div key={index} className="bg-white p-5 rounded-lg border border-gray-200">
                               <div className="flex justify-between mb-2">
@@ -503,7 +505,7 @@ const SCCTResults = () => {
                       
                       <div className="space-y-6 mb-8">
                         {categories.map((category, index) => {
-                          const score = outcomeExpectationScores[index];
+                          const score = outcomeExpectationScores[index] || 0;
                           return (
                             <div key={index} className="bg-white p-5 rounded-lg border border-gray-200">
                               <div className="flex justify-between mb-2">
@@ -554,7 +556,7 @@ const SCCTResults = () => {
                       
                       <div className="space-y-6 mb-8">
                         {categories.map((category, index) => {
-                          const score = interestScores[index];
+                          const score = interestScores[index] || 0;
                           return (
                             <div key={index} className="bg-white p-5 rounded-lg border border-gray-200">
                               <div className="flex justify-between mb-2">
