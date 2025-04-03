@@ -1,3 +1,4 @@
+
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -11,7 +12,8 @@ import {
   User,
   School,
   BookOpen,
-  Star
+  Star,
+  Loader2
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -22,6 +24,7 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/components/ui/use-toast';
 import { 
   ResponsiveContainer, 
   RadarChart, 
@@ -216,6 +219,7 @@ type SCCTScores = Record<string, number>;
 const SCCTResults = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const resultsRef = useRef<HTMLDivElement>(null);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [tabValue, setTabValue] = useState("overview");
@@ -402,49 +406,176 @@ const SCCTResults = () => {
     
     try {
       setIsGeneratingPDF(true);
-      
-      const canvas = await html2canvas(resultsRef.current, {
-        scale: 2,
-        logging: false,
-        useCORS: true,
-        backgroundColor: '#ffffff',
-        allowTaint: true
+      toast({
+        title: "Generating PDF",
+        description: "Please wait while we prepare your results...",
       });
       
-      const imgData = canvas.toDataURL('image/png', 1.0);
-      
+      // Create a new PDF document
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
-        format: 'a4',
-        compress: true
+        format: 'a4'
       });
       
+      // PDF dimensions
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
       
-      const imgWidth = canvas.width;
-      const imgHeight = canvas.height;
-      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight) * 0.95;
+      // Create cover page
+      const coverPageElement = document.createElement('div');
+      coverPageElement.innerHTML = `
+        <div style="padding: 40px; height: 100%; display: flex; flex-direction: column; background-color: white; font-family: Arial, sans-serif;">
+          <div style="text-align: center; margin-top: 60px;">
+            <h1 style="font-size: 24px; color: #4CAF50; margin-bottom: 10px;">SCCT Assessment Results</h1>
+            <p style="font-size: 16px; color: #666; margin-bottom: 40px;">Social Cognitive Career Theory Profile</p>
+            <div style="margin: 50px auto; width: 100px; height: 100px; background-color: #e6f7e6; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+              <span style="font-size: 40px; color: #4CAF50;">📊</span>
+            </div>
+          </div>
+          ${studentDetails ? `
+            <div style="margin-top: 60px; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+              <h2 style="font-size: 18px; color: #333; margin-bottom: 15px;">Student Information</h2>
+              <p style="margin-bottom: 10px;"><strong>Name:</strong> ${studentDetails.name}</p>
+              <p style="margin-bottom: 10px;"><strong>Class & Section:</strong> ${studentDetails.class} - ${studentDetails.section}</p>
+              <p><strong>School:</strong> ${studentDetails.school}</p>
+            </div>
+          ` : ''}
+          <div style="margin-top: auto; text-align: center; font-size: 12px; color: #999; padding-bottom: 20px;">
+            <p>Generated on ${new Date().toLocaleDateString()}</p>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(coverPageElement);
       
-      const scaledWidth = imgWidth * ratio;
-      const scaledHeight = imgHeight * ratio;
+      // Capture cover page as image
+      const coverPageCanvas = await html2canvas(coverPageElement, {
+        scale: 2,
+        backgroundColor: '#FFFFFF',
+        logging: false
+      });
+      document.body.removeChild(coverPageElement);
       
-      const x = (pdfWidth - scaledWidth) / 2;
-      const y = 10;
-      
+      // Add cover page to PDF
+      const coverPageImgData = coverPageCanvas.toDataURL('image/png');
       pdf.addImage(
-        imgData, 
-        'PNG', 
-        x, 
-        y, 
-        scaledWidth, 
-        scaledHeight
+        coverPageImgData,
+        'PNG',
+        0,
+        0,
+        pdfWidth,
+        pdfHeight
       );
       
+      // For each section, create a new canvas and add to PDF
+      const sectionsToCapture = resultsRef.current.querySelectorAll('.pdf-section');
+      
+      if (sectionsToCapture.length > 0) {
+        for (let i = 0; i < sectionsToCapture.length; i++) {
+          // Add a new page for each section after the first one
+          if (i > 0 || true) { // Always add new page after cover
+            pdf.addPage();
+          }
+          
+          const section = sectionsToCapture[i] as HTMLElement;
+          
+          // Clone the section to avoid modifying the original
+          const tempSection = section.cloneNode(true) as HTMLElement;
+          tempSection.style.width = '800px'; // Fixed width for consistency
+          tempSection.style.backgroundColor = 'white';
+          tempSection.style.padding = '20px';
+          tempSection.style.boxSizing = 'border-box';
+          document.body.appendChild(tempSection);
+          
+          // Capture the section
+          const canvas = await html2canvas(tempSection, {
+            scale: 2,
+            backgroundColor: '#FFFFFF',
+            logging: false,
+          });
+          document.body.removeChild(tempSection);
+          
+          // Calculate dimensions to fit the section on the page with margins
+          const imgData = canvas.toDataURL('image/png');
+          const imgWidth = canvas.width;
+          const imgHeight = canvas.height;
+          
+          // Calculate the aspect ratio
+          const ratio = Math.min((pdfWidth - 20) / imgWidth, (pdfHeight - 20) / imgHeight);
+          const scaledWidth = imgWidth * ratio;
+          const scaledHeight = imgHeight * ratio;
+          
+          // Center the image
+          const x = (pdfWidth - scaledWidth) / 2;
+          const y = 10;
+          
+          // Add the image to the PDF
+          pdf.addImage(
+            imgData,
+            'PNG',
+            x,
+            y,
+            scaledWidth,
+            scaledHeight
+          );
+        }
+      } else {
+        // If no sections found, capture the entire results
+        pdf.addPage();
+        
+        // Clone the entire results div to avoid modifying the original
+        const tempResults = resultsRef.current.cloneNode(true) as HTMLElement;
+        tempResults.style.width = '800px';
+        tempResults.style.backgroundColor = 'white';
+        tempResults.style.padding = '20px';
+        document.body.appendChild(tempResults);
+        
+        const canvas = await html2canvas(tempResults, {
+          scale: 2,
+          backgroundColor: '#FFFFFF',
+          logging: false,
+        });
+        document.body.removeChild(tempResults);
+        
+        const imgData = canvas.toDataURL('image/png');
+        const imgWidth = canvas.width;
+        const imgHeight = canvas.height;
+        
+        // Calculate the aspect ratio
+        const ratio = Math.min((pdfWidth - 20) / imgWidth, (pdfHeight - 20) / imgHeight);
+        const scaledWidth = imgWidth * ratio;
+        const scaledHeight = imgHeight * ratio;
+        
+        // Center the image
+        const x = (pdfWidth - scaledWidth) / 2;
+        const y = 10;
+        
+        // Add the image to the PDF
+        pdf.addImage(
+          imgData,
+          'PNG',
+          x,
+          y,
+          scaledWidth,
+          scaledHeight
+        );
+      }
+      
+      // Save the PDF
       pdf.save('SCCT-Assessment-Results.pdf');
+      
+      toast({
+        title: "PDF Generated Successfully",
+        description: "Your results have been downloaded as a PDF.",
+        variant: "success",
+      });
     } catch (error) {
       console.error('Error generating PDF:', error);
+      toast({
+        title: "Error Generating PDF",
+        description: "There was a problem creating your PDF. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsGeneratingPDF(false);
     }
@@ -498,8 +629,17 @@ const SCCTResults = () => {
               onClick={handleGeneratePDF}
               disabled={isGeneratingPDF}
             >
-              <Download className="mr-2 h-4 w-4" /> 
-              {isGeneratingPDF ? 'Generating PDF...' : 'Download Results'}
+              {isGeneratingPDF ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> 
+                  Generating PDF...
+                </>
+              ) : (
+                <>
+                  <Download className="mr-2 h-4 w-4" /> 
+                  Download Results
+                </>
+              )}
             </Button>
           </div>
           
@@ -537,7 +677,7 @@ const SCCTResults = () => {
           )}
           
           <div ref={resultsRef} className="max-w-4xl mx-auto">
-            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm max-w-4xl mx-auto animate-fade-in">
+            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm max-w-4xl mx-auto animate-fade-in pdf-section">
               <div className="bg-brand-green/10 p-6 md:p-8 border-b border-gray-200">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
                   <div>
@@ -554,7 +694,7 @@ const SCCTResults = () => {
               </div>
               
               <div className="p-6 md:p-8">
-                <div className="mb-10">
+                <div className="mb-10 pdf-section">
                   <h3 className="text-xl font-semibold mb-6">Your SCCT Profile</h3>
                   <div className="bg-gray-50 p-6 rounded-lg border border-gray-100 h-[300px] md:h-[400px]">
                     <ResponsiveContainer width="100%" height="100%">
@@ -571,7 +711,7 @@ const SCCTResults = () => {
                   </p>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10 pdf-section">
                   {sections.map((section) => {
                     const sectionScore = scores[section.id] || 0;
                     const percentage = (sectionScore / maxSectionScore) * 100;
@@ -610,7 +750,7 @@ const SCCTResults = () => {
                   })}
                 </div>
                 
-                <div className="mb-10">
+                <div className="mb-10 pdf-section">
                   <h3 className="text-xl font-semibold mb-6">Your Career Interests</h3>
                   <div className="bg-gray-50 p-6 rounded-lg border border-gray-100 h-[300px]">
                     <ResponsiveContainer width="100%" height="100%">
@@ -646,7 +786,7 @@ const SCCTResults = () => {
                   </div>
                 </div>
                 
-                <div className="mb-10">
+                <div className="mb-10 pdf-section">
                   <h3 className="text-xl font-semibold mb-4">Career Path Suggestions</h3>
                   <p className="mb-4 text-sm">
                     Based on your unique profile, here are some career directions that may align with your
@@ -667,7 +807,7 @@ const SCCTResults = () => {
                   </div>
                 </div>
                 
-                <div className="mb-6">
+                <div className="mb-6 pdf-section">
                   <h3 className="text-xl font-semibold mb-4">Recommended Development Strategies</h3>
                   <p className="mb-4 text-sm">
                     These personalized strategies can help you develop your career readiness based on your SCCT profile:
