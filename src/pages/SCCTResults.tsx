@@ -567,8 +567,7 @@ const SCCTResults = () => {
       toast({
         title: "PDF Generated Successfully",
         description: "Your results have been downloaded as a PDF.",
-        // Fix: Change from 'success' to 'default' since only 'default' and 'destructive' are valid variants
-        variant: "default",
+        variant: "success",
       });
     } catch (error) {
       console.error('Error generating PDF:', error);
