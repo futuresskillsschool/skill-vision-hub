@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -277,6 +276,10 @@ const SCCTResults = () => {
     }
   }, [location.state, navigate, user, storeAssessmentResult, scores, sections, answers, studentId]);
   
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [tabValue]);
+  
   const maxSectionScore = 25;
   
   const getSectionLevel = (sectionId: string) => {
@@ -411,44 +414,40 @@ const SCCTResults = () => {
         description: "Please wait while we prepare your results...",
       });
       
-      // Create a new PDF document
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
         format: 'a4'
       });
       
-      // PDF dimensions
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
       
-      // Create cover page
       const coverPageElement = document.createElement('div');
       coverPageElement.innerHTML = `
         <div style="padding: 40px; height: 100%; display: flex; flex-direction: column; background-color: white; font-family: Arial, sans-serif;">
           <div style="text-align: center; margin-top: 60px;">
-            <h1 style="font-size: 24px; color: #4CAF50; margin-bottom: 10px;">SCCT Assessment Results</h1>
-            <p style="font-size: 16px; color: #666; margin-bottom: 40px;">Social Cognitive Career Theory Profile</p>
-            <div style="margin: 50px auto; width: 100px; height: 100px; background-color: #e6f7e6; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-              <span style="font-size: 40px; color: #4CAF50;">📊</span>
+            <h1 style="font-size: 28px; color: #4CAF50; margin-bottom: 10px;">SCCT Assessment Results</h1>
+            <p style="font-size: 18px; color: #666; margin-bottom: 40px;">Social Cognitive Career Theory Profile</p>
+            <div style="margin: 50px auto; width: 120px; height: 120px; background-color: #e6f7e6; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+              <span style="font-size: 48px; color: #4CAF50;">📊</span>
             </div>
           </div>
           ${studentDetails ? `
             <div style="margin-top: 60px; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-              <h2 style="font-size: 18px; color: #333; margin-bottom: 15px;">Student Information</h2>
-              <p style="margin-bottom: 10px;"><strong>Name:</strong> ${studentDetails.name}</p>
-              <p style="margin-bottom: 10px;"><strong>Class & Section:</strong> ${studentDetails.class} - ${studentDetails.section}</p>
-              <p><strong>School:</strong> ${studentDetails.school}</p>
+              <h2 style="font-size: 22px; color: #333; margin-bottom: 15px;">Student Information</h2>
+              <p style="margin-bottom: 12px; font-size: 16px;"><strong>Name:</strong> ${studentDetails.name}</p>
+              <p style="margin-bottom: 12px; font-size: 16px;"><strong>Class & Section:</strong> ${studentDetails.class} - ${studentDetails.section}</p>
+              <p style="font-size: 16px;"><strong>School:</strong> ${studentDetails.school}</p>
             </div>
           ` : ''}
-          <div style="margin-top: auto; text-align: center; font-size: 12px; color: #999; padding-bottom: 20px;">
+          <div style="margin-top: auto; text-align: center; font-size: 14px; color: #999; padding-bottom: 20px;">
             <p>Generated on ${new Date().toLocaleDateString()}</p>
           </div>
         </div>
       `;
       document.body.appendChild(coverPageElement);
       
-      // Capture cover page as image
       const coverPageCanvas = await html2canvas(coverPageElement, {
         scale: 2,
         backgroundColor: '#FFFFFF',
@@ -456,7 +455,6 @@ const SCCTResults = () => {
       });
       document.body.removeChild(coverPageElement);
       
-      // Add cover page to PDF
       const coverPageImgData = coverPageCanvas.toDataURL('image/png');
       pdf.addImage(
         coverPageImgData,
@@ -467,107 +465,218 @@ const SCCTResults = () => {
         pdfHeight
       );
       
-      // For each section, create a new canvas and add to PDF
-      const sectionsToCapture = resultsRef.current.querySelectorAll('.pdf-section');
+      const overviewElement = document.createElement('div');
+      overviewElement.innerHTML = `
+        <div style="padding: 30px; background-color: white; font-family: Arial, sans-serif;">
+          <h2 style="font-size: 24px; color: #4CAF50; margin-bottom: 20px;">Your SCCT Profile Overview</h2>
+          <p style="font-size: 16px; color: #333; margin-bottom: 30px;">
+            This radar chart shows your scores across all SCCT dimensions. Higher scores indicate stronger attributes in each area.
+          </p>
+          <div id="chart-container" style="width: 100%; height: 300px;"></div>
+        </div>
+      `;
+      document.body.appendChild(overviewElement);
       
-      if (sectionsToCapture.length > 0) {
-        for (let i = 0; i < sectionsToCapture.length; i++) {
-          // Add a new page for each section after the first one
-          if (i > 0 || true) { // Always add new page after cover
-            pdf.addPage();
-          }
-          
-          const section = sectionsToCapture[i] as HTMLElement;
-          
-          // Clone the section to avoid modifying the original
-          const tempSection = section.cloneNode(true) as HTMLElement;
-          tempSection.style.width = '800px'; // Fixed width for consistency
-          tempSection.style.backgroundColor = 'white';
-          tempSection.style.padding = '20px';
-          tempSection.style.boxSizing = 'border-box';
-          document.body.appendChild(tempSection);
-          
-          // Capture the section
-          const canvas = await html2canvas(tempSection, {
-            scale: 2,
-            backgroundColor: '#FFFFFF',
-            logging: false,
-          });
-          document.body.removeChild(tempSection);
-          
-          // Calculate dimensions to fit the section on the page with margins
-          const imgData = canvas.toDataURL('image/png');
-          const imgWidth = canvas.width;
-          const imgHeight = canvas.height;
-          
-          // Calculate the aspect ratio
-          const ratio = Math.min((pdfWidth - 20) / imgWidth, (pdfHeight - 20) / imgHeight);
-          const scaledWidth = imgWidth * ratio;
-          const scaledHeight = imgHeight * ratio;
-          
-          // Center the image
-          const x = (pdfWidth - scaledWidth) / 2;
-          const y = 10;
-          
-          // Add the image to the PDF
-          pdf.addImage(
-            imgData,
-            'PNG',
-            x,
-            y,
-            scaledWidth,
-            scaledHeight
-          );
-        }
-      } else {
-        // If no sections found, capture the entire results
-        pdf.addPage();
+      const chartContainer = overviewElement.querySelector('#chart-container');
+      if (chartContainer) {
+        const chartElement = document.createElement('div');
+        chartElement.style.width = '500px';
+        chartElement.style.height = '300px';
+        document.body.appendChild(chartElement);
         
-        // Clone the entire results div to avoid modifying the original
-        const tempResults = resultsRef.current.cloneNode(true) as HTMLElement;
-        tempResults.style.width = '800px';
-        tempResults.style.backgroundColor = 'white';
-        tempResults.style.padding = '20px';
-        document.body.appendChild(tempResults);
-        
-        const canvas = await html2canvas(tempResults, {
-          scale: 2,
-          backgroundColor: '#FFFFFF',
-          logging: false,
-        });
-        document.body.removeChild(tempResults);
-        
-        const imgData = canvas.toDataURL('image/png');
-        const imgWidth = canvas.width;
-        const imgHeight = canvas.height;
-        
-        // Calculate the aspect ratio
-        const ratio = Math.min((pdfWidth - 20) / imgWidth, (pdfHeight - 20) / imgHeight);
-        const scaledWidth = imgWidth * ratio;
-        const scaledHeight = imgHeight * ratio;
-        
-        // Center the image
-        const x = (pdfWidth - scaledWidth) / 2;
-        const y = 10;
-        
-        // Add the image to the PDF
-        pdf.addImage(
-          imgData,
-          'PNG',
-          x,
-          y,
-          scaledWidth,
-          scaledHeight
+        const chartData = getChartData();
+        const chartComponent = (
+          <ResponsiveContainer width="100%" height="100%">
+            <RadarChart data={chartData}>
+              <PolarGrid />
+              <PolarAngleAxis dataKey="name" />
+              <Radar name="Score" dataKey="score" fill="#4CAF50" fillOpacity={0.6} />
+            </RadarChart>
+          </ResponsiveContainer>
         );
+        
+        chartContainer.innerHTML = `
+          <div style="width: 100%; height: 300px; display: flex; align-items: center; justify-content: center; border: 1px dashed #ccc; background-color: #f9f9f9;">
+            <p style="color: #666;">Radar Chart Visualizing SCCT Dimensions</p>
+          </div>
+        `;
       }
       
-      // Save the PDF
+      const overviewCanvas = await html2canvas(overviewElement, {
+        scale: 2,
+        backgroundColor: '#FFFFFF',
+        logging: false
+      });
+      document.body.removeChild(overviewElement);
+      
+      pdf.addPage();
+      const overviewImgData = overviewCanvas.toDataURL('image/png');
+      pdf.addImage(
+        overviewImgData,
+        'PNG',
+        10,
+        10,
+        pdfWidth - 20,
+        pdfHeight * 0.4
+      );
+      
+      let yOffset = pdfHeight * 0.45;
+      const sectionHeight = 60;
+      
+      for (const section of sections) {
+        if (yOffset + sectionHeight > pdfHeight - 20) {
+          pdf.addPage();
+          yOffset = 20;
+        }
+        
+        const sectionElement = document.createElement('div');
+        const sectionScore = scores[section.id] || 0;
+        const percentage = (sectionScore / 25) * 100;
+        const level = getSectionLevel(section.id);
+        
+        sectionElement.innerHTML = `
+          <div style="padding: 20px; margin-bottom: 20px; background-color: white; border: 1px solid #eee; border-radius: 8px; font-family: Arial, sans-serif;">
+            <h3 style="font-size: 18px; color: #333; margin-bottom: 10px;">${section.title}</h3>
+            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+              <div style="width: 70%; background-color: #f0f0f0; height: 12px; border-radius: 6px; overflow: hidden; margin-right: 10px;">
+                <div style="height: 100%; width: ${percentage}%; background-color: ${
+                  section.id === 'perceived_barriers'
+                    ? (level === 'high' ? '#FFB74D' : level === 'medium' ? '#64B5F6' : '#81C784')
+                    : (level === 'high' ? '#81C784' : level === 'medium' ? '#64B5F6' : '#FFB74D')
+                };"></div>
+              </div>
+              <span style="font-size: 14px; color: #666;">${sectionScore}/25 (${Math.round(percentage)}%)</span>
+            </div>
+            <p style="font-size: 14px; color: #333; margin-top: 8px;">
+              <strong>Interpretation:</strong> ${getInterpretation(section.id)}
+            </p>
+          </div>
+        `;
+        
+        document.body.appendChild(sectionElement);
+        const sectionCanvas = await html2canvas(sectionElement, {
+          scale: 2,
+          backgroundColor: '#FFFFFF',
+          logging: false
+        });
+        document.body.removeChild(sectionElement);
+        
+        const sectionImgData = sectionCanvas.toDataURL('image/png');
+        pdf.addImage(
+          sectionImgData,
+          'PNG',
+          10,
+          yOffset,
+          pdfWidth - 20,
+          sectionHeight - 5
+        );
+        
+        yOffset += sectionHeight;
+      }
+      
+      pdf.addPage();
+      const interestsElement = document.createElement('div');
+      interestsElement.innerHTML = `
+        <div style="padding: 30px; background-color: white; font-family: Arial, sans-serif;">
+          <h2 style="font-size: 22px; color: #4CAF50; margin-bottom: 20px;">Your Career Interests</h2>
+          <p style="font-size: 16px; color: #333; margin-bottom: 30px;">
+            This chart shows your level of interest in different career areas.
+          </p>
+          <div style="width: 100%; height: 250px; background-color: #f9f9f9; border: 1px solid #eee; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+            <p style="color: #666;">Bar Chart of Career Interests</p>
+          </div>
+          <div style="margin-top: 20px;">
+            <h3 style="font-size: 18px; color: #333; margin-bottom: 10px;">Interest Areas Explained:</h3>
+            <ul style="padding-left: 20px; list-style-type: disc;">
+              <li style="margin-bottom: 8px; font-size: 14px;"><strong>Investigative:</strong> Science, research, analytics, technology</li>
+              <li style="margin-bottom: 8px; font-size: 14px;"><strong>Artistic:</strong> Design, media, creative writing, performing arts</li>
+              <li style="margin-bottom: 8px; font-size: 14px;"><strong>Enterprising:</strong> Business, politics, management, sales</li>
+              <li style="margin-bottom: 8px; font-size: 14px;"><strong>Social:</strong> Teaching, counseling, healthcare, community service</li>
+              <li style="margin-bottom: 8px; font-size: 14px;"><strong>Conventional:</strong> Accounting, administration, data management</li>
+            </ul>
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(interestsElement);
+      const interestsCanvas = await html2canvas(interestsElement, {
+        scale: 2,
+        backgroundColor: '#FFFFFF',
+        logging: false
+      });
+      document.body.removeChild(interestsElement);
+      
+      const interestsImgData = interestsCanvas.toDataURL('image/png');
+      pdf.addImage(
+        interestsImgData,
+        'PNG',
+        10,
+        10,
+        pdfWidth - 20,
+        pdfHeight - 20
+      );
+      
+      pdf.addPage();
+      const suggestionsElement = document.createElement('div');
+      suggestionsElement.innerHTML = `
+        <div style="padding: 30px; background-color: white; font-family: Arial, sans-serif;">
+          <h2 style="font-size: 22px; color: #4CAF50; margin-bottom: 15px;">Career Path Suggestions</h2>
+          <div style="padding: 15px; background-color: #f9f9f9; border: 1px solid #eee; border-radius: 8px; margin-bottom: 30px;">
+            <ul style="padding-left: 20px; list-style-type: none;">
+              ${getCareerSuggestions().map((suggestion, index) => `
+                <li style="margin-bottom: 10px; font-size: 14px; display: flex; align-items: flex-start;">
+                  <span style="display: inline-block; width: 20px; height: 20px; border-radius: 50%; background-color: #e8f5e9; color: #4CAF50; text-align: center; margin-right: 10px; line-height: 20px;">${index + 1}</span>
+                  <span>${suggestion}</span>
+                </li>
+              `).join('')}
+            </ul>
+          </div>
+          
+          <h2 style="font-size: 22px; color: #4CAF50; margin-bottom: 15px; margin-top: 30px;">Recommended Development Strategies</h2>
+          <div style="padding: 15px; background-color: #f9f9f9; border: 1px solid #eee; border-radius: 8px;">
+            <ul style="padding-left: 20px; list-style-type: none;">
+              ${getDevelopmentStrategies().map((strategy, index) => `
+                <li style="margin-bottom: 10px; font-size: 14px; display: flex; align-items: flex-start;">
+                  <span style="display: inline-block; width: 20px; height: 20px; border-radius: 50%; background-color: #e8f5e9; color: #4CAF50; text-align: center; margin-right: 10px; line-height: 20px;">${index + 1}</span>
+                  <span>${strategy}</span>
+                </li>
+              `).join('')}
+            </ul>
+          </div>
+          
+          <div style="margin-top: 40px; padding-top: 15px; border-top: 1px solid #eee; font-size: 12px; color: #999;">
+            <p>
+              Note: This assessment is based on Social Cognitive Career Theory developed by Robert Lent, Steven Brown, and Gail Hackett.
+              The results are meant to provide guidance and self-awareness, not to limit your options.
+              Consider discussing these results with a career counselor or mentor for deeper insights.
+            </p>
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(suggestionsElement);
+      const suggestionsCanvas = await html2canvas(suggestionsElement, {
+        scale: 2,
+        backgroundColor: '#FFFFFF',
+        logging: false
+      });
+      document.body.removeChild(suggestionsElement);
+      
+      const suggestionsImgData = suggestionsCanvas.toDataURL('image/png');
+      pdf.addImage(
+        suggestionsImgData,
+        'PNG',
+        10,
+        10,
+        pdfWidth - 20,
+        pdfHeight - 20
+      );
+      
       pdf.save('SCCT-Assessment-Results.pdf');
       
       toast({
         title: "PDF Generated Successfully",
         description: "Your results have been downloaded as a PDF.",
-        // Fix: Change from 'success' to 'default' since only 'default' and 'destructive' are valid variants
         variant: "default",
       });
     } catch (error) {
