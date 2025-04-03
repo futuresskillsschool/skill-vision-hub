@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -20,8 +21,8 @@ import { Separator } from '@/components/ui/separator';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
 
+// Define pathways descriptions
 const pathwaysDescriptions = {
   "tech-innovator": {
     title: "Tech Innovator & Builder",
@@ -130,16 +131,20 @@ const FuturePathwaysResults = () => {
   const resultsRef = useRef<HTMLDivElement>(null);
   const [studentDetails, setStudentDetails] = useState<StudentDetails | null>(null);
   
+  // Get results data from location state
   const resultsData = location.state;
   
   useEffect(() => {
+    // Scroll to top on mount
     window.scrollTo(0, 0);
     
     if (!resultsData) {
+      // Redirect to assessment if there's no results data
       navigate('/assessment/future-pathways');
       return;
     }
     
+    // Fetch student details if we have a studentId in the results state
     const fetchStudentDetails = async () => {
       if (resultsData?.studentId) {
         try {
@@ -167,11 +172,12 @@ const FuturePathwaysResults = () => {
   }, [resultsData, navigate]);
   
   if (!resultsData) {
-    return null;
+    return null; // Don't render until we have results data
   }
   
   const { selectedOptions, questions, clusterScores, totalScore } = resultsData;
   
+  // Get top clusters
   const sortedClusters = Object.entries(clusterScores)
     .sort(([, a], [, b]) => (b as number) - (a as number))
     .map(([cluster]) => cluster);
@@ -179,6 +185,7 @@ const FuturePathwaysResults = () => {
   const primaryCluster = sortedClusters[0];
   const secondaryCluster = sortedClusters[1];
   
+  // Calculate percentage scores
   const maxPossibleScore = 5 * questions.filter(q => q.careerClusters.includes(primaryCluster)).length;
   const primaryPercentage = Math.round((clusterScores[primaryCluster] / maxPossibleScore) * 100);
   
@@ -187,7 +194,15 @@ const FuturePathwaysResults = () => {
     
     try {
       setIsGeneratingPDF(true);
-      toast.loading("Generating your PDF report...");
+      
+      const canvas = await html2canvas(resultsRef.current, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#FFFFFF'
+      });
+      
+      const imgData = canvas.toDataURL('image/png');
       
       const pdf = new jsPDF({
         orientation: 'portrait',
@@ -198,189 +213,20 @@ const FuturePathwaysResults = () => {
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
       
-      pdf.setFontSize(24);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text('Future Pathways Assessment', 105, 70, { align: 'center' });
-      pdf.setFontSize(16);
-      pdf.text('Results Report', 105, 85, { align: 'center' });
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight) * 0.95;
       
-      if (studentDetails) {
-        pdf.setFontSize(14);
-        pdf.setFont('helvetica', 'normal');
-        pdf.text(`Student: ${studentDetails.name}`, 105, 120, { align: 'center' });
-        pdf.text(`Class: ${studentDetails.class} - ${studentDetails.section}`, 105, 130, { align: 'center' });
-        pdf.text(`School: ${studentDetails.school}`, 105, 140, { align: 'center' });
-      }
+      const scaledWidth = imgWidth * ratio;
+      const scaledHeight = imgHeight * ratio;
       
-      pdf.setFontSize(10);
-      pdf.text('Page 1', 10, 287);
+      const x = (pdfWidth - scaledWidth) / 2;
+      const y = 10;
       
-      const addSectionToPDF = async (container: HTMLElement, title: string, pageNumber: number) => {
-        const clone = container.cloneNode(true) as HTMLElement;
-        const tempContainer = document.createElement('div');
-        tempContainer.style.position = 'absolute';
-        tempContainer.style.left = '-9999px';
-        tempContainer.style.top = '0';
-        tempContainer.style.width = '1000px';
-        tempContainer.style.backgroundColor = '#FFFFFF';
-        tempContainer.appendChild(clone);
-        document.body.appendChild(tempContainer);
-        
-        const processElement = (el: HTMLElement) => {
-          el.style.display = 'block';
-          el.style.visibility = 'visible';
-          el.style.opacity = '1';
-          el.style.height = 'auto';
-          el.style.overflow = 'visible';
-          
-          if (el.classList.contains('bg-opacity-50') || 
-              el.classList.contains('bg-opacity-25') || 
-              el.classList.contains('backdrop-blur-sm')) {
-            el.classList.remove('bg-opacity-50', 'bg-opacity-25', 'backdrop-blur-sm');
-            el.style.backgroundColor = '#FFFFFF';
-          }
-          
-          Array.from(el.children).forEach(child => {
-            if (child instanceof HTMLElement) {
-              processElement(child);
-            }
-          });
-        };
-        
-        processElement(clone);
-        
-        const canvas = await html2canvas(clone, {
-          scale: 2,
-          useCORS: true,
-          logging: false,
-          allowTaint: true,
-          backgroundColor: '#FFFFFF'
-        });
-        
-        document.body.removeChild(tempContainer);
-        
-        const imgData = canvas.toDataURL('image/png');
-        
-        if (pageNumber > 1) {
-          pdf.addPage();
-        }
-        
-        const imgWidth = pdfWidth - 20;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        
-        pdf.setFontSize(16);
-        pdf.setFont('helvetica', 'bold');
-        pdf.text(title, 10, 15);
-        
-        pdf.addImage(imgData, 'PNG', 10, 20, imgWidth, imgHeight > pdfHeight - 40 ? pdfHeight - 40 : imgHeight);
-        
-        pdf.setFontSize(10);
-        pdf.setFont('helvetica', 'normal');
-        pdf.text(`Page ${pageNumber + 1}`, 10, 287);
-      };
-      
-      const mainResultsSection = document.createElement('div');
-      mainResultsSection.style.backgroundColor = '#ffffff';
-      mainResultsSection.style.padding = '20px';
-      mainResultsSection.innerHTML = `
-        <h2 style="font-size: 20px; margin-bottom: 15px;">Your Top Pathway: ${pathwaysDescriptions[primaryCluster].title}</h2>
-        <p style="margin-bottom: 10px;">Compatibility: ${primaryPercentage}%</p>
-        <div style="background-color: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-          <p style="margin-bottom: 10px;">${pathwaysDescriptions[primaryCluster].description}</p>
-          <h3 style="font-size: 16px; margin-bottom: 8px;">Core strengths in this pathway:</h3>
-          <ul style="margin-left: 20px; margin-bottom: 15px;">
-            ${pathwaysDescriptions[primaryCluster].skills.map(skill => `<li style="margin-bottom: 5px;">${skill}</li>`).join('')}
-          </ul>
-        </div>
-      `;
-      
-      const pathwayProfileSection = document.createElement('div');
-      pathwayProfileSection.style.backgroundColor = '#ffffff';
-      pathwayProfileSection.style.padding = '20px';
-      pathwayProfileSection.innerHTML = `
-        <h3 style="font-size: 18px; margin-bottom: 15px;">Your Pathway Profile</h3>
-        <div>
-          ${Object.entries(clusterScores).map(([cluster, score]) => {
-            const maxScore = 5 * questions.filter(q => q.careerClusters.includes(cluster)).length;
-            const percentage = Math.round((score as number / maxScore) * 100);
-            
-            return `
-              <div style="margin-bottom: 15px;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                  <span style="font-weight: 500;">${pathwaysDescriptions[cluster as keyof typeof pathwaysDescriptions].title}</span>
-                  <span>${percentage}%</span>
-                </div>
-                <div style="width: 100%; background-color: #e5e7eb; height: 10px; border-radius: 9999px;">
-                  <div style="height: 10px; border-radius: 9999px; background-color: #22c55e; width: ${percentage}%;"></div>
-                </div>
-              </div>
-            `;
-          }).join('')}
-        </div>
-      `;
-      
-      const careerRecommendationsSection = document.createElement('div');
-      careerRecommendationsSection.style.backgroundColor = '#ffffff';
-      careerRecommendationsSection.style.padding = '20px';
-      careerRecommendationsSection.innerHTML = `
-        <h3 style="font-size: 18px; margin-bottom: 15px;">Career Recommendations</h3>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-          <div style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 15px; background-color: rgba(34, 197, 94, 0.05);">
-            <h4 style="font-size: 16px; margin-bottom: 10px; font-weight: 500;">${pathwaysDescriptions[primaryCluster].title}</h4>
-            <ul style="margin-left: 20px;">
-              ${pathwaysDescriptions[primaryCluster].careers.map(career => `<li style="margin-bottom: 5px;">${career}</li>`).join('')}
-            </ul>
-          </div>
-          <div style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 15px;">
-            <h4 style="font-size: 16px; margin-bottom: 10px; font-weight: 500;">${pathwaysDescriptions[secondaryCluster].title}</h4>
-            <ul style="margin-left: 20px;">
-              ${pathwaysDescriptions[secondaryCluster].careers.map(career => `<li style="margin-bottom: 5px;">${career}</li>`).join('')}
-            </ul>
-          </div>
-        </div>
-      `;
-      
-      const educationalPathwaysSection = document.createElement('div');
-      educationalPathwaysSection.style.backgroundColor = '#ffffff';
-      educationalPathwaysSection.style.padding = '20px';
-      educationalPathwaysSection.innerHTML = `
-        <h3 style="font-size: 18px; margin-bottom: 15px;">Educational Pathways</h3>
-        <div style="background-color: #f9fafb; padding: 15px; border-radius: 8px; border: 1px solid #f3f4f6;">
-          <h4 style="font-size: 16px; margin-bottom: 10px; font-weight: 500;">Recommended subjects to explore:</h4>
-          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
-            ${(() => {
-              let subjects = [];
-              
-              if (primaryCluster === "tech-innovator") {
-                subjects = ["Computer Science", "Engineering", "Robotics", "Electronics", "Math", "Physics"];
-              } else if (primaryCluster === "digital-creator") {
-                subjects = ["Digital Arts", "Graphic Design", "Media Studies", "Communications", "UX Design", "Web Development"];
-              } else if (primaryCluster === "data-analyst") {
-                subjects = ["Statistics", "Data Science", "Mathematics", "Computer Science", "Economics", "Machine Learning"];
-              } else if (primaryCluster === "entrepreneur") {
-                subjects = ["Business Studies", "Economics", "Marketing", "Product Management", "Communications", "Psychology"];
-              } else if (primaryCluster === "helper") {
-                subjects = ["Social Sciences", "Global Studies", "Public Health", "Environmental Science", "Education", "Ethics"];
-              }
-              
-              return subjects.map(subject => 
-                `<div style="background-color: white; padding: 8px; border-radius: 4px; border: 1px solid #e5e7eb;">${subject}</div>`
-              ).join('');
-            })()}
-          </div>
-        </div>
-      `;
-      
-      await addSectionToPDF(mainResultsSection, "Your Top Pathway", 1);
-      await addSectionToPDF(pathwayProfileSection, "Pathway Profile", 2);
-      await addSectionToPDF(careerRecommendationsSection, "Career Recommendations", 3);
-      await addSectionToPDF(educationalPathwaysSection, "Educational Pathways", 4);
-      
+      pdf.addImage(imgData, 'PNG', x, y, scaledWidth, scaledHeight);
       pdf.save('Future-Pathways-Results.pdf');
-      toast.success("Your PDF report is ready!");
     } catch (error) {
       console.error('Error generating PDF:', error);
-      toast.error("There was an error generating your PDF. Please try again.");
     } finally {
       setIsGeneratingPDF(false);
     }
@@ -418,6 +264,7 @@ const FuturePathwaysResults = () => {
             </Button>
           </div>
           
+          {/* Student Details Section */}
           {studentDetails && (
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
@@ -497,7 +344,7 @@ const FuturePathwaysResults = () => {
                     return (
                       <div key={cluster}>
                         <div className="flex justify-between mb-1">
-                          <span className="font-medium">{pathwaysDescriptions[cluster as keyof typeof pathwaysDescriptions].title}</span>
+                          <span className="font-medium">{pathwaysDescriptions[cluster].title}</span>
                           <span>{percentage}%</span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2.5">
