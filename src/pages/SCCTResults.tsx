@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -24,7 +23,7 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { 
   ResponsiveContainer, 
   RadarChart, 
@@ -411,18 +410,15 @@ const SCCTResults = () => {
         description: "Please wait while we prepare your results...",
       });
       
-      // Create a new PDF document
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
         format: 'a4'
       });
       
-      // PDF dimensions
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
       
-      // Create cover page
       const coverPageElement = document.createElement('div');
       coverPageElement.style.width = '800px';
       coverPageElement.style.padding = '40px';
@@ -430,30 +426,39 @@ const SCCTResults = () => {
       coverPageElement.style.fontFamily = 'Arial, sans-serif';
       
       coverPageElement.innerHTML = `
-        <div style="padding: 20px; height: 100%; display: flex; flex-direction: column; background-color: white; font-family: Arial, sans-serif;">
-          <div style="text-align: center; margin-top: 60px;">
-            <h1 style="font-size: 28px; color: #4CAF50; margin-bottom: 10px;">SCCT Assessment Results</h1>
-            <p style="font-size: 18px; color: #666; margin-bottom: 40px;">Social Cognitive Career Theory Profile</p>
-            <div style="margin: 50px auto; width: 100px; height: 100px; background-color: #e6f7e6; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-              <span style="font-size: 40px; color: #4CAF50;">📊</span>
+        <div style="padding: 20px; height: 900px; display: flex; flex-direction: column; background-color: white; font-family: Arial, sans-serif;">
+          <div style="text-align: center; margin-top: 40px;">
+            <h1 style="font-size: 32px; color: #4CAF50; margin-bottom: 10px; font-weight: bold;">SCCT Assessment Results</h1>
+            <p style="font-size: 20px; color: #333; margin-bottom: 30px; font-style: italic;">Social Cognitive Career Theory Profile</p>
+            <div style="margin: 40px auto; width: 120px; height: 120px; background-color: #e6f7e6; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+              <span style="font-size: 60px; color: #4CAF50;">📊</span>
             </div>
           </div>
           ${studentDetails ? `
-            <div style="margin-top: 60px; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-              <h2 style="font-size: 22px; color: #333; margin-bottom: 15px;">Student Information</h2>
-              <p style="margin-bottom: 10px; font-size: 16px;"><strong>Name:</strong> ${studentDetails.name}</p>
-              <p style="margin-bottom: 10px; font-size: 16px;"><strong>Class & Section:</strong> ${studentDetails.class} - ${studentDetails.section}</p>
-              <p style="font-size: 16px;"><strong>School:</strong> ${studentDetails.school}</p>
+            <div style="margin-top: 40px; padding: 25px; border: 2px solid #4CAF50; border-radius: 10px; background-color: #f9f9f9; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+              <h2 style="font-size: 24px; color: #333; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px;">Student Information</h2>
+              <div style="display: flex; margin-bottom: 15px;">
+                <div style="width: 140px; font-weight: bold; font-size: 16px; color: #4a4a4a;">Name:</div>
+                <div style="font-size: 16px; color: #333;">${studentDetails.name}</div>
+              </div>
+              <div style="display: flex; margin-bottom: 15px;">
+                <div style="width: 140px; font-weight: bold; font-size: 16px; color: #4a4a4a;">Class & Section:</div>
+                <div style="font-size: 16px; color: #333;">${studentDetails.class} - ${studentDetails.section}</div>
+              </div>
+              <div style="display: flex;">
+                <div style="width: 140px; font-weight: bold; font-size: 16px; color: #4a4a4a;">School:</div>
+                <div style="font-size: 16px; color: #333;">${studentDetails.school}</div>
+              </div>
             </div>
           ` : ''}
-          <div style="margin-top: auto; text-align: center; font-size: 14px; color: #999; padding-bottom: 20px;">
+          <div style="margin-top: auto; text-align: center; font-size: 14px; color: #666; padding: 20px; background-color: #f5f5f5; border-radius: 5px; margin-top: 40px;">
             <p>Generated on ${new Date().toLocaleDateString()}</p>
+            <p style="font-style: italic; margin-top: 5px; color: #4CAF50;">This report provides insights based on your responses to the SCCT assessment.</p>
           </div>
         </div>
       `;
       document.body.appendChild(coverPageElement);
       
-      // Capture cover page as image with higher quality
       const coverPageCanvas = await html2canvas(coverPageElement, {
         scale: 2,
         backgroundColor: '#FFFFFF',
@@ -463,7 +468,6 @@ const SCCTResults = () => {
       });
       document.body.removeChild(coverPageElement);
       
-      // Add cover page to PDF
       const coverPageImgData = coverPageCanvas.toDataURL('image/png');
       pdf.addImage(
         coverPageImgData,
@@ -474,42 +478,49 @@ const SCCTResults = () => {
         pdfHeight
       );
       
-      // For each section, create a new canvas and add to PDF
       const sectionsToCapture = resultsRef.current.querySelectorAll('.pdf-section');
       
       if (sectionsToCapture.length > 0) {
         for (let i = 0; i < sectionsToCapture.length; i++) {
-          // Add a new page for each section
           pdf.addPage();
           
           const section = sectionsToCapture[i] as HTMLElement;
           
-          // Clone the section to avoid modifying the original
           const tempSection = section.cloneNode(true) as HTMLElement;
-          tempSection.style.width = '800px'; // Fixed width for consistency
+          tempSection.style.width = '800px';
           tempSection.style.backgroundColor = 'white';
-          tempSection.style.padding = '20px';
+          tempSection.style.padding = '30px';
           tempSection.style.boxSizing = 'border-box';
-          tempSection.style.fontSize = '14px'; // Ensure readable font size
+          tempSection.style.fontSize = '14px';
           
-          // Increase size of headings and text
           const headings = tempSection.querySelectorAll('h1, h2, h3, h4, h5, h6');
           headings.forEach((heading: HTMLElement) => {
-            heading.style.fontSize = '22px';
-            heading.style.marginBottom = '12px';
-            heading.style.color = '#333';
+            heading.style.fontSize = '24px';
+            heading.style.marginBottom = '15px';
+            heading.style.color = '#4CAF50';
+            heading.style.fontWeight = 'bold';
+            heading.style.borderBottom = '1px solid #eee';
+            heading.style.paddingBottom = '8px';
           });
           
-          // Improve text readability
           const paragraphs = tempSection.querySelectorAll('p, li, span');
           paragraphs.forEach((p: HTMLElement) => {
-            p.style.fontSize = '14px';
-            p.style.lineHeight = '1.5';
+            p.style.fontSize = '15px';
+            p.style.lineHeight = '1.6';
+            p.style.color = '#333';
+          });
+          
+          const cards = tempSection.querySelectorAll('.card, div[class*="bg-"]');
+          cards.forEach((card: HTMLElement) => {
+            card.style.border = '1px solid #e0e0e0';
+            card.style.borderRadius = '8px';
+            card.style.boxShadow = '0 2px 5px rgba(0,0,0,0.05)';
+            card.style.padding = '15px';
+            card.style.marginBottom = '20px';
           });
           
           document.body.appendChild(tempSection);
           
-          // Capture the section with higher quality
           const canvas = await html2canvas(tempSection, {
             scale: 2,
             backgroundColor: '#FFFFFF',
@@ -519,21 +530,17 @@ const SCCTResults = () => {
           });
           document.body.removeChild(tempSection);
           
-          // Calculate dimensions to fit the section on the page with margins
           const imgData = canvas.toDataURL('image/png');
           const imgWidth = canvas.width;
           const imgHeight = canvas.height;
           
-          // Calculate the aspect ratio to fit within the page
           const ratio = Math.min((pdfWidth - 20) / imgWidth, (pdfHeight - 20) / imgHeight);
           const scaledWidth = imgWidth * ratio;
           const scaledHeight = imgHeight * ratio;
           
-          // Center the image
           const x = (pdfWidth - scaledWidth) / 2;
           const y = 10;
           
-          // Add the image to the PDF
           pdf.addImage(
             imgData,
             'PNG',
@@ -544,29 +551,34 @@ const SCCTResults = () => {
           );
         }
       } else {
-        // If no sections found, capture the entire results
         pdf.addPage();
         
-        // Clone the entire results div to avoid modifying the original
         const tempResults = resultsRef.current.cloneNode(true) as HTMLElement;
         tempResults.style.width = '800px';
         tempResults.style.backgroundColor = 'white';
-        tempResults.style.padding = '20px';
-        tempResults.style.fontSize = '14px'; // Ensure readable font size
+        tempResults.style.padding = '30px';
+        tempResults.style.fontSize = '15px';
         
-        // Increase size of headings
         const headings = tempResults.querySelectorAll('h1, h2, h3, h4, h5, h6');
         headings.forEach((heading: HTMLElement) => {
-          heading.style.fontSize = '22px';
-          heading.style.marginBottom = '12px';
-          heading.style.color = '#333';
+          heading.style.fontSize = '24px';
+          heading.style.marginBottom = '15px';
+          heading.style.color = '#4CAF50';
+          heading.style.fontWeight = 'bold';
         });
         
-        // Improve text readability
         const paragraphs = tempResults.querySelectorAll('p, li, span');
         paragraphs.forEach((p: HTMLElement) => {
-          p.style.fontSize = '14px';
-          p.style.lineHeight = '1.5';
+          p.style.fontSize = '15px';
+          p.style.lineHeight = '1.6';
+          p.style.color = '#333';
+        });
+        
+        const cards = tempResults.querySelectorAll('.card, div[class*="bg-"]');
+        cards.forEach((card: HTMLElement) => {
+          card.style.border = '1px solid #e0e0e0';
+          card.style.borderRadius = '8px';
+          card.style.boxShadow = '0 2px 5px rgba(0,0,0,0.05)';
         });
         
         document.body.appendChild(tempResults);
@@ -584,16 +596,13 @@ const SCCTResults = () => {
         const imgWidth = canvas.width;
         const imgHeight = canvas.height;
         
-        // Calculate the aspect ratio
         const ratio = Math.min((pdfWidth - 20) / imgWidth, (pdfHeight - 20) / imgHeight);
         const scaledWidth = imgWidth * ratio;
         const scaledHeight = imgHeight * ratio;
         
-        // Center the image
         const x = (pdfWidth - scaledWidth) / 2;
         const y = 10;
         
-        // Add the image to the PDF
         pdf.addImage(
           imgData,
           'PNG',
@@ -604,7 +613,6 @@ const SCCTResults = () => {
         );
       }
       
-      // Save the PDF
       pdf.save('SCCT-Assessment-Results.pdf');
       
       toast({

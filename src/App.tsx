@@ -29,6 +29,7 @@ import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
 import { PrivateRoute } from "./components/PrivateRoute";
 import StudentDetailsPage from "./pages/StudentDetailsPage";
+import ScrollToTop from "./components/ScrollToTop";
 
 // Add framer-motion for animations
 import { motion, AnimatePresence } from "framer-motion";
@@ -42,6 +43,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <ScrollToTop />
           <AnimatePresence mode="wait">
             <Routes>
               <Route path="/" element={<Index />} />
