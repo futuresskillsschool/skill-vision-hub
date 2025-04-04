@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -465,10 +464,25 @@ const RIASECResults = () => {
       pdf.setTextColor(80, 80, 80);
       pdf.setFontSize(18);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('Your RIASEC Profile', margin, 30);
+      pdf.text('Career Recommendations', margin, 30);
       
-      pdf.setDrawColor(220, 220, 220);
-      pdf.setFillColor(240, 240, 240);
+      pdf.setTextColor(100, 100, 100);
+      pdf.setFontSize(10);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text(
+        'Based on your Holland Code, the following career paths might align well with your interests and strengths. ' +
+        'Consider exploring these options as part of your career research.',
+        margin, 40, { maxWidth: contentWidth }
+      );
+      
+      const pastelTypeColors = {
+        'R': [173, 216, 230],
+        'I': [221, 160, 221],
+        'A': [255, 182, 193],
+        'S': [255, 218, 185],
+        'E': [255, 228, 196],
+        'C': [152, 251, 152]
+      };
       
       const chartY = 45;
       const chartHeight = 80;
@@ -508,7 +522,6 @@ const RIASECResults = () => {
         pdf.text(`${percentage}%`, barX + barWidth/2, chartY + chartHeight - 18 - barHeight, { align: 'center' });
       });
       
-      // Define the missing legendY variable
       const legendY = chartY + chartHeight + 15;
       
       Object.entries(riasecTypes).forEach(([type, info], index) => {
@@ -597,14 +610,14 @@ const RIASECResults = () => {
       types.forEach((type, index) => {
         const y = careerY + (index * (boxHeight + 5));
         
-        pdf.setFillColor(typeColors[type as keyof typeof typeColors][0], 
-                         typeColors[type as keyof typeof typeColors][1], 
-                         typeColors[type as keyof typeof typeColors][2], 0.1);
+        pdf.setFillColor(pastelTypeColors[type as keyof typeof pastelTypeColors][0], 
+                         pastelTypeColors[type as keyof typeof pastelTypeColors][1], 
+                         pastelTypeColors[type as keyof typeof pastelTypeColors][2], 0.3);
         pdf.roundedRect(margin, y, contentWidth, boxHeight, 3, 3, 'F');
         
-        pdf.setFillColor(typeColors[type as keyof typeof typeColors][0], 
-                        typeColors[type as keyof typeof typeColors][1], 
-                        typeColors[type as keyof typeof typeColors][2]);
+        pdf.setFillColor(pastelTypeColors[type as keyof typeof pastelTypeColors][0], 
+                        pastelTypeColors[type as keyof typeof pastelTypeColors][1], 
+                        pastelTypeColors[type as keyof typeof pastelTypeColors][2], 0.7);
         pdf.roundedRect(margin, y, 40, boxHeight, 3, 3, 'F');
         
         pdf.setTextColor(255, 255, 255);
