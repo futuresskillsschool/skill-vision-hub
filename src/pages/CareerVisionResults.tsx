@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -11,6 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { supabase } from '@/integrations/supabase/client';
+import ScrollToTop from '@/components/ScrollToTop';
 
 import OverviewTab from '@/components/career-vision/OverviewTab';
 import RIASECTab from '@/components/career-vision/RIASECTab';
@@ -51,16 +51,10 @@ const CareerVisionResults = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
     
-    // Extract results from location state
-    console.log('Location state:', location.state);
-    
-    // Initialize results from location state, handling both formats (direct or nested)
     if (location.state) {
       if (location.state.riasec || location.state.pathways || location.state.eq) {
-        // Direct format (already has the required structure)
         setResults(location.state as AssessmentResults);
       } else if (location.state.scores) {
-        // Scores format from dashboard (transform to expected structure)
         const transformedResults: AssessmentResults = {
           riasec: location.state.scores.riasec || {},
           pathways: location.state.scores.pathways || {},
@@ -70,11 +64,9 @@ const CareerVisionResults = () => {
         setResults(transformedResults);
       }
     } else if (user) {
-      // TODO: Implement fetching results from database if needed
       console.log('No location state, could fetch results for user:', user.id);
     }
     
-    // Fetch student details if we have a studentId in the results state
     const fetchStudentDetails = async () => {
       console.log('Checking for studentId:', location.state?.studentId);
       
@@ -103,13 +95,11 @@ const CareerVisionResults = () => {
     
     fetchStudentDetails();
     
-    // Save assessment results to database if user is logged in
     const saveResultsToDB = async () => {
       if (user && location.state && !location.state.fromDashboard && !resultsAlreadySaved) {
         try {
           console.log('Saving Career Vision results to database for user:', user.id);
           
-          // Ensure we're creating a JSON-compatible object with string keys
           const processObjectForJSON = (obj: any): Record<string, any> => {
             const result: Record<string, any> = {};
             if (obj && typeof obj === 'object') {
@@ -154,7 +144,6 @@ const CareerVisionResults = () => {
     
     saveResultsToDB();
     
-    // Check if we should automatically download the PDF
     if (location.state?.downloadPdf) {
       setTimeout(() => handleDownloadPDF(), 1000);
     }
@@ -163,6 +152,7 @@ const CareerVisionResults = () => {
   if (!results) {
     return (
       <div className="min-h-screen flex flex-col">
+        <ScrollToTop />
         <Navbar />
         <main className="flex-grow pt-24 pb-16">
           <div className="container mx-auto px-4 md:px-6">
@@ -181,8 +171,6 @@ const CareerVisionResults = () => {
   }
   
   const { riasec, pathways, eq } = results;
-  
-  console.log('Rendering with results:', { riasec, pathways, eq });
   
   const riasecChartData = Object.entries(riasec).map(([category, score]) => ({
     name: riasecDescriptions[category as keyof typeof riasecDescriptions]?.title || category,
@@ -217,44 +205,109 @@ const CareerVisionResults = () => {
     toast.loading("Generating your comprehensive PDF report...");
     
     try {
-      // This will store our PDF document
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
         format: 'a4'
       });
+
+      const pageWidth = 210;
+      const pageHeight = 297;
+      const margin = 15;
+      const contentWidth = pageWidth - (margin * 2);
       
-      // Function to capture a specific section and add it to the PDF
-      const addSectionToPDF = async (
-        container: HTMLDivElement | null, 
-        title: string, 
-        pageNumber: number
-      ) => {
-        if (!container) return;
+      const addStyledText = (text: string, x: number, y: number, size: number, style: string = 'normal', align: string = 'left', color: string = '#000000') => {
+        pdf.setTextColor(color);
+        pdf.setFontSize(size);
+        pdf.setFont('helvetica', style);
+        pdf.text(text, x, y, { align: align as any });
+      };
+
+      pdf.setFillColor(240, 249, 255);
+      pdf.rect(0, 0, pageWidth, pageHeight, 'F');
+      
+      for (let i = 0; i < 50; i++) {
+        const alpha = 1 - (i / 50);
+        pdf.setFillColor(66, 133, 244, alpha);
+        pdf.rect(0, i, pageWidth, 1, 'F');
+      }
+      
+      pdf.setFillColor(230, 240, 255);
+      pdf.circle(170, 240, 30, 'F');
+      pdf.circle(40, 260, 20, 'F');
+      
+      addStyledText('CAREER VISION', pageWidth/2, 80, 28, 'bold', 'center', '#1a73e8');
+      addStyledText('ASSESSMENT RESULTS', pageWidth/2, 95, 24, 'bold', 'center', '#1a73e8');
+      
+      const currentDate = new Date().toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+      addStyledText(`Report Generated: ${currentDate}`, pageWidth/2, 115, 12, 'italic', 'center', '#555555');
+
+      if (studentDetails) {
+        pdf.setFillColor(255, 255, 255, 0.8);
+        pdf.roundedRect(margin, 140, contentWidth, 70, 5, 5, 'F');
         
-        // Clone the container to avoid modifying the original
-        const clone = container.cloneNode(true) as HTMLElement;
+        addStyledText('STUDENT INFORMATION', margin + 10, 155, 14, 'bold', 'left', '#1a73e8');
+        pdf.setLineWidth(0.5);
+        pdf.setDrawColor('#1a73e8');
+        pdf.line(margin + 10, 158, margin + 80, 158);
         
-        // Create a temporary container for the clone
+        addStyledText('Name:', margin + 10, 175, 12, 'bold', 'left', '#333333');
+        addStyledText(studentDetails.name, margin + 50, 175, 12, 'normal', 'left', '#333333');
+        
+        addStyledText('Class:', margin + 10, 185, 12, 'bold', 'left', '#333333');
+        addStyledText(`${studentDetails.class} - ${studentDetails.section}`, margin + 50, 185, 12, 'normal', 'left', '#333333');
+        
+        addStyledText('School:', margin + 10, 195, 12, 'bold', 'left', '#333333');
+        addStyledText(studentDetails.school, margin + 50, 195, 12, 'normal', 'left', '#333333');
+      }
+      
+      pdf.setFillColor(255, 255, 255, 0.8);
+      pdf.roundedRect(margin, 230, contentWidth, 40, 5, 5, 'F');
+      addStyledText('ABOUT THIS ASSESSMENT', margin + 10, 245, 12, 'bold', 'left', '#1a73e8');
+      addStyledText('The Career Vision Assessment combines insights from RIASEC interest profile,', 
+        margin + 10, 255, 10, 'normal', 'left', '#333333');
+      addStyledText('Future Pathways exploration, and Emotional Intelligence to provide a comprehensive', 
+        margin + 10, 262, 10, 'normal', 'left', '#333333');
+      addStyledText('view of career possibilities aligned with your strengths and preferences.', 
+        margin + 10, 269, 10, 'normal', 'left', '#333333');
+
+      addStyledText('Page 1', margin, pageHeight - 10, 9, 'normal', 'left', '#555555');
+      
+      const addPageHeader = (title: string, pageNumber: number) => {
+        pdf.addPage();
+        
+        pdf.setFillColor(230, 240, 255);
+        pdf.rect(0, 0, pageWidth, 25, 'F');
+        
+        addStyledText(title, margin, 15, 16, 'bold', 'left', '#1a73e8');
+        
+        addStyledText(`Page ${pageNumber}`, margin, pageHeight - 10, 9, 'normal', 'left', '#555555');
+      };
+
+      const captureTabContent = async (element: HTMLDivElement | null, title: string, pageNumber: number) => {
+        if (!element) return;
+        
+        const clone = element.cloneNode(true) as HTMLElement;
+        
         const tempContainer = document.createElement('div');
         tempContainer.style.position = 'absolute';
         tempContainer.style.left = '-9999px';
-        tempContainer.style.top = '0';
-        tempContainer.style.width = '1000px'; // Fixed width for consistent rendering
+        tempContainer.style.width = '800px';
         tempContainer.style.backgroundColor = '#FFFFFF';
-        tempContainer.appendChild(clone);
         document.body.appendChild(tempContainer);
+        tempContainer.appendChild(clone);
         
-        // Process the cloned container to ensure all content is visible
         const processElement = (el: HTMLElement) => {
-          // Make sure element is visible
           el.style.display = 'block';
           el.style.visibility = 'visible';
           el.style.opacity = '1';
           el.style.height = 'auto';
           el.style.overflow = 'visible';
           
-          // Remove opacity classes and set solid backgrounds
           if (el.classList.contains('bg-opacity-50') || 
               el.classList.contains('bg-opacity-25') || 
               el.classList.contains('backdrop-blur-sm')) {
@@ -262,7 +315,6 @@ const CareerVisionResults = () => {
             el.style.backgroundColor = '#FFFFFF';
           }
           
-          // Process all child elements
           Array.from(el.children).forEach(child => {
             if (child instanceof HTMLElement) {
               processElement(child);
@@ -272,7 +324,6 @@ const CareerVisionResults = () => {
         
         processElement(clone);
         
-        // Render to canvas
         const canvas = await html2canvas(clone, {
           scale: 2,
           useCORS: true,
@@ -281,81 +332,72 @@ const CareerVisionResults = () => {
           backgroundColor: '#FFFFFF'
         });
         
-        // Remove temporary container
         document.body.removeChild(tempContainer);
         
-        const imgData = canvas.toDataURL('image/png');
+        addPageHeader(title, pageNumber);
         
-        // Add a new page for sections after the first one
-        if (pageNumber > 0) {
-          pdf.addPage();
-        }
-        
-        const imgWidth = 210 - 20; // A4 width - margins
-        const pageHeight = 297 - 20; // A4 height - margins
+        const imgWidth = contentWidth;
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
         
-        // Add title to the page
-        pdf.setFontSize(16);
-        pdf.setFont('helvetica', 'bold');
-        pdf.text(title, 10, 15);
+        const maxHeight = pageHeight - (margin * 2) - 25;
         
-        // Add the image below the title
-        pdf.addImage(imgData, 'PNG', 10, 20, imgWidth, imgHeight);
-        
-        // Add page number at the bottom
-        pdf.setFontSize(10);
-        pdf.setFont('helvetica', 'normal');
-        pdf.text(`Page ${pageNumber + 1}`, 10, 287);
+        if (imgHeight <= maxHeight) {
+          const imgData = canvas.toDataURL('image/png');
+          pdf.addImage(imgData, 'PNG', margin, 30, imgWidth, imgHeight);
+        } else {
+          let srcY = 0;
+          let destY = 30;
+          let availableHeight = maxHeight;
+          let pageCount = pageNumber;
+          
+          while (srcY < canvas.height) {
+            const canvasHeight = Math.min(canvas.height - srcY, (availableHeight * canvas.width) / imgWidth);
+            const destHeight = (canvasHeight * imgWidth) / canvas.width;
+            
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = canvasHeight;
+            const tempCtx = tempCanvas.getContext('2d');
+            
+            if (tempCtx) {
+              tempCtx.drawImage(canvas, 0, srcY, canvas.width, canvasHeight, 0, 0, canvas.width, canvasHeight);
+              const imgData = tempCanvas.toDataURL('image/png');
+              
+              pdf.addImage(imgData, 'PNG', margin, destY, imgWidth, destHeight);
+              
+              srcY += canvasHeight;
+              
+              if (srcY < canvas.height) {
+                pageCount++;
+                addPageHeader(title + " (continued)", pageCount);
+                destY = 30;
+                availableHeight = maxHeight;
+              }
+            }
+          }
+        }
       };
       
-      // Add cover page with student details
-      pdf.setFontSize(24);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text('Career Vision Assessment', 105, 70, { align: 'center' });
-      pdf.setFontSize(16);
-      pdf.text('Comprehensive Results Report', 105, 85, { align: 'center' });
-      
-      // Add student information to cover page
-      if (studentDetails) {
-        pdf.setFontSize(14);
-        pdf.setFont('helvetica', 'normal');
-        pdf.text(`Student: ${studentDetails.name}`, 105, 120, { align: 'center' });
-        pdf.text(`Class: ${studentDetails.class} - ${studentDetails.section}`, 105, 130, { align: 'center' });
-        pdf.text(`School: ${studentDetails.school}`, 105, 140, { align: 'center' });
-      }
-      
-      pdf.setFontSize(10);
-      pdf.text('Page 1', 10, 287);
-      
-      // Store original active tab to restore later
       const originalActiveTab = activeTab;
       
-      // Make overview tab visible and capture it
       setActiveTab("overview");
-      // Give time for the state to update and components to render
       await new Promise(resolve => setTimeout(resolve, 300));
-      await addSectionToPDF(overviewRef.current, 'Overview', 1);
+      await captureTabContent(overviewRef.current, "Overview", 2);
       
-      // Capture RIASEC tab
       setActiveTab("riasec");
       await new Promise(resolve => setTimeout(resolve, 300));
-      await addSectionToPDF(riasecRef.current, 'RIASEC Profile', 2);
+      await captureTabContent(riasecRef.current, "RIASEC Profile", 3);
       
-      // Capture Pathways tab
       setActiveTab("pathways");
       await new Promise(resolve => setTimeout(resolve, 300));
-      await addSectionToPDF(pathwaysRef.current, 'Future Pathways', 3);
+      await captureTabContent(pathwaysRef.current, "Future Pathways", 4);
       
-      // Capture EQ tab
       setActiveTab("eq");
       await new Promise(resolve => setTimeout(resolve, 300));
-      await addSectionToPDF(eqRef.current, 'EQ Navigator', 4);
+      await captureTabContent(eqRef.current, "EQ Navigator", 5);
       
-      // Restore original active tab
       setActiveTab(originalActiveTab);
       
-      // Save PDF
       pdf.save('Career-Vision-Complete-Results.pdf');
       toast.success("Your comprehensive PDF report is ready!");
     } catch (error) {
@@ -368,6 +410,7 @@ const CareerVisionResults = () => {
   
   return (
     <div className="min-h-screen flex flex-col">
+      <ScrollToTop />
       <Navbar />
       
       <main className="flex-grow pt-24 pb-16">
@@ -393,7 +436,6 @@ const CareerVisionResults = () => {
               </Button>
             </div>
             
-            {/* Student Details Section */}
             {studentDetails && (
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
