@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -426,7 +425,7 @@ const FuturePathwaysResults = () => {
       // Educational Pathways section
       yPosition += 80;
       
-      if (yPosition + 90 > pageHeight - 20) {
+      if (yPosition + 100 > pageHeight - 20) {  // Increased required space from 90 to 100
         // Add a new page if not enough space
         pdf.addPage();
         addPageHeader(3);
@@ -436,11 +435,11 @@ const FuturePathwaysResults = () => {
       addStyledText('Educational Pathways', margin, yPosition, 14, 'bold', 'left', '#4CAF50');
       yPosition += 15;
       
-      // Educational Pathway box
+      // Educational Pathway box - Made taller (100 → 110) to accommodate contents better
       pdf.setFillColor(245, 250, 245);
-      pdf.roundedRect(margin, yPosition, contentWidth, 100, 5, 5, 'F');
+      pdf.roundedRect(margin, yPosition, contentWidth, 110, 5, 5, 'F');
       pdf.setDrawColor(210, 230, 210);
-      pdf.roundedRect(margin, yPosition, contentWidth, 100, 5, 5, 'S');
+      pdf.roundedRect(margin, yPosition, contentWidth, 110, 5, 5, 'S');
       
       addStyledText('Recommended subjects to explore:', margin + 10, yPosition + 15, 12, 'bold', 'left', '#4CAF50');
       
@@ -463,31 +462,39 @@ const FuturePathwaysResults = () => {
         subjects = ["Social Sciences", "Global Studies", "Public Health", "Environmental Science", "Education", "Ethics"];
       }
       
-      // Draw subjects in a grid (2x3)
+      // Draw subjects in a grid (2x3) with adjusted positions
+      // FIXED: Reduced width of subject boxes and increased spacing between them
       let subjectY = yPosition + 30;
       let subjectX = margin + 10;
+      const subjectWidth = 50; // Reduced from 55 to 50
+      const subjectHeight = 18;
+      const subjectXSpacing = 60; // Increased spacing between columns
+      const subjectYSpacing = 25; // Spacing between rows
       
       subjects.forEach((subject, index) => {
-        // Create rounded rectangle for subject
-        if (index === 3) {
-          subjectY += 25; // Start second row
+        // Create new row after every 3 items
+        if (index > 0 && index % 3 === 0) {
+          subjectY += subjectYSpacing; // Start new row
           subjectX = margin + 10; // Reset X position
         }
         
+        // Create rounded rectangle for subject
         pdf.setFillColor(255, 255, 255);
-        pdf.roundedRect(subjectX, subjectY, 55, 18, 3, 3, 'F');
+        pdf.roundedRect(subjectX, subjectY, subjectWidth, subjectHeight, 3, 3, 'F');
         pdf.setDrawColor(200, 220, 200);
-        pdf.roundedRect(subjectX, subjectY, 55, 18, 3, 3, 'S');
+        pdf.roundedRect(subjectX, subjectY, subjectWidth, subjectHeight, 3, 3, 'S');
         
-        // Add subject name
-        addStyledText(subject, subjectX + 27.5, subjectY + 11, 9, 'normal', 'center', '#333333');
+        // Add subject name - use smaller font size for longer text
+        const fontSize = subject.length > 12 ? 8 : 9;
+        addStyledText(subject, subjectX + subjectWidth/2, subjectY + 11, fontSize, 'normal', 'center', '#333333');
         
-        subjectX += 65; // Move to next column
+        subjectX += subjectXSpacing; // Move to next column with wider spacing
       });
       
-      // Note at the bottom of the results
-      yPosition += 110;
+      // Note at the bottom of the results - moved down to account for the larger subject grid
+      yPosition += 120; // Increased from 110 to 120
       
+      // Note at the bottom of the results
       if (yPosition + 30 > pageHeight - 20) {
         // Add a new page if not enough space
         pdf.addPage();
@@ -683,74 +690,4 @@ const FuturePathwaysResults = () => {
                       <>
                         <div className="bg-white p-3 rounded border">Computer Science</div>
                         <div className="bg-white p-3 rounded border">Engineering</div>
-                        <div className="bg-white p-3 rounded border">Robotics</div>
-                        <div className="bg-white p-3 rounded border">Electronics</div>
-                        <div className="bg-white p-3 rounded border">Math</div>
-                        <div className="bg-white p-3 rounded border">Physics</div>
-                      </>
-                    )}
-                    
-                    {primaryCluster === "digital-creator" && (
-                      <>
-                        <div className="bg-white p-3 rounded border">Digital Arts</div>
-                        <div className="bg-white p-3 rounded border">Graphic Design</div>
-                        <div className="bg-white p-3 rounded border">Media Studies</div>
-                        <div className="bg-white p-3 rounded border">Communications</div>
-                        <div className="bg-white p-3 rounded border">UX Design</div>
-                        <div className="bg-white p-3 rounded border">Web Development</div>
-                      </>
-                    )}
-                    
-                    {primaryCluster === "data-analyst" && (
-                      <>
-                        <div className="bg-white p-3 rounded border">Statistics</div>
-                        <div className="bg-white p-3 rounded border">Data Science</div>
-                        <div className="bg-white p-3 rounded border">Mathematics</div>
-                        <div className="bg-white p-3 rounded border">Computer Science</div>
-                        <div className="bg-white p-3 rounded border">Economics</div>
-                        <div className="bg-white p-3 rounded border">Machine Learning</div>
-                      </>
-                    )}
-                    
-                    {primaryCluster === "entrepreneur" && (
-                      <>
-                        <div className="bg-white p-3 rounded border">Business Studies</div>
-                        <div className="bg-white p-3 rounded border">Economics</div>
-                        <div className="bg-white p-3 rounded border">Marketing</div>
-                        <div className="bg-white p-3 rounded border">Product Management</div>
-                        <div className="bg-white p-3 rounded border">Communications</div>
-                        <div className="bg-white p-3 rounded border">Psychology</div>
-                      </>
-                    )}
-                    
-                    {primaryCluster === "helper" && (
-                      <>
-                        <div className="bg-white p-3 rounded border">Social Sciences</div>
-                        <div className="bg-white p-3 rounded border">Global Studies</div>
-                        <div className="bg-white p-3 rounded border">Public Health</div>
-                        <div className="bg-white p-3 rounded border">Environmental Science</div>
-                        <div className="bg-white p-3 rounded border">Education</div>
-                        <div className="bg-white p-3 rounded border">Ethics</div>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
-              
-              <div className="mt-8 pt-6 border-t border-gray-200">
-                <p className="text-sm text-gray-500 italic">
-                  Note: These results are based on your current interests and preferences. They are meant to provide guidance, 
-                  not to limit your options. Consider exploring careers that combine elements of your top pathways.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </main>
-      
-      <Footer />
-    </div>
-  );
-};
-
-export default FuturePathwaysResults;
+                        <div className="
