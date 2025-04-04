@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -21,6 +20,7 @@ import { Separator } from '@/components/ui/separator';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 // Define pathways descriptions
 const pathwaysDescriptions = {
@@ -194,39 +194,324 @@ const FuturePathwaysResults = () => {
     
     try {
       setIsGeneratingPDF(true);
+      toast.loading("Generating your PDF report...");
       
-      const canvas = await html2canvas(resultsRef.current, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#FFFFFF'
-      });
-      
-      const imgData = canvas.toDataURL('image/png');
-      
+      // Initialize PDF with A4 format
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
         format: 'a4'
       });
+
+      const pageWidth = 210;
+      const pageHeight = 297;
+      const margin = 15;
+      const contentWidth = pageWidth - (margin * 2);
       
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
+      // Helper function for styled text
+      const addStyledText = (text: string, x: number, y: number, size: number, style: string = 'normal', align: 'left' | 'center' | 'right' | 'justify' = 'left', color: string = '#000000') => {
+        pdf.setTextColor(color);
+        pdf.setFontSize(size);
+        pdf.setFont('helvetica', style);
+        pdf.text(text, x, y, { align: align as any });
+      };
+
+      // Cover page with soft background
+      pdf.setFillColor(245, 250, 245); // Very light green background
+      pdf.rect(0, 0, pageWidth, pageHeight, 'F');
       
-      const imgWidth = canvas.width;
-      const imgHeight = canvas.height;
-      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight) * 0.95;
+      // Subtle design elements
+      pdf.setFillColor(200, 240, 200, 0.5); // Light green circle
+      pdf.circle(170, 240, 30, 'F');
+      pdf.setFillColor(220, 245, 220, 0.5); // Light green circle
+      pdf.circle(40, 260, 20, 'F');
       
-      const scaledWidth = imgWidth * ratio;
-      const scaledHeight = imgHeight * ratio;
+      // Title with a professional color
+      addStyledText('FUTURE PATHWAYS', pageWidth/2, 70, 28, 'bold', 'center', '#4CAF50');
+      addStyledText('ASSESSMENT RESULTS', pageWidth/2, 85, 24, 'bold', 'center', '#4CAF50');
       
-      const x = (pdfWidth - scaledWidth) / 2;
-      const y = 10;
+      // Date
+      const currentDate = new Date().toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+      addStyledText(`Report Generated: ${currentDate}`, pageWidth/2, 105, 12, 'italic', 'center', '#555555');
+
+      // Student information section
+      if (studentDetails) {
+        pdf.setFillColor(255, 255, 255);
+        pdf.roundedRect(margin, 120, contentWidth, 70, 5, 5, 'F');
+        pdf.setDrawColor(200, 220, 200);
+        pdf.setLineWidth(0.5);
+        pdf.roundedRect(margin, 120, contentWidth, 70, 5, 5, 'S');
+        
+        addStyledText('STUDENT INFORMATION', margin + 10, 135, 14, 'bold', 'left', '#4CAF50');
+        pdf.setLineWidth(0.5);
+        pdf.setDrawColor('#4CAF50');
+        pdf.line(margin + 10, 138, margin + 80, 138);
+        
+        addStyledText('Name:', margin + 10, 155, 12, 'bold', 'left', '#333333');
+        addStyledText(studentDetails.name, margin + 50, 155, 12, 'normal', 'left', '#333333');
+        
+        addStyledText('Class:', margin + 10, 170, 12, 'bold', 'left', '#333333');
+        addStyledText(`${studentDetails.class} - ${studentDetails.section}`, margin + 50, 170, 12, 'normal', 'left', '#333333');
+        
+        addStyledText('School:', margin + 10, 185, 12, 'bold', 'left', '#333333');
+        addStyledText(studentDetails.school, margin + 50, 185, 12, 'normal', 'left', '#333333');
+      }
       
-      pdf.addImage(imgData, 'PNG', x, y, scaledWidth, scaledHeight);
+      // About section
+      pdf.setFillColor(255, 255, 255);
+      pdf.roundedRect(margin, 205, contentWidth, 65, 5, 5, 'F');
+      pdf.setDrawColor(200, 220, 200);
+      pdf.roundedRect(margin, 205, contentWidth, 65, 5, 5, 'S');
+      
+      addStyledText('ABOUT THIS ASSESSMENT', margin + 10, 220, 14, 'bold', 'left', '#4CAF50');
+      pdf.line(margin + 10, 223, margin + 85, 223);
+      
+      addStyledText('The Future Pathways Assessment identifies your career pathway preferences:', 
+        margin + 10, 235, 10, 'normal', 'left', '#333333');
+      addStyledText('• Tech Innovator: Natural talent for understanding and building technology', 
+        margin + 10, 247, 10, 'normal', 'left', '#333333');
+      addStyledText('• Digital Creator: Creativity combined with digital tools for expression', 
+        margin + 10, 257, 10, 'normal', 'left', '#333333');
+      addStyledText('• Data Analyst: Ability to see patterns in information and draw insights', 
+        margin + 10, 267, 10, 'normal', 'left', '#333333');
+
+      // Page footer
+      addStyledText('Future Pathways Assessment Results', pageWidth/2, 285, 9, 'italic', 'center', '#555555');
+      addStyledText('Page 1', margin, pageHeight - 10, 9, 'normal', 'left', '#555555');
+      
+      // Add a new page for results
+      pdf.addPage();
+      
+      // Helper function to add page header
+      const addPageHeader = (pageNumber: number) => {
+        // Light header background
+        pdf.setFillColor(245, 250, 245);
+        pdf.rect(0, 0, pageWidth, 20, 'F');
+        
+        // Header content
+        addStyledText('Future Pathways Assessment', margin, 15, 10, 'italic', 'left', '#555555');
+        addStyledText('Results Summary', pageWidth - margin, 15, 12, 'bold', 'right', '#4CAF50');
+        
+        // Separator line
+        pdf.setDrawColor(200, 220, 200);
+        pdf.setLineWidth(0.5);
+        pdf.line(margin, 20, pageWidth - margin, 20);
+        
+        // Footer
+        addStyledText(`Page ${pageNumber}`, margin, pageHeight - 10, 9, 'normal', 'left', '#555555');
+        addStyledText(currentDate, pageWidth - margin, pageHeight - 10, 9, 'normal', 'right', '#555555');
+      };
+      
+      // Add the header to page 2
+      addPageHeader(2);
+      
+      // Top Pathway section
+      let yPosition = 40;
+      addStyledText('Your Top Pathway', pageWidth/2, yPosition, 18, 'bold', 'center', '#4CAF50');
+      yPosition += 15;
+      
+      // Primary Cluster box
+      pdf.setFillColor(240, 250, 240);
+      pdf.roundedRect(margin, yPosition, contentWidth, 70, 5, 5, 'F');
+      pdf.setDrawColor(200, 220, 200);
+      pdf.roundedRect(margin, yPosition, contentWidth, 70, 5, 5, 'S');
+      
+      const primaryClusterInfo = pathwaysDescriptions[primaryCluster];
+      
+      // Primary cluster title and score
+      addStyledText(primaryClusterInfo.title, pageWidth/2, yPosition + 15, 16, 'bold', 'center', '#4CAF50');
+      addStyledText(`Compatibility: ${primaryPercentage}%`, pageWidth/2, yPosition + 30, 12, 'normal', 'center', '#333333');
+      
+      // Primary cluster description
+      pdf.setFontSize(10);
+      const splitDesc = pdf.splitTextToSize(primaryClusterInfo.description, contentWidth - 20);
+      
+      // Center the text block
+      const textHeight = splitDesc.length * 5; // Approximate height of text block
+      const textY = yPosition + 40 + (30 - textHeight) / 2; // Center text in remaining space
+      
+      pdf.text(splitDesc, margin + 10, textY);
+      
+      yPosition += 80;
+      
+      // All Pathways Profile section
+      addStyledText('Your Pathway Profile', margin, yPosition, 14, 'bold', 'left', '#4CAF50');
+      yPosition += 15;
+      
+      // Create bar chart visualization for pathways
+      Object.entries(clusterScores)
+        .sort(([, a], [, b]) => (b as number) - (a as number))
+        .forEach(([cluster, score], index) => {
+          const maxScore = 5 * questions.filter(q => q.careerClusters.includes(cluster)).length;
+          const percentage = Math.round((score as number / maxScore) * 100);
+          const clusterInfo = pathwaysDescriptions[cluster];
+          
+          // Cluster name and score
+          pdf.setFillColor(index % 2 === 0 ? 248 : 252, index % 2 === 0 ? 252 : 248, index % 2 === 0 ? 248 : 252);
+          pdf.rect(margin, yPosition, contentWidth, 25, 'F');
+          pdf.setDrawColor(220, 230, 220);
+          pdf.rect(margin, yPosition, contentWidth, 25, 'S');
+          
+          // Cluster name (shortened)
+          const shortName = clusterInfo.title.split('&')[0].trim();
+          addStyledText(shortName, margin + 5, yPosition + 10, 11, 'bold', 'left', '#333333');
+          addStyledText(`${percentage}%`, margin + contentWidth - 20, yPosition + 10, 11, 'normal', 'left', '#333333');
+          
+          // Progress bar
+          pdf.setFillColor(230, 240, 230);
+          pdf.roundedRect(margin + 5, yPosition + 15, contentWidth - 10, 6, 3, 3, 'F');
+          
+          // Progress bar fill
+          const barWidth = (contentWidth - 10) * (percentage / 100);
+          pdf.setFillColor(120, 190, 120);
+          pdf.roundedRect(margin + 5, yPosition + 15, barWidth, 6, 3, 3, 'F');
+          
+          yPosition += 30;
+        });
+      
+      // Career Recommendations section
+      if (yPosition + 80 > pageHeight - 20) {
+        // Add a new page if not enough space
+        pdf.addPage();
+        addPageHeader(3);
+        yPosition = 40;
+      }
+      
+      addStyledText('Career Recommendations', margin, yPosition, 14, 'bold', 'left', '#4CAF50');
+      yPosition += 15;
+      
+      // Primary Cluster Careers
+      pdf.setFillColor(240, 250, 240);
+      pdf.roundedRect(margin, yPosition, contentWidth, 70, 5, 5, 'F');
+      pdf.setDrawColor(200, 220, 200);
+      pdf.roundedRect(margin, yPosition, contentWidth, 70, 5, 5, 'S');
+      
+      addStyledText(primaryClusterInfo.title, margin + 10, yPosition + 15, 12, 'bold', 'left', '#4CAF50');
+      
+      // List the careers
+      let careerY = yPosition + 30;
+      primaryClusterInfo.careers.forEach((career, index) => {
+        if (index < 5) { // Limit to 5 careers to fit on page
+          addStyledText(`• ${career}`, margin + 15, careerY, 10, 'normal', 'left', '#333333');
+          careerY += 8;
+        }
+      });
+      
+      yPosition += 80;
+      
+      // Secondary Cluster Careers
+      const secondaryClusterInfo = pathwaysDescriptions[secondaryCluster];
+      
+      pdf.setFillColor(250, 250, 245);
+      pdf.roundedRect(margin, yPosition, contentWidth, 70, 5, 5, 'F');
+      pdf.setDrawColor(220, 220, 200);
+      pdf.roundedRect(margin, yPosition, contentWidth, 70, 5, 5, 'S');
+      
+      addStyledText(secondaryClusterInfo.title, margin + 10, yPosition + 15, 12, 'bold', 'left', '#4CAF50');
+      
+      // List the secondary careers
+      careerY = yPosition + 30;
+      secondaryClusterInfo.careers.forEach((career, index) => {
+        if (index < 5) { // Limit to 5 careers to fit on page
+          addStyledText(`• ${career}`, margin + 15, careerY, 10, 'normal', 'left', '#333333');
+          careerY += 8;
+        }
+      });
+      
+      // Educational Pathways section
+      yPosition += 80;
+      
+      if (yPosition + 90 > pageHeight - 20) {
+        // Add a new page if not enough space
+        pdf.addPage();
+        addPageHeader(3);
+        yPosition = 40;
+      }
+      
+      addStyledText('Educational Pathways', margin, yPosition, 14, 'bold', 'left', '#4CAF50');
+      yPosition += 15;
+      
+      // Educational Pathway box
+      pdf.setFillColor(245, 250, 245);
+      pdf.roundedRect(margin, yPosition, contentWidth, 100, 5, 5, 'F');
+      pdf.setDrawColor(210, 230, 210);
+      pdf.roundedRect(margin, yPosition, contentWidth, 100, 5, 5, 'S');
+      
+      addStyledText('Recommended subjects to explore:', margin + 10, yPosition + 15, 12, 'bold', 'left', '#4CAF50');
+      
+      // Determine which subjects to show based on primary cluster
+      let subjects: string[] = [];
+      
+      if (primaryCluster === "tech-innovator") {
+        subjects = ["Computer Science", "Engineering", "Robotics", "Electronics", "Math", "Physics"];
+      } 
+      else if (primaryCluster === "digital-creator") {
+        subjects = ["Digital Arts", "Graphic Design", "Media Studies", "Communications", "UX Design", "Web Development"];
+      } 
+      else if (primaryCluster === "data-analyst") {
+        subjects = ["Statistics", "Data Science", "Mathematics", "Computer Science", "Economics", "Machine Learning"];
+      } 
+      else if (primaryCluster === "entrepreneur") {
+        subjects = ["Business Studies", "Economics", "Marketing", "Product Management", "Communications", "Psychology"];
+      } 
+      else if (primaryCluster === "helper") {
+        subjects = ["Social Sciences", "Global Studies", "Public Health", "Environmental Science", "Education", "Ethics"];
+      }
+      
+      // Draw subjects in a grid (2x3)
+      let subjectY = yPosition + 30;
+      let subjectX = margin + 10;
+      
+      subjects.forEach((subject, index) => {
+        // Create rounded rectangle for subject
+        if (index === 3) {
+          subjectY += 25; // Start second row
+          subjectX = margin + 10; // Reset X position
+        }
+        
+        pdf.setFillColor(255, 255, 255);
+        pdf.roundedRect(subjectX, subjectY, 55, 18, 3, 3, 'F');
+        pdf.setDrawColor(200, 220, 200);
+        pdf.roundedRect(subjectX, subjectY, 55, 18, 3, 3, 'S');
+        
+        // Add subject name
+        addStyledText(subject, subjectX + 27.5, subjectY + 11, 9, 'normal', 'center', '#333333');
+        
+        subjectX += 65; // Move to next column
+      });
+      
+      // Note at the bottom of the results
+      yPosition += 110;
+      
+      if (yPosition + 30 > pageHeight - 20) {
+        // Add a new page if not enough space
+        pdf.addPage();
+        addPageHeader(4);
+        yPosition = 40;
+      }
+      
+      pdf.setFillColor(245, 250, 245);
+      pdf.roundedRect(margin, yPosition, contentWidth, 40, 5, 5, 'F');
+      pdf.setDrawColor(210, 230, 210);
+      pdf.roundedRect(margin, yPosition, contentWidth, 40, 5, 5, 'S');
+      
+      addStyledText('Note:', margin + 10, yPosition + 15, 10, 'bold', 'left', '#333333');
+      const noteText = 'These results are based on your current interests and preferences. They are meant to provide guidance, not to limit your options. Consider exploring careers that combine elements of your top pathways.';
+      
+      pdf.setFontSize(9);
+      const splitNote = pdf.splitTextToSize(noteText, contentWidth - 20);
+      pdf.text(splitNote, margin + 10, yPosition + 25);
+      
+      // Save the PDF
       pdf.save('Future-Pathways-Results.pdf');
+      toast.success("Your PDF report is ready!");
     } catch (error) {
       console.error('Error generating PDF:', error);
+      toast.error("There was an error generating your PDF. Please try again.");
     } finally {
       setIsGeneratingPDF(false);
     }
@@ -411,77 +696,4 @@ const FuturePathwaysResults = () => {
                         <div className="bg-white p-3 rounded border">Media Studies</div>
                         <div className="bg-white p-3 rounded border">Communications</div>
                         <div className="bg-white p-3 rounded border">UX Design</div>
-                        <div className="bg-white p-3 rounded border">Web Development</div>
-                      </>
-                    )}
-                    
-                    {primaryCluster === "data-analyst" && (
-                      <>
-                        <div className="bg-white p-3 rounded border">Statistics</div>
-                        <div className="bg-white p-3 rounded border">Data Science</div>
-                        <div className="bg-white p-3 rounded border">Mathematics</div>
-                        <div className="bg-white p-3 rounded border">Computer Science</div>
-                        <div className="bg-white p-3 rounded border">Economics</div>
-                        <div className="bg-white p-3 rounded border">Machine Learning</div>
-                      </>
-                    )}
-                    
-                    {primaryCluster === "entrepreneur" && (
-                      <>
-                        <div className="bg-white p-3 rounded border">Business Studies</div>
-                        <div className="bg-white p-3 rounded border">Economics</div>
-                        <div className="bg-white p-3 rounded border">Marketing</div>
-                        <div className="bg-white p-3 rounded border">Product Management</div>
-                        <div className="bg-white p-3 rounded border">Communications</div>
-                        <div className="bg-white p-3 rounded border">Psychology</div>
-                      </>
-                    )}
-                    
-                    {primaryCluster === "helper" && (
-                      <>
-                        <div className="bg-white p-3 rounded border">Social Sciences</div>
-                        <div className="bg-white p-3 rounded border">Global Studies</div>
-                        <div className="bg-white p-3 rounded border">Public Health</div>
-                        <div className="bg-white p-3 rounded border">Environmental Science</div>
-                        <div className="bg-white p-3 rounded border">Education</div>
-                        <div className="bg-white p-3 rounded border">Ethics</div>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
-              
-              <div className="mt-10 pt-6 border-t border-gray-200 text-sm text-foreground/70">
-                <p>
-                  Note: These results are based on your current interests and preferences. 
-                  They are meant to provide guidance, not to limit your options.
-                  Consider exploring careers that combine elements of your top pathways.
-                </p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="mt-12 text-center">
-            <h3 className="text-xl font-bold mb-4">Want to explore more about your career options?</h3>
-            <div className="flex flex-wrap justify-center gap-4">
-              <Link to="/assessment/riasec">
-                <Button variant="outline" className="border-brand-green text-brand-green hover:bg-brand-green/5">
-                  Try RIASEC Assessment
-                </Button>
-              </Link>
-              <Link to="/assessment/career-vision">
-                <Button variant="outline" className="border-brand-green text-brand-green hover:bg-brand-green/5">
-                  Complete Career Vision
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </main>
-      
-      <Footer />
-    </div>
-  );
-};
-
-export default FuturePathwaysResults;
+                        <div className="bg-white

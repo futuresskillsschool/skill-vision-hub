@@ -107,7 +107,7 @@ const PathwaysTab: React.FC<PathwaysTabProps> = ({ pathways, pathwaysChartData }
                           <Zap className="h-4 w-4 mr-2 text-brand-orange" />
                           Future-Focused Careers:
                         </h5>
-                        <p className="text-sm">{clusterInfo.careers || "No career information available"}</p>
+                        <p className="text-sm">{clusterInfo.careers.join(", ")}</p>
                       </div>
                     </div>
                   </div>
@@ -121,3 +121,4 @@ const PathwaysTab: React.FC<PathwaysTabProps> = ({ pathways, pathwaysChartData }
 };
 
 export default PathwaysTab;
+
