@@ -1,3 +1,4 @@
+
 export interface RiasecDescription {
   title: string;
   description: string;
@@ -20,6 +21,8 @@ export interface CareerRecommendation {
   title: string;
   match: number;
   careers: string[];
+  riasecCategory?: string[];  // Added property for PDF generation
+  cluster?: string;          // Added property for PDF generation
 }
 
 export interface AssessmentResults {
@@ -144,7 +147,12 @@ export const getCareerRecommendations = (
         "AI/ML Engineer",
         "Cybersecurity Specialist",
         "UX/UI Designer"
-      ]
+      ],
+      // Add RIASEC categories and cluster info for PDF generation
+      riasecCategory: topRiasecEntries.some(([key]) => ["R", "I"].includes(key)) 
+        ? topRiasecEntries.filter(([key]) => ["R", "I"].includes(key)).map(([key]) => key) 
+        : topRiasecEntries.map(([key]) => key).slice(0, 1),
+      cluster: "Technology & Innovation"
     },
     {
       title: "Creative & Digital Media",
@@ -159,7 +167,12 @@ export const getCareerRecommendations = (
         "Social Media Manager",
         "Digital Marketer",
         "Multimedia Artist"
-      ]
+      ],
+      // Add RIASEC categories and cluster info for PDF generation
+      riasecCategory: topRiasecEntries.some(([key]) => ["A", "E"].includes(key)) 
+        ? topRiasecEntries.filter(([key]) => ["A", "E"].includes(key)).map(([key]) => key) 
+        : topRiasecEntries.map(([key]) => key).slice(0, 1),
+      cluster: "Creative & Digital Media"
     },
     {
       title: "Business & Entrepreneurship",
@@ -174,7 +187,12 @@ export const getCareerRecommendations = (
         "Business Development",
         "Management Consultant",
         "Growth Strategist"
-      ]
+      ],
+      // Add RIASEC categories and cluster info for PDF generation
+      riasecCategory: topRiasecEntries.some(([key]) => ["E", "C"].includes(key)) 
+        ? topRiasecEntries.filter(([key]) => ["E", "C"].includes(key)).map(([key]) => key) 
+        : topRiasecEntries.map(([key]) => key).slice(0, 1),
+      cluster: "Business & Entrepreneurship"
     },
     {
       title: "Education & Helping Professions",
@@ -189,7 +207,12 @@ export const getCareerRecommendations = (
         "Online Learning Designer",
         "Mental Health App Developer",
         "Education Consultant"
-      ]
+      ],
+      // Add RIASEC categories and cluster info for PDF generation
+      riasecCategory: topRiasecEntries.some(([key]) => ["S", "A"].includes(key)) 
+        ? topRiasecEntries.filter(([key]) => ["S", "A"].includes(key)).map(([key]) => key) 
+        : topRiasecEntries.map(([key]) => key).slice(0, 1),
+      cluster: "Education & Helping Professions"
     },
     {
       title: "Healthcare & Wellness Technology",
@@ -204,7 +227,12 @@ export const getCareerRecommendations = (
         "Health Data Analyst",
         "Wellness App Designer",
         "Healthcare AI Specialist"
-      ]
+      ],
+      // Add RIASEC categories and cluster info for PDF generation
+      riasecCategory: topRiasecEntries.some(([key]) => ["S", "I"].includes(key)) 
+        ? topRiasecEntries.filter(([key]) => ["S", "I"].includes(key)).map(([key]) => key) 
+        : topRiasecEntries.map(([key]) => key).slice(0, 1),
+      cluster: "Healthcare & Wellness Technology"
     },
     {
       title: "Research & Analysis",
@@ -219,7 +247,12 @@ export const getCareerRecommendations = (
         "Research Scientist",
         "Business Intelligence Analyst",
         "Economic Analyst"
-      ]
+      ],
+      // Add RIASEC categories and cluster info for PDF generation
+      riasecCategory: topRiasecEntries.some(([key]) => ["I", "C"].includes(key)) 
+        ? topRiasecEntries.filter(([key]) => ["I", "C"].includes(key)).map(([key]) => key) 
+        : topRiasecEntries.map(([key]) => key).slice(0, 1),
+      cluster: "Research & Analysis"
     }
   ];
   
