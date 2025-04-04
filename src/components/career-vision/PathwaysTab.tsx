@@ -107,7 +107,7 @@ const PathwaysTab: React.FC<PathwaysTabProps> = ({ pathways, pathwaysChartData }
                           <Zap className="h-4 w-4 mr-2 text-brand-orange" />
                           Future-Focused Careers:
                         </h5>
-                        <p className="text-sm">{clusterInfo.careers.join(", ")}</p>
+                        <p className="text-sm">{Array.isArray(clusterInfo.careers) ? clusterInfo.careers.join(", ") : clusterInfo.careers}</p>
                       </div>
                     </div>
                   </div>
