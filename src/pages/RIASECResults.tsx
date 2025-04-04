@@ -345,646 +345,356 @@ const RIASECResults = () => {
       const margin = 15;
       const contentWidth = pageWidth - (margin * 2);
       
-      pdf.setFillColor(103, 58, 183);
-      pdf.rect(0, 0, pageWidth, 50, 'F');
-      
-      for (let i = 0; i < 50; i++) {
-        const alpha = 0.03 - (i * 0.0006);
-        pdf.setFillColor(255, 255, 255, alpha);
-        pdf.rect(0, i, pageWidth, 1, 'F');
-      }
-      
-      pdf.setTextColor(255, 255, 255);
-      pdf.setFontSize(28);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text('RIASEC Assessment', pageWidth / 2, 25, { align: 'center' });
-      
-      pdf.setFontSize(16);
-      pdf.setFont('helvetica', 'normal');
-      pdf.text('Career Interest Profile', pageWidth / 2, 35, { align: 'center' });
-      
-      pdf.setDrawColor(255, 255, 255, 0.5);
-      pdf.setLineWidth(0.5);
-      pdf.line(margin + 20, 42, pageWidth - margin - 20, 42);
-      
-      const centerX = pageWidth / 2;
-      const centerY = 100;
-      const radius = 25;
-      
-      const typeColors = {
-        'R': [66, 133, 244],
-        'I': [156, 39, 176],
-        'A': [229, 57, 53],
-        'S': [255, 179, 0],
-        'E': [255, 152, 0],
-        'C': [67, 160, 71]
+      // Helper function for styled text
+      const addStyledText = (text: string, x: number, y: number, size: number, style: string = 'normal', align: 'left' | 'center' | 'right' = 'left', color: string = '#000000') => {
+        pdf.setTextColor(color);
+        pdf.setFontSize(size);
+        pdf.setFont('helvetica', style);
+        pdf.text(text, x, y, { align });
       };
+
+      // Cover page with soft background - Using pastel purple
+      pdf.setFillColor(245, 242, 255);
+      pdf.rect(0, 0, pageWidth, pageHeight, 'F');
       
-      let angleOffset = 0;
-      Object.entries(scores).forEach(([type, score], index) => {
-        const angle = (index * 60) * Math.PI / 180;
-        const x = centerX + Math.cos(angle) * radius;
-        const y = centerY + Math.sin(angle) * radius;
-        
-        pdf.setDrawColor(180, 180, 180);
-        pdf.setLineWidth(0.3);
-        pdf.line(centerX, centerY, x, y);
-        
-        const typeRadius = 3 + (score / totalQuestions) * 5;
-        const color = typeColors[type as keyof typeof typeColors];
-        pdf.setFillColor(color[0], color[1], color[2]);
-        pdf.circle(x, y, typeRadius, 'F');
-        
-        pdf.setTextColor(255, 255, 255);
-        pdf.setFontSize(8);
-        pdf.setFont('helvetica', 'bold');
-        pdf.text(type, x, y + 0.5, { align: 'center' });
+      // Decorative elements - soft circles in pastel colors
+      pdf.setFillColor(230, 220, 255, 0.5);  // Light purple
+      pdf.circle(170, 240, 30, 'F');
+      
+      pdf.setFillColor(220, 230, 255, 0.5);  // Light blue
+      pdf.circle(40, 260, 20, 'F');
+      
+      // Title with brand purple color
+      addStyledText('RIASEC ASSESSMENT', pageWidth/2, 70, 28, 'bold', 'center', '#8B5CF6');
+      addStyledText('RESULTS', pageWidth/2, 85, 24, 'bold', 'center', '#8B5CF6');
+      
+      // Date
+      const currentDate = new Date().toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
       });
-      
-      pdf.setFillColor(245, 245, 245);
-      pdf.roundedRect(margin, 140, contentWidth, 30, 3, 3, 'F');
-      
-      pdf.setTextColor(100, 100, 100);
-      pdf.setFontSize(12);
-      pdf.setFont('helvetica', 'normal');
-      pdf.text('Your Holland Code:', margin + 15, 155);
-      
-      pdf.setTextColor(103, 58, 183);
-      pdf.setFontSize(24);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text(`${primaryType}${secondaryType}${tertiaryType}`, margin + contentWidth - 40, 155);
-      
+      addStyledText(`Report Generated: ${currentDate}`, pageWidth/2, 105, 12, 'italic', 'center', '#555555');
+
+      // Student information section
       if (studentDetails) {
-        pdf.setFillColor(250, 250, 250);
-        pdf.roundedRect(margin, 180, contentWidth, 50, 3, 3, 'F');
+        pdf.setFillColor(255, 255, 255);
+        pdf.roundedRect(margin, 120, contentWidth, 70, 5, 5, 'F');
+        pdf.setDrawColor(200, 190, 230);
+        pdf.setLineWidth(0.5);
+        pdf.roundedRect(margin, 120, contentWidth, 70, 5, 5, 'S');
         
-        pdf.setTextColor(80, 80, 80);
-        pdf.setFontSize(14);
-        pdf.setFont('helvetica', 'bold');
-        pdf.text('Student Profile', margin + 10, 195);
+        addStyledText('STUDENT INFORMATION', margin + 10, 135, 14, 'bold', 'left', '#8B5CF6');
+        pdf.setLineWidth(0.5);
+        pdf.setDrawColor('#8B5CF6');
+        pdf.line(margin + 10, 138, margin + 80, 138);
         
-        pdf.setFontSize(10);
-        pdf.setFont('helvetica', 'normal');
+        addStyledText('Name:', margin + 10, 155, 12, 'bold', 'left', '#333333');
+        addStyledText(studentDetails.name, margin + 50, 155, 12, 'normal', 'left', '#333333');
         
-        const infoX = margin + 15;
-        pdf.setTextColor(120, 120, 120);
-        pdf.text('Name:', infoX, 205);
-        pdf.text('Class & Section:', infoX, 215);
-        pdf.text('School:', infoX, 225);
+        addStyledText('Class:', margin + 10, 170, 12, 'bold', 'left', '#333333');
+        addStyledText(`${studentDetails.class} - ${studentDetails.section}`, margin + 50, 170, 12, 'normal', 'left', '#333333');
         
-        const valueX = margin + 50;
-        pdf.setTextColor(60, 60, 60);
-        pdf.setFont('helvetica', 'bold');
-        pdf.text(studentDetails.name, valueX, 205);
-        pdf.text(`${studentDetails.class} - ${studentDetails.section}`, valueX, 215);
-        pdf.text(studentDetails.school, valueX, 225);
+        addStyledText('School:', margin + 10, 185, 12, 'bold', 'left', '#333333');
+        addStyledText(studentDetails.school, margin + 50, 185, 12, 'normal', 'left', '#333333');
       }
       
-      const today = new Date();
-      const dateString = today.toLocaleDateString('en-US', { 
-        year: 'numeric', month: 'long', day: 'numeric' 
-      });
+      // About section
+      pdf.setFillColor(255, 255, 255);
+      pdf.roundedRect(margin, 205, contentWidth, 65, 5, 5, 'F');
+      pdf.setDrawColor(200, 190, 230);
+      pdf.roundedRect(margin, 205, contentWidth, 65, 5, 5, 'S');
       
-      pdf.setTextColor(150, 150, 150);
-      pdf.setFontSize(8);
-      pdf.setFont('helvetica', 'normal');
-      pdf.text(`Generated on ${dateString}`, pageWidth / 2, pageHeight - 15, { align: 'center' });
-      pdf.text('Page 1 of 3', pageWidth / 2, pageHeight - 10, { align: 'center' });
+      addStyledText('ABOUT THIS ASSESSMENT', margin + 10, 220, 14, 'bold', 'left', '#8B5CF6');
+      pdf.line(margin + 10, 223, margin + 85, 223);
       
-      pdf.addPage();
+      addStyledText('The RIASEC Assessment identifies your career preferences based on six interest types:', 
+        margin + 10, 235, 10, 'normal', 'left', '#333333');
+      addStyledText('• Realistic: Working with hands, tools, machines, or outdoors', 
+        margin + 10, 247, 10, 'normal', 'left', '#333333');
+      addStyledText('• Investigative: Analytical thinking, research, and problem-solving', 
+        margin + 10, 257, 10, 'normal', 'left', '#333333');
+      addStyledText('• Artistic: Creative expression, innovation, and originality', 
+        margin + 10, 267, 10, 'normal', 'left', '#333333');
+
+      // Page footer
+      addStyledText('RIASEC Assessment Results', pageWidth/2, 285, 9, 'italic', 'center', '#555555');
+      addStyledText('Page 1', margin, pageHeight - 10, 9, 'normal', 'left', '#555555');
       
-      pdf.setFillColor(103, 58, 183, 0.8);
-      pdf.rect(0, 0, pageWidth, 15, 'F');
-      
-      pdf.setTextColor(255, 255, 255);
-      pdf.setFontSize(10);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text('RIASEC ASSESSMENT RESULTS', pageWidth / 2, 10, { align: 'center' });
-      
-      pdf.setTextColor(80, 80, 80);
-      pdf.setFontSize(18);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text('Career Recommendations', margin, 30);
-      
-      pdf.setTextColor(100, 100, 100);
-      pdf.setFontSize(10);
-      pdf.setFont('helvetica', 'normal');
-      pdf.text(
-        'Based on your Holland Code, the following career paths might align well with your interests and strengths. ' +
-        'Consider exploring these options as part of your career research.',
-        margin, 40, { maxWidth: contentWidth }
-      );
-      
-      const pastelTypeColors = {
-        'R': [173, 216, 230],
-        'I': [221, 160, 221],
-        'A': [255, 182, 193],
-        'S': [255, 218, 185],
-        'E': [255, 228, 196],
-        'C': [152, 251, 152]
+      // Helper function to add page header
+      const addPageHeader = (pageNumber: number) => {
+        // Light header background
+        pdf.setFillColor(245, 242, 255); // Very light purple
+        pdf.rect(0, 0, pageWidth, 20, 'F');
+        
+        // Header content
+        addStyledText('RIASEC Assessment', margin, 15, 10, 'italic', 'left', '#555555');
+        addStyledText('Career Interest Profile', pageWidth - margin, 15, 12, 'bold', 'right', '#8B5CF6');
+        
+        // Separator line
+        pdf.setDrawColor(200, 190, 230);
+        pdf.setLineWidth(0.5);
+        pdf.line(margin, 20, pageWidth - margin, 20);
+        
+        // Footer
+        addStyledText(`Page ${pageNumber}`, margin, pageHeight - 10, 9, 'normal', 'left', '#555555');
+        addStyledText(currentDate, pageWidth - margin, pageHeight - 10, 9, 'normal', 'right', '#555555');
       };
       
-      const chartY = 45;
-      const chartHeight = 80;
+      // Add page 2 - Holland Code and RIASEC Profile
+      pdf.addPage();
+      addPageHeader(2);
       
-      pdf.roundedRect(margin, chartY, contentWidth, chartHeight, 3, 3, 'F');
+      let yPosition = 40;
       
-      pdf.setDrawColor(230, 230, 230);
-      pdf.setLineWidth(0.5);
+      // Holland Code section
+      addStyledText('Your Holland Code', pageWidth/2, yPosition, 18, 'bold', 'center', '#8B5CF6');
+      yPosition += 15;
       
-      for (let i = 1; i <= 4; i++) {
-        const x = margin + (contentWidth / 5) * i;
-        pdf.line(x, chartY + 5, x, chartY + chartHeight - 5);
-      }
+      pdf.setFillColor(245, 242, 255);
+      pdf.roundedRect(margin, yPosition, contentWidth, 50, 5, 5, 'F');
+      pdf.setDrawColor(200, 190, 230);
+      pdf.roundedRect(margin, yPosition, contentWidth, 50, 5, 5, 'S');
+      
+      addStyledText(`${primaryType}${secondaryType}${tertiaryType}`, pageWidth/2, yPosition + 20, 24, 'bold', 'center', '#8B5CF6');
+      
+      const codeDesc = 'Your three-letter Holland Code represents your top interest areas. These indicate your strongest career preferences and work-related values.';
+      pdf.setFontSize(10);
+      const splitDesc = pdf.splitTextToSize(codeDesc, contentWidth - 20);
+      pdf.text(splitDesc, pageWidth/2, yPosition + 35, { align: 'center' });
+      
+      yPosition += 65;
+      
+      // RIASEC Profile Visualization
+      addStyledText('Your RIASEC Profile', pageWidth/2, yPosition, 16, 'bold', 'center', '#8B5CF6');
+      yPosition += 20;
+      
+      // Create bar chart with pastel colors
+      const typeColors = {
+        'R': ['#D6E4FF', '#2563EB'], // Blue
+        'I': ['#E2D9F3', '#7E22CE'], // Purple
+        'A': ['#FCE7F3', '#DB2777'], // Pink
+        'S': ['#FEFBC2', '#CA8A04'], // Yellow
+        'E': ['#FFE2CC', '#EA580C'], // Orange
+        'C': ['#DCFCE7', '#16A34A']  // Green
+      };
       
       const maxPercentage = 100;
       const barWidth = contentWidth / 8;
+      const chartHeight = 120;
       
+      // Draw chart axes
+      pdf.setDrawColor(180, 180, 180);
+      pdf.setLineWidth(0.3);
+      pdf.line(margin, yPosition + chartHeight, margin + contentWidth, yPosition + chartHeight); // X-axis
+      
+      // Draw bars for each RIASEC type
       Object.entries(scores).forEach(([type, score], index) => {
         const barX = margin + (index * (barWidth + 5)) + 10;
         const percentage = getPercentage(score);
-        const barHeight = (percentage / maxPercentage) * (chartHeight - 25);
+        const barHeight = (percentage / maxPercentage) * chartHeight;
         
-        pdf.setFillColor(245, 245, 245);
-        pdf.roundedRect(barX, chartY + chartHeight - 15 - barHeight, barWidth, barHeight, 2, 2, 'F');
-        
+        // Bar background
         const color = typeColors[type as keyof typeof typeColors];
-        pdf.setFillColor(color[0], color[1], color[2], 0.7);
-        pdf.roundedRect(barX, chartY + chartHeight - 15 - barHeight, barWidth, barHeight, 2, 2, 'F');
+        pdf.setFillColor(hexToRgb(color[0]).r, hexToRgb(color[0]).g, hexToRgb(color[0]).b);
+        pdf.roundedRect(barX, yPosition + chartHeight - barHeight, barWidth, barHeight, 2, 2, 'F');
         
-        pdf.setFontSize(10);
-        pdf.setFont('helvetica', 'bold');
-        pdf.setTextColor(80, 80, 80);
-        pdf.text(type, barX + barWidth/2, chartY + chartHeight - 5, { align: 'center' });
+        // Bar top - darker shade
+        pdf.setFillColor(hexToRgb(color[1]).r, hexToRgb(color[1]).g, hexToRgb(color[1]).b);
+        pdf.roundedRect(barX, yPosition + chartHeight - barHeight, barWidth, 5, {tl: 2, tr: 2, bl: 0, br: 0}, 'F');
         
-        pdf.setFontSize(8);
-        pdf.setTextColor(60, 60, 60);
-        pdf.text(`${percentage}%`, barX + barWidth/2, chartY + chartHeight - 18 - barHeight, { align: 'center' });
+        // Type label and percentage
+        addStyledText(type, barX + barWidth/2, yPosition + chartHeight + 10, 10, 'bold', 'center', '#333333');
+        addStyledText(`${percentage}%`, barX + barWidth/2, yPosition + chartHeight - barHeight - 5, 8, 'normal', 'center', '#333333');
       });
       
-      const legendY = chartY + chartHeight + 15;
+      yPosition += chartHeight + 25;
+      
+      // Legend
+      addStyledText('Legend:', margin, yPosition, 10, 'bold', 'left', '#333333');
+      yPosition += 15;
       
       Object.entries(riasecTypes).forEach(([type, info], index) => {
-        const colIndex = index % 3;
-        const rowIndex = Math.floor(index / 3);
-        const legendX = margin + (colIndex * (contentWidth / 3));
-        const y = legendY + (rowIndex * 15);
-        
-        const color = typeColors[type as keyof typeof typeColors];
-        pdf.setFillColor(color[0], color[1], color[2]);
-        pdf.circle(legendX + 3, y, 2.5, 'F');
-        
-        pdf.setTextColor(80, 80, 80);
-        pdf.setFont('helvetica', 'bold');
-        pdf.text(`${type}: ${info.name}`, legendX + 7, y + 1);
-        
-        pdf.setFont('helvetica', 'normal');
-        pdf.setTextColor(120, 120, 120);
-        pdf.text(`(${info.title})`, legendX + 50, y + 1);
-      });
-      
-      const primaryTypeY = legendY + 40;
-      
-      pdf.setFillColor(typeColors[primaryType][0], typeColors[primaryType][1], typeColors[primaryType][2], 0.1);
-      pdf.roundedRect(margin, primaryTypeY, contentWidth, 80, 3, 3, 'F');
-      
-      pdf.setFillColor(typeColors[primaryType][0], typeColors[primaryType][1], typeColors[primaryType][2]);
-      pdf.roundedRect(margin, primaryTypeY, contentWidth, 10, 3, 3, 'F');
-      
-      pdf.setTextColor(255, 255, 255);
-      pdf.setFontSize(11);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text(`PRIMARY TYPE: ${riasecTypes[primaryType].name.toUpperCase()}`, margin + 10, primaryTypeY + 7);
-      
-      pdf.setTextColor(80, 80, 80);
-      pdf.setFontSize(10);
-      pdf.setFont('helvetica', 'normal');
-      pdf.text(riasecTypes[primaryType].description, margin + 5, primaryTypeY + 20, { 
-        maxWidth: contentWidth - 10 
-      });
-      
-      pdf.setFont('helvetica', 'bold');
-      pdf.text("Key Strengths:", margin + 5, primaryTypeY + 40);
-      
-      let strengthsText = "";
-      riasecTypes[primaryType].skills.forEach((skill, index) => {
-        strengthsText += `• ${skill}${index < riasecTypes[primaryType].skills.length - 1 ? "\n" : ""}`;
-      });
-      
-      pdf.text(strengthsText, margin + 10, primaryTypeY + 48, { 
-        maxWidth: contentWidth - 20
-      });
-      
-      pdf.setTextColor(150, 150, 150);
-      pdf.setFontSize(8);
-      pdf.text('Page 2 of 3', pageWidth / 2, pageHeight - 10, { align: 'center' });
-      
-      pdf.addPage();
-      
-      pdf.setFillColor(103, 58, 183, 0.8);
-      pdf.rect(0, 0, pageWidth, 15, 'F');
-      
-      pdf.setTextColor(255, 255, 255);
-      pdf.setFontSize(10);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text('RIASEC ASSESSMENT RESULTS', pageWidth / 2, 10, { align: 'center' });
-      
-      pdf.setTextColor(80, 80, 80);
-      pdf.setFontSize(18);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text('Career Recommendations', margin, 30);
-      
-      pdf.setTextColor(100, 100, 100);
-      pdf.setFontSize(10);
-      pdf.setFont('helvetica', 'normal');
-      pdf.text(
-        'Based on your Holland Code, the following career paths might align well with your interests and strengths. ' +
-        'Consider exploring these options as part of your career research.',
-        margin, 40, { maxWidth: contentWidth }
-      );
-      
-      const careerY = 55;
-      const types = [primaryType, secondaryType, tertiaryType];
-      const boxHeight = 65;
-      
-      types.forEach((type, index) => {
-        const y = careerY + (index * (boxHeight + 5));
-        
-        pdf.setFillColor(pastelTypeColors[type as keyof typeof pastelTypeColors][0], 
-                         pastelTypeColors[type as keyof typeof pastelTypeColors][1], 
-                         pastelTypeColors[type as keyof typeof pastelTypeColors][2], 0.3);
-        pdf.roundedRect(margin, y, contentWidth, boxHeight, 3, 3, 'F');
-        
-        pdf.setFillColor(pastelTypeColors[type as keyof typeof pastelTypeColors][0], 
-                        pastelTypeColors[type as keyof typeof pastelTypeColors][1], 
-                        pastelTypeColors[type as keyof typeof pastelTypeColors][2], 0.7);
-        pdf.roundedRect(margin, y, 40, boxHeight, 3, 3, 'F');
-        
-        pdf.setTextColor(255, 255, 255);
-        pdf.setFontSize(28);
-        pdf.setFont('helvetica', 'bold');
-        pdf.text(type, margin + 20, y + boxHeight/2 + 5, { align: 'center' });
-        
-        pdf.setTextColor(80, 80, 80);
-        pdf.setFontSize(14);
-        pdf.setFont('helvetica', 'bold');
-        pdf.text(riasecTypes[type as keyof typeof riasecTypes].name, margin + 50, y + 15);
-        
-        pdf.setTextColor(120, 120, 120);
-        pdf.setFontSize(10);
-        pdf.setFont('helvetica', 'italic');
-        pdf.text(`"${riasecTypes[type as keyof typeof riasecTypes].title}"`, margin + 50, y + 25);
-        
-        pdf.setTextColor(80, 80, 80);
-        pdf.setFontSize(10);
-        pdf.setFont('helvetica', 'bold');
-        pdf.text("Career Paths:", margin + 50, y + 35);
-        
-        const careers = riasecTypes[type as keyof typeof riasecTypes].careers.slice(0, 10);
-        const midpoint = Math.ceil(careers.length / 2);
-        
-        pdf.setFont('helvetica', 'normal');
-        
-        let leftColumnText = "";
-        careers.slice(0, midpoint).forEach(career => {
-          leftColumnText += `• ${career}\n`;
-        });
-        pdf.text(leftColumnText, margin + 55, y + 42, { maxWidth: (contentWidth - 70) / 2 });
-        
-        if (careers.length > midpoint) {
-          let rightColumnText = "";
-          careers.slice(midpoint).forEach(career => {
-            rightColumnText += `• ${career}\n`;
-          });
-          pdf.text(rightColumnText, margin + contentWidth/2, y + 42, { maxWidth: (contentWidth - 70) / 2 });
+        if (index % 2 === 0) {
+          if (index > 0) yPosition += 12;
+          pdf.setFillColor(hexToRgb(typeColors[type as keyof typeof typeColors][1]).r, 
+                           hexToRgb(typeColors[type as keyof typeof typeColors][1]).g,
+                           hexToRgb(typeColors[type as keyof typeof typeColors][1]).b);
+          pdf.circle(margin + 3, yPosition, 3, 'F');
+          
+          addStyledText(`${type}: ${info.name}`, margin + 10, yPosition + 1, 8, 'normal', 'left', '#333333');
+          addStyledText(`(${info.title})`, margin + 45, yPosition + 1, 8, 'italic', 'left', '#555555');
+        } else {
+          pdf.setFillColor(hexToRgb(typeColors[type as keyof typeof typeColors][1]).r,
+                           hexToRgb(typeColors[type as keyof typeof typeColors][1]).g,
+                           hexToRgb(typeColors[type as keyof typeof typeColors][1]).b);
+          pdf.circle(margin + contentWidth/2, yPosition, 3, 'F');
+          
+          addStyledText(`${type}: ${info.name}`, margin + contentWidth/2 + 7, yPosition + 1, 8, 'normal', 'left', '#333333');
+          addStyledText(`(${info.title})`, margin + contentWidth/2 + 42, yPosition + 1, 8, 'italic', 'left', '#555555');
         }
       });
       
-      const nextStepsY = careerY + (3 * (boxHeight + 5)) + 10;
+      // Add page 3 - Top Types and Career Recommendations
+      pdf.addPage();
+      addPageHeader(3);
       
-      if (nextStepsY + 50 > pageHeight - 20) {
+      yPosition = 40;
+      
+      // Primary Type
+      addStyledText('Your Top RIASEC Types', pageWidth/2, yPosition, 18, 'bold', 'center', '#8B5CF6');
+      yPosition += 20;
+      
+      // Primary Type Box
+      const typesToShow = [primaryType, secondaryType, tertiaryType];
+      
+      typesToShow.forEach((type, index) => {
+        const info = riasecTypes[type as keyof typeof riasecTypes];
+        const color = typeColors[type as keyof typeof typeColors];
+        
+        pdf.setFillColor(hexToRgb(color[0]).r, hexToRgb(color[0]).g, hexToRgb(color[0]).b, 0.5);
+        pdf.roundedRect(margin, yPosition, contentWidth, 70, 5, 5, 'F');
+        pdf.setDrawColor(hexToRgb(color[1]).r, hexToRgb(color[1]).g, hexToRgb(color[1]).b, 0.5);
+        pdf.roundedRect(margin, yPosition, contentWidth, 70, 5, 5, 'S');
+        
+        // Type badge
+        pdf.setFillColor(hexToRgb(color[1]).r, hexToRgb(color[1]).g, hexToRgb(color[1]).b);
+        pdf.circle(margin + 15, yPosition + 15, 8, 'F');
+        addStyledText(type, margin + 15, yPosition + 15 + 2, 10, 'bold', 'center', '#FFFFFF');
+        
+        // Type name and title
+        addStyledText(`${index+1}. ${info.name}`, margin + 35, yPosition + 15, 14, 'bold', 'left', hexToRgb(color[1]).r, hexToRgb(color[1]).g, hexToRgb(color[1]).b);
+        addStyledText(`"${info.title}"`, margin + 35 + info.name.length * 5, yPosition + 15, 10, 'italic', 'left', '#555555');
+        
+        // Description
+        const typeDesc = pdf.splitTextToSize(info.description, contentWidth - 25);
+        pdf.text(typeDesc, margin + 15, yPosition + 30);
+        
+        // Key strengths
+        if (index === 0) { // Only show skills/strengths for primary type to save space
+          addStyledText('Key Strengths:', margin + 15, yPosition + 50, 10, 'bold', 'left', '#333333');
+          
+          let skillsText = "";
+          info.skills.slice(0, 3).forEach((skill, i) => {
+            skillsText += `• ${skill}${i < 2 ? "   " : ""}`;
+          });
+          
+          addStyledText(skillsText, margin + 15, yPosition + 60, 9, 'normal', 'left', '#333333');
+        }
+        
+        yPosition += 80;
+      });
+      
+      // Career Recommendations
+      if (yPosition + 160 > pageHeight - 20) {
         pdf.addPage();
-        
-        pdf.setFillColor(103, 58, 183, 0.8);
-        pdf.rect(0, 0, pageWidth, 15, 'F');
-        
-        pdf.setTextColor(255, 255, 255);
-        pdf.setFontSize(10);
-        pdf.setFont('helvetica', 'bold');
-        pdf.text('RIASEC ASSESSMENT RESULTS', pageWidth / 2, 10, { align: 'center' });
-        
-        const nextStepsY = 30;
-        
-        pdf.setFillColor(245, 245, 245);
-        pdf.roundedRect(margin, nextStepsY, contentWidth, 70, 3, 3, 'F');
-        
-        pdf.setTextColor(103, 58, 183);
-        pdf.setFontSize(14);
-        pdf.setFont('helvetica', 'bold');
-        pdf.text("Next Steps", margin + 10, nextStepsY + 15);
-        
-        pdf.setTextColor(80, 80, 80);
-        pdf.setFontSize(10);
-        pdf.setFont('helvetica', 'normal');
-        
-        const nextStepsText = [
-          "1. Research specific occupations related to your top RIASEC types",
-          "2. Identify the education and training requirements for careers of interest",
-          "3. Consider job shadowing or informational interviews with professionals",
-          "4. Look for internships or volunteer opportunities in your areas of interest",
-          "5. Explore related college majors or vocational programs",
-          "6. Take additional targeted career assessments to refine your choices"
-        ];
-        
-        nextStepsText.forEach((step, index) => {
-          pdf.text(step, margin + 15, nextStepsY + 30 + (index * 8));
-        });
-        
-        pdf.setFillColor(250, 250, 250);
-        pdf.roundedRect(margin, nextStepsY + 85, contentWidth, 40, 3, 3, 'F');
-        
-        pdf.setTextColor(103, 58, 183);
-        pdf.setFontSize(11);
-        pdf.setFont('helvetica', 'bold');
-        pdf.text("Additional Resources", margin + 10, nextStepsY + 95);
-        
-        pdf.setTextColor(80, 80, 80);
-        pdf.setFontSize(9);
-        pdf.setFont('helvetica', 'normal');
-        pdf.text("• O*NET Online: www.onetonline.org - Comprehensive database of occupations", 
-          margin + 15, nextStepsY + 105);
-        pdf.text("• Career One Stop: www.careeronestop.org - Career exploration and job search resources", 
-          margin + 15, nextStepsY + 115);
-        
-        pdf.setTextColor(150, 150, 150);
-        pdf.setFontSize(8);
-        pdf.text('Page 4 of 4', pageWidth / 2, pageHeight - 10, { align: 'center' });
+        addPageHeader(4);
+        yPosition = 40;
       } else {
-        pdf.setFillColor(245, 245, 245);
-        pdf.roundedRect(margin, nextStepsY, contentWidth, 70, 3, 3, 'F');
-        
-        pdf.setTextColor(103, 58, 183);
-        pdf.setFontSize(14);
-        pdf.setFont('helvetica', 'bold');
-        pdf.text("Next Steps", margin + 10, nextStepsY + 15);
-        
-        pdf.setTextColor(80, 80, 80);
-        pdf.setFontSize(10);
-        pdf.setFont('helvetica', 'normal');
-        
-        const nextStepsText = [
-          "1. Research specific occupations related to your top RIASEC types",
-          "2. Identify the education and training requirements for careers of interest",
-          "3. Consider job shadowing or informational interviews with professionals",
-          "4. Look for internships or volunteer opportunities in your areas of interest",
-          "5. Explore related college majors or vocational programs"
-        ];
-        
-        nextStepsText.forEach((step, index) => {
-          pdf.text(step, margin + 15, nextStepsY + 30 + (index * 8));
-        });
-        
-        pdf.setTextColor(150, 150, 150);
-        pdf.setFontSize(8);
-        pdf.text('Page 3 of 3', pageWidth / 2, pageHeight - 10, { align: 'center' });
+        yPosition += 10;
       }
       
-      pdf.setFontSize(6);
-      pdf.setTextColor(150, 150, 150);
-      pdf.text('Based on John Holland\'s RIASEC model of career interests and personality types.', 
-        pageWidth / 2, pageHeight - 15, { align: 'center' });
+      addStyledText('Career Recommendations', pageWidth/2, yPosition, 16, 'bold', 'center', '#8B5CF6');
+      yPosition += 20;
       
-      pdf.save('RIASEC-Assessment-Results.pdf');
-      toast.success("Your PDF report is ready!");
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-      toast.error("There was an error generating your PDF. Please try again.");
-    } finally {
-      setIsDownloading(false);
-    }
-  };
-  
-  return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
+      const careerColumns = {
+        primaryType: {
+          careers: riasecTypes[primaryType].careers.slice(0, 5),
+          color: typeColors[primaryType as keyof typeof typeColors][0],
+          borderColor: typeColors[primaryType as keyof typeof typeColors][1],
+          title: riasecTypes[primaryType].name
+        },
+        secondaryType: {
+          careers: riasecTypes[secondaryType].careers.slice(0, 5),
+          color: typeColors[secondaryType as keyof typeof typeColors][0],
+          borderColor: typeColors[secondaryType as keyof typeof typeColors][1],
+          title: riasecTypes[secondaryType].name
+        }
+      };
       
-      <main className="flex-grow pt-24 pb-16">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="mb-8 flex flex-wrap justify-between items-center">
-            <div>
-              <Button
-                variant="ghost"
-                onClick={() => navigate(-1)}
-                className="mb-4 text-brand-purple hover:text-brand-purple/80 -ml-3"
-              >
-                <ArrowLeft className="mr-2 h-4 w-4" /> Back
-              </Button>
-              
-              <h1 className="text-3xl md:text-4xl font-bold mb-2">Your RIASEC Results</h1>
-              <p className="text-foreground/70 max-w-3xl">
-                Based on your answers, we've identified your dominant personality types according to the Holland Code (RIASEC) model.
-                These insights can help guide your career exploration and educational choices.
-              </p>
-            </div>
-            
-            <Button 
-              className="flex items-center bg-brand-purple text-white hover:bg-brand-purple/90 mt-4 md:mt-0"
-              onClick={downloadResults}
-              disabled={isDownloading}
-            >
-              <Download className="mr-2 h-4 w-4" /> {isDownloading ? 'Generating PDF...' : 'Download Results'}
-            </Button>
-          </div>
-          
-          {studentDetails && (
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-brand-purple/10 rounded-xl p-4 md:p-6 mb-6 max-w-4xl mx-auto"
-            >
-              <h2 className="text-xl font-semibold mb-3 text-brand-purple">Student Information</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex items-center">
-                  <User className="h-5 w-5 text-brand-purple mr-2" />
-                  <div>
-                    <p className="text-sm text-gray-600">Name</p>
-                    <p className="font-medium">{studentDetails.name}</p>
-                  </div>
-                </div>
-                <div className="flex items-center">
-                  <BookOpen className="h-5 w-5 text-brand-purple mr-2" />
-                  <div>
-                    <p className="text-sm text-gray-600">Class & Section</p>
-                    <p className="font-medium">{studentDetails.class} - {studentDetails.section}</p>
-                  </div>
-                </div>
-                <div className="flex items-center md:col-span-2">
-                  <School className="h-5 w-5 text-brand-purple mr-2" />
-                  <div>
-                    <p className="text-sm text-gray-600">School</p>
-                    <p className="font-medium">{studentDetails.school}</p>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          )}
-          
-          <div 
-            ref={resultsRef}
-            id="results-content"
-            className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm max-w-4xl mx-auto animate-fade-in"
-          >
-            <div className="bg-brand-purple/10 p-6 md:p-8 border-b border-gray-200">
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
-                <div>
-                  <h2 className="text-2xl font-bold text-brand-purple mb-1">RIASEC Assessment Results</h2>
-                  <p className="text-foreground/70">Your Holland Code: <span className="font-semibold">{primaryType}{secondaryType}{tertiaryType}</span></p>
-                </div>
-                <div className="mt-4 md:mt-0 flex items-center">
-                  <div className="flex items-center bg-brand-purple/20 px-3 py-1 rounded-full text-sm font-medium text-brand-purple">
-                    <Star className="h-4 w-4 mr-1 fill-brand-purple" />
-                    {totalQuestions} Questions Analyzed
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="p-6 md:p-8">
-              <div className="mb-8">
-                <h3 className="text-xl font-semibold mb-4 flex items-center">
-                  <span className={`w-6 h-6 rounded-full mr-2 ${riasecTypes[primaryType].color}`}></span>
-                  Your Primary Type: {riasecTypes[primaryType].name} ({riasecTypes[primaryType].title})
-                </h3>
-                
-                <div className="bg-gray-50 p-6 rounded-lg border border-gray-100">
-                  <p className="mb-4">{riasecTypes[primaryType].description}</p>
-                  
-                  <h4 className="font-medium mb-2">Your {riasecTypes[primaryType].name} strengths include:</h4>
-                  <ul className="list-disc pl-5 mb-4 space-y-1">
-                    {riasecTypes[primaryType].skills.map((skill, index) => (
-                      <li key={index}>{skill}</li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <div>
-                  <h3 className="text-lg font-semibold mb-3 flex items-center">
-                    <span className={`w-5 h-5 rounded-full mr-2 ${riasecTypes[secondaryType].color}`}></span>
-                    Secondary: {riasecTypes[secondaryType].name}
-                  </h3>
-                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
-                    <p className="mb-3 text-sm">{riasecTypes[secondaryType].description}</p>
-                  </div>
-                </div>
-                
-                <div>
-                  <h3 className="text-lg font-semibold mb-3 flex items-center">
-                    <span className={`w-5 h-5 rounded-full mr-2 ${riasecTypes[tertiaryType].color}`}></span>
-                    Tertiary: {riasecTypes[tertiaryType].name}
-                  </h3>
-                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
-                    <p className="mb-3 text-sm">{riasecTypes[tertiaryType].description}</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="mb-8">
-                <h3 className="text-xl font-semibold mb-4">Your RIASEC Profile</h3>
-                
-                <div className="space-y-4">
-                  {Object.entries(scores).map(([type, score]) => (
-                    <div key={type}>
-                      <div className="flex justify-between mb-1">
-                        <span className="font-medium">{riasecTypes[type as keyof typeof riasecTypes].name}</span>
-                        <span>{score}/{totalQuestions} ({getPercentage(score)}%)</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2.5">
-                        <div 
-                          className={`h-2.5 rounded-full ${riasecTypes[type as keyof typeof riasecTypes].color}`}
-                          style={{ width: `${getPercentage(score)}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              
-              <div>
-                <h3 className="text-xl font-semibold mb-4">Potential Career Paths</h3>
-                <p className="mb-4">Based on your Holland Code ({primaryType}{secondaryType}{tertiaryType}), here are some career paths that might interest you:</p>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div>
-                    <h4 className="font-medium mb-2 flex items-center">
-                      <span className={`w-4 h-4 rounded-full mr-2 ${riasecTypes[primaryType].color}`}></span>
-                      {riasecTypes[primaryType].name} Careers
-                    </h4>
-                    <ul className="list-disc pl-5 space-y-1">
-                      {riasecTypes[primaryType].careers.slice(0, 5).map((career, index) => (
-                        <li key={index}>{career}</li>
-                      ))}
-                    </ul>
-                  </div>
-                  
-                  <div>
-                    <h4 className="font-medium mb-2 flex items-center">
-                      <span className={`w-4 h-4 rounded-full mr-2 ${riasecTypes[secondaryType].color}`}></span>
-                      {riasecTypes[secondaryType].name} Careers
-                    </h4>
-                    <ul className="list-disc pl-5 space-y-1">
-                      {riasecTypes[secondaryType].careers.slice(0, 5).map((career, index) => (
-                        <li key={index}>{career}</li>
-                      ))}
-                    </ul>
-                  </div>
-                  
-                  <div>
-                    <h4 className="font-medium mb-2 flex items-center">
-                      <span className={`w-4 h-4 rounded-full mr-2 ${riasecTypes[tertiaryType].color}`}></span>
-                      {riasecTypes[tertiaryType].name} Careers
-                    </h4>
-                    <ul className="list-disc pl-5 space-y-1">
-                      {riasecTypes[tertiaryType].careers.slice(0, 5).map((career, index) => (
-                        <li key={index}>{career}</li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="mt-10 pt-6 border-t border-gray-200 text-sm text-foreground/70">
-                <p>
-                  Note: This assessment is based on the Holland Occupational Themes (RIASEC) model developed by psychologist John Holland. 
-                  The results are meant to provide guidance and self-awareness, not to limit your options.
-                  Consider exploring careers that combine elements of your top interest areas.
-                </p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="mt-12 text-center">
-            <h3 className="text-xl font-bold mb-4">Want to explore more about your career options?</h3>
-            <div className="flex flex-wrap justify-center gap-4">
-              <Link to="/assessment/career-vision">
-                <Button variant="outline" className="border-brand-purple text-brand-purple hover:bg-brand-purple/5">
-                  Try Career Vision Assessment
-                </Button>
-              </Link>
-              <Link to="/assessment/future-pathways">
-                <Button variant="outline" className="border-brand-purple text-brand-purple hover:bg-brand-purple/5">
-                  Try Future Pathways Assessment
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </main>
+      // Create two column layout for careers
+      const columnWidth = contentWidth / 2 - 5;
       
-      <Footer />
-    </div>
-  );
-};
-
-export default RIASECResults;
+      // Primary Type Careers
+      pdf.setFillColor(hexToRgb(careerColumns.primaryType.color).r, 
+                       hexToRgb(careerColumns.primaryType.color).g, 
+                       hexToRgb(careerColumns.primaryType.color).b);
+      pdf.roundedRect(margin, yPosition, columnWidth, 120, 5, 5, 'F');
+      pdf.setDrawColor(hexToRgb(careerColumns.primaryType.borderColor).r, 
+                     hexToRgb(careerColumns.primaryType.borderColor).g, 
+                     hexToRgb(careerColumns.primaryType.borderColor).b, 0.5);
+      pdf.roundedRect(margin, yPosition, columnWidth, 120, 5, 5, 'S');
+      
+      addStyledText(careerColumns.primaryType.title, margin + columnWidth/2, yPosition + 15, 12, 'bold', 'center', '#333333');
+      
+      careerColumns.primaryType.careers.forEach((career, i) => {
+        addStyledText(`• ${career}`, margin + 10, yPosition + 35 + (i * 15), 10, 'normal', 'left', '#333333');
+      });
+      
+      // Secondary Type Careers
+      pdf.setFillColor(hexToRgb(careerColumns.secondaryType.color).r, 
+                       hexToRgb(careerColumns.secondaryType.color).g, 
+                       hexToRgb(careerColumns.secondaryType.color).b);
+      pdf.roundedRect(margin + columnWidth + 10, yPosition, columnWidth, 120, 5, 5, 'F');
+      pdf.setDrawColor(hexToRgb(careerColumns.secondaryType.borderColor).r, 
+                     hexToRgb(careerColumns.secondaryType.borderColor).g, 
+                     hexToRgb(careerColumns.secondaryType.borderColor).b, 0.5);
+      pdf.roundedRect(margin + columnWidth + 10, yPosition, columnWidth, 120, 5, 5, 'S');
+      
+      addStyledText(careerColumns.secondaryType.title, margin + columnWidth + 10 + columnWidth/2, yPosition + 15, 12, 'bold', 'center', '#333333');
+      
+      careerColumns.secondaryType.careers.forEach((career, i) => {
+        addStyledText(`• ${career}`, margin + columnWidth + 20, yPosition + 35 + (i * 15), 10, 'normal', 'left', '#333333');
+      });
+      
+      yPosition += 130;
+      
+      // Next Steps section
+      if (yPosition + 80 > pageHeight - 20) {
+        pdf.addPage();
+        addPageHeader(5);
+        yPosition = 40;
+      } else {
+        yPosition += 10;
+      }
+      
+      pdf.setFillColor(245, 242, 255);
+      pdf.roundedRect(margin, yPosition, contentWidth, 80, 5, 5, 'F');
+      pdf.setDrawColor(200, 190, 230);
+      pdf.roundedRect(margin, yPosition, contentWidth, 80, 5, 5, 'S');
+      
+      addStyledText('Next Steps', margin + 10, yPosition + 15, 14, 'bold', 'left', '#8B5CF6');
+      
+      const nextSteps = [
+        "Research careers related to your top Holland Code types",
+        "Consider education paths that align with these interests",
+        "Connect with professionals in fields of interest",
+        "Look for internships or volunteer opportunities",
+        "Take related courses to explore these areas further",
+        "Discuss your results with a career counselor"
+      ];
+      
+      nextSteps.forEach((step, i) => {
+        addStyledText(`${i+1}. ${step}`, margin + 15, yPosition + 35 + (i * 10), 9, 'normal', 'left', '#333333');
+      });
+      
+      // Add disclaimer
+      yPosition += 90;
+      
+      if (yPosition + 30 > pageHeight - 20) {
+        pdf.addPage();
+        addPageHeader(6);
+        yPosition = 40;
+      }
+      
+      const disclaimer = "Note: This assessment is based on the Holland Occupational Themes (RIASEC) model developed by psychologist John Holland. The results are meant to provide guidance and self-awareness, not to limit your options. Consider exploring careers that combine elements of your top interest areas.";
+      
+      pdf.setFontSize(8);
+      pdf.setTextColor(100, 100, 100);
+      const splitDisclaimer = pdf.splitTextToSize(disclaimer, contentWidth);
+      pdf.text(splitDisclaimer, pageWidth/2, yPosition, { align: 'center' });
+      
+      // Helper function to convert hex to RGB
+      function hexToRgb(hex: string) {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
