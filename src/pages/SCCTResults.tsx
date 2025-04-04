@@ -415,211 +415,393 @@ const SCCTResults = () => {
         unit: 'mm',
         format: 'a4'
       });
+
+      const pageWidth = 210;
+      const pageHeight = 297;
+      const margin = 15;
+      const contentWidth = pageWidth - (margin * 2);
       
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const addStyledText = (text, x, y, size, style = 'normal', align = 'left', color = '#000000') => {
+        pdf.setTextColor(color);
+        pdf.setFontSize(size);
+        pdf.setFont('helvetica', style);
+        pdf.text(text, x, y, { align: align });
+      };
+
+      pdf.setFillColor(245, 247, 250);
+      pdf.rect(0, 0, pageWidth, pageHeight, 'F');
       
-      const coverPageElement = document.createElement('div');
-      coverPageElement.style.width = '800px';
-      coverPageElement.style.padding = '40px';
-      coverPageElement.style.backgroundColor = 'white';
-      coverPageElement.style.fontFamily = 'Arial, sans-serif';
+      addStyledText('SCCT ASSESSMENT', pageWidth/2, 70, 30, 'bold', 'center', '#4CAF50');
+      addStyledText('RESULTS', pageWidth/2, 85, 28, 'bold', 'center', '#4CAF50');
       
-      coverPageElement.innerHTML = `
-        <div style="padding: 20px; height: 900px; display: flex; flex-direction: column; background-color: white; font-family: Arial, sans-serif;">
-          <div style="text-align: center; margin-top: 40px;">
-            <h1 style="font-size: 32px; color: #4CAF50; margin-bottom: 10px; font-weight: bold;">SCCT Assessment Results</h1>
-            <p style="font-size: 20px; color: #333; margin-bottom: 30px; font-style: italic;">Social Cognitive Career Theory Profile</p>
-            <div style="margin: 40px auto; width: 120px; height: 120px; background-color: #e6f7e6; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-              <span style="font-size: 60px; color: #4CAF50;">📊</span>
-            </div>
-          </div>
-          ${studentDetails ? `
-            <div style="margin-top: 40px; padding: 25px; border: 2px solid #4CAF50; border-radius: 10px; background-color: #f9f9f9; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-              <h2 style="font-size: 24px; color: #333; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px;">Student Information</h2>
-              <div style="display: flex; margin-bottom: 15px;">
-                <div style="width: 140px; font-weight: bold; font-size: 16px; color: #4a4a4a;">Name:</div>
-                <div style="font-size: 16px; color: #333;">${studentDetails.name}</div>
-              </div>
-              <div style="display: flex; margin-bottom: 15px;">
-                <div style="width: 140px; font-weight: bold; font-size: 16px; color: #4a4a4a;">Class & Section:</div>
-                <div style="font-size: 16px; color: #333;">${studentDetails.class} - ${studentDetails.section}</div>
-              </div>
-              <div style="display: flex;">
-                <div style="width: 140px; font-weight: bold; font-size: 16px; color: #4a4a4a;">School:</div>
-                <div style="font-size: 16px; color: #333;">${studentDetails.school}</div>
-              </div>
-            </div>
-          ` : ''}
-          <div style="margin-top: auto; text-align: center; font-size: 14px; color: #666; padding: 20px; background-color: #f5f5f5; border-radius: 5px; margin-top: 40px;">
-            <p>Generated on ${new Date().toLocaleDateString()}</p>
-            <p style="font-style: italic; margin-top: 5px; color: #4CAF50;">This report provides insights based on your responses to the SCCT assessment.</p>
-          </div>
-        </div>
-      `;
-      document.body.appendChild(coverPageElement);
-      
-      const coverPageCanvas = await html2canvas(coverPageElement, {
-        scale: 2,
-        backgroundColor: '#FFFFFF',
-        logging: false,
-        useCORS: true,
-        allowTaint: true
+      const currentDate = new Date().toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
       });
-      document.body.removeChild(coverPageElement);
-      
-      const coverPageImgData = coverPageCanvas.toDataURL('image/png');
-      pdf.addImage(
-        coverPageImgData,
-        'PNG',
-        0,
-        0,
-        pdfWidth,
-        pdfHeight
-      );
-      
-      const sectionsToCapture = resultsRef.current.querySelectorAll('.pdf-section');
-      
-      if (sectionsToCapture.length > 0) {
-        for (let i = 0; i < sectionsToCapture.length; i++) {
-          pdf.addPage();
-          
-          const section = sectionsToCapture[i] as HTMLElement;
-          
-          const tempSection = section.cloneNode(true) as HTMLElement;
-          tempSection.style.width = '800px';
-          tempSection.style.backgroundColor = 'white';
-          tempSection.style.padding = '30px';
-          tempSection.style.boxSizing = 'border-box';
-          tempSection.style.fontSize = '14px';
-          
-          const headings = tempSection.querySelectorAll('h1, h2, h3, h4, h5, h6');
-          headings.forEach((heading: HTMLElement) => {
-            heading.style.fontSize = '24px';
-            heading.style.marginBottom = '15px';
-            heading.style.color = '#4CAF50';
-            heading.style.fontWeight = 'bold';
-            heading.style.borderBottom = '1px solid #eee';
-            heading.style.paddingBottom = '8px';
-          });
-          
-          const paragraphs = tempSection.querySelectorAll('p, li, span');
-          paragraphs.forEach((p: HTMLElement) => {
-            p.style.fontSize = '15px';
-            p.style.lineHeight = '1.6';
-            p.style.color = '#333';
-          });
-          
-          const cards = tempSection.querySelectorAll('.card, div[class*="bg-"]');
-          cards.forEach((card: HTMLElement) => {
-            card.style.border = '1px solid #e0e0e0';
-            card.style.borderRadius = '8px';
-            card.style.boxShadow = '0 2px 5px rgba(0,0,0,0.05)';
-            card.style.padding = '15px';
-            card.style.marginBottom = '20px';
-          });
-          
-          document.body.appendChild(tempSection);
-          
-          const canvas = await html2canvas(tempSection, {
-            scale: 2,
-            backgroundColor: '#FFFFFF',
-            logging: false,
-            useCORS: true,
-            allowTaint: true
-          });
-          document.body.removeChild(tempSection);
-          
-          const imgData = canvas.toDataURL('image/png');
-          const imgWidth = canvas.width;
-          const imgHeight = canvas.height;
-          
-          const ratio = Math.min((pdfWidth - 20) / imgWidth, (pdfHeight - 20) / imgHeight);
-          const scaledWidth = imgWidth * ratio;
-          const scaledHeight = imgHeight * ratio;
-          
-          const x = (pdfWidth - scaledWidth) / 2;
-          const y = 10;
-          
-          pdf.addImage(
-            imgData,
-            'PNG',
-            x,
-            y,
-            scaledWidth,
-            scaledHeight
-          );
-        }
-      } else {
-        pdf.addPage();
+      addStyledText(`Report Generated: ${currentDate}`, pageWidth/2, 105, 12, 'italic', 'center', '#555555');
+
+      if (studentDetails) {
+        pdf.setFillColor(255, 255, 255);
+        pdf.roundedRect(margin, 120, contentWidth, 70, 5, 5, 'F');
+        pdf.setDrawColor(200, 210, 230);
+        pdf.setLineWidth(0.5);
+        pdf.roundedRect(margin, 120, contentWidth, 70, 5, 5, 'S');
         
-        const tempResults = resultsRef.current.cloneNode(true) as HTMLElement;
-        tempResults.style.width = '800px';
-        tempResults.style.backgroundColor = 'white';
-        tempResults.style.padding = '30px';
-        tempResults.style.fontSize = '15px';
+        addStyledText('STUDENT INFORMATION', margin + 10, 135, 14, 'bold', 'left', '#4CAF50');
+        pdf.setLineWidth(0.5);
+        pdf.setDrawColor('#4CAF50');
+        pdf.line(margin + 10, 138, margin + 80, 138);
         
-        const headings = tempResults.querySelectorAll('h1, h2, h3, h4, h5, h6');
-        headings.forEach((heading: HTMLElement) => {
-          heading.style.fontSize = '24px';
-          heading.style.marginBottom = '15px';
-          heading.style.color = '#4CAF50';
-          heading.style.fontWeight = 'bold';
-        });
+        addStyledText('Name:', margin + 10, 155, 12, 'bold', 'left', '#333333');
+        addStyledText(studentDetails.name, margin + 50, 155, 12, 'normal', 'left', '#333333');
         
-        const paragraphs = tempResults.querySelectorAll('p, li, span');
-        paragraphs.forEach((p: HTMLElement) => {
-          p.style.fontSize = '15px';
-          p.style.lineHeight = '1.6';
-          p.style.color = '#333';
-        });
+        addStyledText('Class:', margin + 10, 170, 12, 'bold', 'left', '#333333');
+        addStyledText(`${studentDetails.class} - ${studentDetails.section}`, margin + 50, 170, 12, 'normal', 'left', '#333333');
         
-        const cards = tempResults.querySelectorAll('.card, div[class*="bg-"]');
-        cards.forEach((card: HTMLElement) => {
-          card.style.border = '1px solid #e0e0e0';
-          card.style.borderRadius = '8px';
-          card.style.boxShadow = '0 2px 5px rgba(0,0,0,0.05)';
-        });
-        
-        document.body.appendChild(tempResults);
-        
-        const canvas = await html2canvas(tempResults, {
-          scale: 2,
-          backgroundColor: '#FFFFFF',
-          logging: false,
-          useCORS: true,
-          allowTaint: true
-        });
-        document.body.removeChild(tempResults);
-        
-        const imgData = canvas.toDataURL('image/png');
-        const imgWidth = canvas.width;
-        const imgHeight = canvas.height;
-        
-        const ratio = Math.min((pdfWidth - 20) / imgWidth, (pdfHeight - 20) / imgHeight);
-        const scaledWidth = imgWidth * ratio;
-        const scaledHeight = imgHeight * ratio;
-        
-        const x = (pdfWidth - scaledWidth) / 2;
-        const y = 10;
-        
-        pdf.addImage(
-          imgData,
-          'PNG',
-          x,
-          y,
-          scaledWidth,
-          scaledHeight
-        );
+        addStyledText('School:', margin + 10, 185, 12, 'bold', 'left', '#333333');
+        addStyledText(studentDetails.school, margin + 50, 185, 12, 'normal', 'left', '#333333');
       }
       
-      pdf.save('SCCT-Assessment-Results.pdf');
+      pdf.setFillColor(255, 255, 255);
+      pdf.roundedRect(margin, 205, contentWidth, 65, 5, 5, 'F');
+      pdf.setDrawColor(200, 210, 230);
+      pdf.roundedRect(margin, 205, contentWidth, 65, 5, 5, 'S');
       
-      toast({
-        title: "PDF Generated Successfully",
-        description: "Your results have been downloaded as a PDF.",
-        variant: "default",
-      });
+      addStyledText('ABOUT THIS ASSESSMENT', margin + 10, 220, 14, 'bold', 'left', '#4CAF50');
+      pdf.line(margin + 10, 223, margin + 85, 223);
+      
+      addStyledText('The SCCT Assessment evaluates five key areas that influence your career development:', 
+        margin + 10, 235, 10, 'normal', 'left', '#333333');
+      addStyledText('• Self-Efficacy: Your confidence in your ability to perform career-related tasks', 
+        margin + 10, 247, 10, 'normal', 'left', '#333333');
+      addStyledText('• Outcome Expectations: Your beliefs about the results of pursuing certain careers', 
+        margin + 10, 257, 10, 'normal', 'left', '#333333');
+      addStyledText('• Career Interests: Your preferences for different types of work activities', 
+        margin + 10, 267, 10, 'normal', 'left', '#333333');
+      
+      addStyledText('SCCT Assessment Results', pageWidth/2, 285, 9, 'italic', 'center', '#555555');
+      addStyledText('Page 1', margin, pageHeight - 10, 9, 'normal', 'left', '#555555');
+      
+      pdf.addPage();
+      
+      pdf.setFillColor(245, 247, 250);
+      pdf.rect(0, 0, pageWidth, 20, 'F');
+      addStyledText('SCCT Assessment', margin, 15, 10, 'italic', 'left', '#555555');
+      addStyledText('Your SCCT Profile', pageWidth - margin, 15, 12, 'bold', 'right', '#4CAF50');
+      pdf.setDrawColor(200, 210, 230);
+      pdf.setLineWidth(0.5);
+      pdf.line(margin, 20, pageWidth - margin, 20);
+      
+      const chartContainer = document.createElement('div');
+      chartContainer.style.width = '500px';
+      chartContainer.style.height = '400px';
+      chartContainer.style.backgroundColor = 'white';
+      chartContainer.style.padding = '20px';
+      
+      const chartData = getChartData();
+      
+      const chartElement = document.createElement('div');
+      chartElement.style.width = '100%';
+      chartElement.style.height = '100%';
+      chartContainer.appendChild(chartElement);
+      document.body.appendChild(chartContainer);
+      
+      import('react-dom').then((ReactDOM) => {
+        ReactDOM.render(
+          <ResponsiveContainer width="100%" height="100%">
+            <RadarChart data={chartData}>
+              <PolarGrid stroke="#ccc" />
+              <PolarAngleAxis dataKey="name" tick={{ fill: '#333', fontSize: 12 }} />
+              <Radar name="Score" dataKey="score" fill="#4CAF50" fillOpacity={0.6} />
+            </RadarChart>
+          </ResponsiveContainer>,
+          chartElement
+        );
+      }).catch(console.error);
+      
+      setTimeout(async () => {
+        try {
+          const chartCanvas = await html2canvas(chartContainer, {
+            scale: 2,
+            backgroundColor: '#FFFFFF'
+          });
+          document.body.removeChild(chartContainer);
+          
+          const chartImageData = chartCanvas.toDataURL('image/png');
+          pdf.addImage(
+            chartImageData,
+            'PNG',
+            margin,
+            30,
+            contentWidth,
+            120
+          );
+          
+          addStyledText('Your SCCT Profile Overview', pageWidth/2, 165, 16, 'bold', 'center', '#4CAF50');
+          
+          const profileExplanation = 
+            "This radar chart represents your scores across the five key areas of the SCCT framework. " +
+            "Higher scores indicate greater strength in that area. For Perceived Barriers, higher scores " +
+            "on the chart indicate fewer barriers to career development.";
+            
+          pdf.setFontSize(10);
+          const splitProfileText = pdf.splitTextToSize(profileExplanation, contentWidth);
+          pdf.text(splitProfileText, margin, 175);
+          
+          addStyledText('Your Section Scores', pageWidth/2, 195, 14, 'bold', 'center', '#4CAF50');
+          
+          let tableY = 205;
+          const rowHeight = 12;
+          const colWidths = [contentWidth * 0.6, contentWidth * 0.2, contentWidth * 0.2];
+          
+          pdf.setFillColor(240, 247, 240);
+          pdf.rect(margin, tableY, contentWidth, rowHeight, 'F');
+          pdf.setDrawColor(200, 220, 200);
+          pdf.rect(margin, tableY, contentWidth, rowHeight, 'S');
+          
+          addStyledText('Area', margin + 5, tableY + 8, 10, 'bold', 'left', '#333333');
+          addStyledText('Score', margin + colWidths[0] + 5, tableY + 8, 10, 'bold', 'left', '#333333');
+          addStyledText('Level', margin + colWidths[0] + colWidths[1] + 5, tableY + 8, 10, 'bold', 'left', '#333333');
+          
+          tableY += rowHeight;
+          
+          sections.forEach((section, index) => {
+            const sectionScore = scores[section.id] || 0;
+            const percentage = (sectionScore / maxSectionScore) * 100;
+            const level = getSectionLevel(section.id);
+            const levelText = level.charAt(0).toUpperCase() + level.slice(1);
+            
+            pdf.setFillColor(index % 2 === 0 ? 250 : 245, index % 2 === 0 ? 255 : 250, index % 2 === 0 ? 250 : 245);
+            pdf.rect(margin, tableY, contentWidth, rowHeight, 'F');
+            pdf.setDrawColor(230, 240, 230);
+            pdf.rect(margin, tableY, contentWidth, rowHeight, 'S');
+            
+            const displayTitle = section.title.split('(')[0].trim();
+            addStyledText(displayTitle, margin + 5, tableY + 8, 10, 'normal', 'left', '#333333');
+            addStyledText(`${sectionScore}/${maxSectionScore} (${Math.round(percentage)}%)`, margin + colWidths[0] + 5, tableY + 8, 10, 'normal', 'left', '#333333');
+            addStyledText(levelText, margin + colWidths[0] + colWidths[1] + 5, tableY + 8, 10, 'normal', 'left', '#333333');
+            
+            tableY += rowHeight;
+          });
+          
+          addStyledText('SCCT Assessment Results', pageWidth/2, 285, 9, 'italic', 'center', '#555555');
+          addStyledText('Page 2', margin, pageHeight - 10, 9, 'normal', 'left', '#555555');
+          addStyledText(currentDate, pageWidth - margin, pageHeight - 10, 9, 'normal', 'right', '#555555');
+          
+          pdf.addPage();
+          
+          pdf.setFillColor(245, 247, 250);
+          pdf.rect(0, 0, pageWidth, 20, 'F');
+          addStyledText('SCCT Assessment', margin, 15, 10, 'italic', 'left', '#555555');
+          addStyledText('Career Interests', pageWidth - margin, 15, 12, 'bold', 'right', '#4CAF50');
+          pdf.setDrawColor(200, 210, 230);
+          pdf.setLineWidth(0.5);
+          pdf.line(margin, 20, pageWidth - margin, 20);
+          
+          const interestsChartContainer = document.createElement('div');
+          interestsChartContainer.style.width = '500px';
+          interestsChartContainer.style.height = '350px';
+          interestsChartContainer.style.backgroundColor = 'white';
+          interestsChartContainer.style.padding = '20px';
+          
+          const interestsChartElement = document.createElement('div');
+          interestsChartElement.style.width = '100%';
+          interestsChartElement.style.height = '100%';
+          interestsChartContainer.appendChild(interestsChartElement);
+          document.body.appendChild(interestsChartContainer);
+          
+          const interestsData = getCareerInterestsData();
+          
+          import('react-dom').then((ReactDOM) => {
+            ReactDOM.render(
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={interestsData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#ccc" />
+                  <XAxis dataKey="name" tick={{ fill: '#333', fontSize: 12 }} />
+                  <YAxis domain={[0, 5]} tick={{ fill: '#333', fontSize: 12 }} />
+                  <Tooltip />
+                  <Bar dataKey="score" fill="#8884d8" />
+                </BarChart>
+              </ResponsiveContainer>,
+              interestsChartElement
+            );
+          }).catch(console.error);
+          
+          setTimeout(async () => {
+            try {
+              const interestsCanvas = await html2canvas(interestsChartContainer, {
+                scale: 2,
+                backgroundColor: '#FFFFFF'
+              });
+              document.body.removeChild(interestsChartContainer);
+              
+              const interestsImageData = interestsCanvas.toDataURL('image/png');
+              pdf.addImage(
+                interestsImageData,
+                'PNG',
+                margin,
+                30,
+                contentWidth,
+                100
+              );
+              
+              addStyledText('Interest Areas Explained', margin, 145, 14, 'bold', 'left', '#4CAF50');
+              
+              let interestY = 155;
+              const interestAreas = [
+                { name: 'Investigative', desc: 'Science, research, analytics, technology' },
+                { name: 'Artistic', desc: 'Design, media, creative writing, performing arts' },
+                { name: 'Enterprising', desc: 'Business, politics, management, sales' },
+                { name: 'Social', desc: 'Teaching, counseling, healthcare, community service' },
+                { name: 'Conventional', desc: 'Accounting, administration, data management' }
+              ];
+              
+              interestAreas.forEach((area, index) => {
+                pdf.setFillColor(index % 2 === 0 ? 250 : 245, index % 2 === 0 ? 250 : 245, index % 2 === 0 ? 250 : 250);
+                pdf.roundedRect(margin, interestY, contentWidth, 12, 2, 2, 'F');
+                
+                addStyledText(area.name + ':', margin + 5, interestY + 8, 10, 'bold', 'left', '#333333');
+                addStyledText(area.desc, margin + 40, interestY + 8, 10, 'normal', 'left', '#333333');
+                
+                interestY += 15;
+              });
+              
+              addStyledText('Suggested Career Directions', margin, 235, 14, 'bold', 'left', '#4CAF50');
+              
+              const suggestions = getCareerSuggestions();
+              let suggestionY = 245;
+              
+              suggestions.forEach((suggestion, index) => {
+                if (index < 7) {
+                  pdf.setFillColor(250, 250, 252);
+                  pdf.roundedRect(margin, suggestionY, contentWidth, 12, 2, 2, 'F');
+                  
+                  addStyledText(`${index + 1}.`, margin + 5, suggestionY + 8, 10, 'bold', 'left', '#4CAF50');
+                  addStyledText(suggestion, margin + 15, suggestionY + 8, 10, 'normal', 'left', '#333333');
+                  
+                  suggestionY += 15;
+                }
+              });
+              
+              addStyledText('SCCT Assessment Results', pageWidth/2, 285, 9, 'italic', 'center', '#555555');
+              addStyledText('Page 3', margin, pageHeight - 10, 9, 'normal', 'left', '#555555');
+              addStyledText(currentDate, pageWidth - margin, pageHeight - 10, 9, 'normal', 'right', '#555555');
+              
+              pdf.addPage();
+              
+              pdf.setFillColor(245, 247, 250);
+              pdf.rect(0, 0, pageWidth, 20, 'F');
+              addStyledText('SCCT Assessment', margin, 15, 10, 'italic', 'left', '#555555');
+              addStyledText('Development Strategies', pageWidth - margin, 15, 12, 'bold', 'right', '#4CAF50');
+              pdf.setDrawColor(200, 210, 230);
+              pdf.setLineWidth(0.5);
+              pdf.line(margin, 20, pageWidth - margin, 20);
+              
+              addStyledText('Your SCCT Section Interpretations', pageWidth/2, 40, 16, 'bold', 'center', '#4CAF50');
+              
+              let interpretY = 55;
+              
+              sections.forEach((section) => {
+                const interpretation = getInterpretation(section.id);
+                
+                if (interpretY + 45 > pageHeight - 20) {
+                  pdf.addPage();
+                  
+                  pdf.setFillColor(245, 247, 250);
+                  pdf.rect(0, 0, pageWidth, 20, 'F');
+                  addStyledText('SCCT Assessment', margin, 15, 10, 'italic', 'left', '#555555');
+                  addStyledText('Development Strategies (cont.)', pageWidth - margin, 15, 12, 'bold', 'right', '#4CAF50');
+                  pdf.setDrawColor(200, 210, 230);
+                  pdf.setLineWidth(0.5);
+                  pdf.line(margin, 20, pageWidth - margin, 20);
+                  
+                  interpretY = 40;
+                }
+                
+                pdf.setFillColor(248, 252, 248);
+                pdf.roundedRect(margin, interpretY, contentWidth, 40, 3, 3, 'F');
+                pdf.setDrawColor(220, 235, 220);
+                pdf.roundedRect(margin, interpretY, contentWidth, 40, 3, 3, 'S');
+                
+                addStyledText(section.title, margin + 5, interpretY + 10, 12, 'bold', 'left', '#4CAF50');
+                
+                pdf.setFontSize(10);
+                const splitInterp = pdf.splitTextToSize(interpretation, contentWidth - 10);
+                pdf.text(splitInterp, margin + 5, interpretY + 20);
+                
+                interpretY += 50;
+              });
+              
+              addStyledText('Recommended Development Strategies', pageWidth/2, interpretY + 10, 16, 'bold', 'center', '#4CAF50');
+              
+              const strategies = getDevelopmentStrategies();
+              let strategyY = interpretY + 25;
+              
+              for (let i = 0; i < strategies.length; i++) {
+                if (strategyY + 25 > pageHeight - 20) {
+                  pdf.addPage();
+                  
+                  pdf.setFillColor(245, 247, 250);
+                  pdf.rect(0, 0, pageWidth, 20, 'F');
+                  addStyledText('SCCT Assessment', margin, 15, 10, 'italic', 'left', '#555555');
+                  addStyledText('Development Strategies (cont.)', pageWidth - margin, 15, 12, 'bold', 'right', '#4CAF50');
+                  pdf.setDrawColor(200, 210, 230);
+                  pdf.setLineWidth(0.5);
+                  pdf.line(margin, 20, pageWidth - margin, 20);
+                  
+                  strategyY = 40;
+                }
+                
+                pdf.setFillColor(i % 2 === 0 ? 250 : 245, i % 2 === 0 ? 250 : 245, i % 2 === 0 ? 250 : 250);
+                pdf.roundedRect(margin, strategyY, contentWidth, 20, 2, 2, 'F');
+                
+                pdf.setFontSize(10);
+                pdf.setTextColor('#4CAF50');
+                pdf.setFont('helvetica', 'bold');
+                pdf.text(`${i + 1}`, margin + 5, strategyY + 8);
+                
+                const splitStrategy = pdf.splitTextToSize(strategies[i], contentWidth - 15);
+                pdf.setTextColor('#333333');
+                pdf.setFont('helvetica', 'normal');
+                pdf.text(splitStrategy, margin + 15, strategyY + 8);
+                
+                strategyY += 25;
+              }
+              
+              const pageNum = Math.ceil((strategyY + 25) / pageHeight);
+              addStyledText('SCCT Assessment Results', pageWidth/2, 285, 9, 'italic', 'center', '#555555');
+              addStyledText(`Page ${pageNum}`, margin, pageHeight - 10, 9, 'normal', 'left', '#555555');
+              addStyledText(currentDate, pageWidth - margin, pageHeight - 10, 9, 'normal', 'right', '#555555');
+              
+              pdf.save('SCCT-Assessment-Results.pdf');
+              
+              toast({
+                title: "PDF Generated Successfully",
+                description: "Your results have been downloaded as a PDF.",
+              });
+            } catch (err) {
+              console.error('Error in interests chart rendering:', err);
+              
+              pdf.text("Error generating charts. Please try again.", margin, 100);
+              pdf.save('SCCT-Assessment-Results.pdf');
+              
+              toast({
+                title: "PDF Generated with Limited Content",
+                description: "There was an issue with some visualizations, but your PDF has been created.",
+              });
+            }
+          }, 1000);
+        } catch (err) {
+          console.error('Error in radar chart rendering:', err);
+          toast({
+            title: "Error Generating PDF",
+            description: "There was a problem creating your PDF. Please try again.",
+            variant: "destructive",
+          });
+          setIsGeneratingPDF(false);
+        }
+      }, 1000);
     } catch (error) {
       console.error('Error generating PDF:', error);
       toast({
@@ -627,7 +809,6 @@ const SCCTResults = () => {
         description: "There was a problem creating your PDF. Please try again.",
         variant: "destructive",
       });
-    } finally {
       setIsGeneratingPDF(false);
     }
   };
