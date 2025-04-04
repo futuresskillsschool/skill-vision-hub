@@ -321,7 +321,7 @@ const FuturePathwaysResults = () => {
       pdf.setDrawColor(200, 220, 200);
       pdf.roundedRect(margin, yPosition, contentWidth, 70, 5, 5, 'S');
       
-      const primaryClusterInfo = pathwaysDescriptions[primaryCluster];
+      const primaryClusterInfo = pathwaysDescriptions[primaryCluster as keyof typeof pathwaysDescriptions];
       
       // Primary cluster title and score
       addStyledText(primaryClusterInfo.title, pageWidth/2, yPosition + 15, 16, 'bold', 'center', '#4CAF50');
@@ -349,7 +349,7 @@ const FuturePathwaysResults = () => {
         .forEach(([cluster, score], index) => {
           const maxScore = 5 * questions.filter(q => q.careerClusters.includes(cluster)).length;
           const percentage = Math.round((score as number / maxScore) * 100);
-          const clusterInfo = pathwaysDescriptions[cluster];
+          const clusterInfo = pathwaysDescriptions[cluster as keyof typeof pathwaysDescriptions];
           
           // Cluster name and score
           pdf.setFillColor(index % 2 === 0 ? 248 : 252, index % 2 === 0 ? 252 : 248, index % 2 === 0 ? 248 : 252);
@@ -405,7 +405,7 @@ const FuturePathwaysResults = () => {
       yPosition += 80;
       
       // Secondary Cluster Careers
-      const secondaryClusterInfo = pathwaysDescriptions[secondaryCluster];
+      const secondaryClusterInfo = pathwaysDescriptions[secondaryCluster as keyof typeof pathwaysDescriptions];
       
       pdf.setFillColor(250, 250, 245);
       pdf.roundedRect(margin, yPosition, contentWidth, 70, 5, 5, 'F');
@@ -600,7 +600,7 @@ const FuturePathwaysResults = () => {
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
                 <div>
                   <h2 className="text-2xl font-bold text-brand-green mb-1">
-                    Your Top Pathway: {pathwaysDescriptions[primaryCluster].title}
+                    Your Top Pathway: {pathwaysDescriptions[primaryCluster as keyof typeof pathwaysDescriptions].title}
                   </h2>
                   <p className="text-foreground/70">
                     Compatibility: <span className="font-semibold">{primaryPercentage}%</span>
@@ -616,11 +616,11 @@ const FuturePathwaysResults = () => {
               
               <div className="mb-8">
                 <div className="bg-brand-green/5 p-6 rounded-lg border border-brand-green/10">
-                  <p className="mb-4">{pathwaysDescriptions[primaryCluster].description}</p>
+                  <p className="mb-4">{pathwaysDescriptions[primaryCluster as keyof typeof pathwaysDescriptions].description}</p>
                   
                   <h3 className="font-medium mb-2">Core strengths in this pathway:</h3>
                   <ul className="list-disc pl-5 mb-4 space-y-1">
-                    {pathwaysDescriptions[primaryCluster].skills.map((skill, index) => (
+                    {pathwaysDescriptions[primaryCluster as keyof typeof pathwaysDescriptions].skills.map((skill, index) => (
                       <li key={index}>{skill}</li>
                     ))}
                   </ul>
@@ -638,7 +638,7 @@ const FuturePathwaysResults = () => {
                     return (
                       <div key={cluster}>
                         <div className="flex justify-between mb-1">
-                          <span className="font-medium">{pathwaysDescriptions[cluster].title}</span>
+                          <span className="font-medium">{pathwaysDescriptions[cluster as keyof typeof pathwaysDescriptions].title}</span>
                           <span>{percentage}%</span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2.5">
@@ -659,10 +659,10 @@ const FuturePathwaysResults = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Card className="p-5 border-brand-green/20 bg-brand-green/5">
                     <h4 className="font-medium mb-3 text-lg">
-                      {pathwaysDescriptions[primaryCluster].title}
+                      {pathwaysDescriptions[primaryCluster as keyof typeof pathwaysDescriptions].title}
                     </h4>
                     <ul className="list-disc pl-5 space-y-1">
-                      {pathwaysDescriptions[primaryCluster].careers.map((career, index) => (
+                      {pathwaysDescriptions[primaryCluster as keyof typeof pathwaysDescriptions].careers.map((career, index) => (
                         <li key={index}>{career}</li>
                       ))}
                     </ul>
@@ -670,10 +670,10 @@ const FuturePathwaysResults = () => {
                   
                   <Card className="p-5">
                     <h4 className="font-medium mb-3 text-lg">
-                      {pathwaysDescriptions[secondaryCluster].title}
+                      {pathwaysDescriptions[secondaryCluster as keyof typeof pathwaysDescriptions].title}
                     </h4>
                     <ul className="list-disc pl-5 space-y-1">
-                      {pathwaysDescriptions[secondaryCluster].careers.map((career, index) => (
+                      {pathwaysDescriptions[secondaryCluster as keyof typeof pathwaysDescriptions].careers.map((career, index) => (
                         <li key={index}>{career}</li>
                       ))}
                     </ul>
