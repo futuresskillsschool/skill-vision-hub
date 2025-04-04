@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -213,7 +214,7 @@ const FuturePathwaysResults = () => {
         pdf.setTextColor(color);
         pdf.setFontSize(size);
         pdf.setFont('helvetica', style);
-        pdf.text(text, x, y, { align: align as any });
+        pdf.text(text, x, y, { align });
       };
 
       // Cover page with soft background
@@ -696,4 +697,60 @@ const FuturePathwaysResults = () => {
                         <div className="bg-white p-3 rounded border">Media Studies</div>
                         <div className="bg-white p-3 rounded border">Communications</div>
                         <div className="bg-white p-3 rounded border">UX Design</div>
-                        <div className="bg-white
+                        <div className="bg-white p-3 rounded border">Web Development</div>
+                      </>
+                    )}
+                    
+                    {primaryCluster === "data-analyst" && (
+                      <>
+                        <div className="bg-white p-3 rounded border">Statistics</div>
+                        <div className="bg-white p-3 rounded border">Data Science</div>
+                        <div className="bg-white p-3 rounded border">Mathematics</div>
+                        <div className="bg-white p-3 rounded border">Computer Science</div>
+                        <div className="bg-white p-3 rounded border">Economics</div>
+                        <div className="bg-white p-3 rounded border">Machine Learning</div>
+                      </>
+                    )}
+                    
+                    {primaryCluster === "entrepreneur" && (
+                      <>
+                        <div className="bg-white p-3 rounded border">Business Studies</div>
+                        <div className="bg-white p-3 rounded border">Economics</div>
+                        <div className="bg-white p-3 rounded border">Marketing</div>
+                        <div className="bg-white p-3 rounded border">Product Management</div>
+                        <div className="bg-white p-3 rounded border">Communications</div>
+                        <div className="bg-white p-3 rounded border">Psychology</div>
+                      </>
+                    )}
+                    
+                    {primaryCluster === "helper" && (
+                      <>
+                        <div className="bg-white p-3 rounded border">Social Sciences</div>
+                        <div className="bg-white p-3 rounded border">Global Studies</div>
+                        <div className="bg-white p-3 rounded border">Public Health</div>
+                        <div className="bg-white p-3 rounded border">Environmental Science</div>
+                        <div className="bg-white p-3 rounded border">Education</div>
+                        <div className="bg-white p-3 rounded border">Ethics</div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-8 pt-6 border-t border-gray-200">
+                <p className="text-sm text-gray-500 italic">
+                  Note: These results are based on your current interests and preferences. They are meant to provide guidance, 
+                  not to limit your options. Consider exploring careers that combine elements of your top pathways.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+      
+      <Footer />
+    </div>
+  );
+};
+
+export default FuturePathwaysResults;

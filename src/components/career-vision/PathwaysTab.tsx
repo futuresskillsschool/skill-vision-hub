@@ -121,4 +121,3 @@ const PathwaysTab: React.FC<PathwaysTabProps> = ({ pathways, pathwaysChartData }
 };
 
 export default PathwaysTab;
-
