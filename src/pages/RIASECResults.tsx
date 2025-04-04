@@ -1,3 +1,4 @@
+
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -480,7 +481,8 @@ const RIASECResults = () => {
         pdf.roundedRect(barX, yPosition + chartHeight - barHeight, barWidth, barHeight, 2, 2, 'F');
         
         pdf.setFillColor(hexToRgb(color[1]).r, hexToRgb(color[1]).g, hexToRgb(color[1]).b);
-        pdf.roundedRect(barX, yPosition + chartHeight - barHeight, barWidth, 5, {tl: 2, tr: 2, bl: 0, br: 0}, 'F');
+        // FIX: Use correct signature for roundedRect with individual corner radii
+        pdf.roundedRect(barX, yPosition + chartHeight - barHeight, barWidth, 5, 2, 2, 'F');
         
         addStyledText(type, barX + barWidth/2, yPosition + chartHeight + 10, 10, 'bold', 'center', '#333333');
         addStyledText(`${percentage}%`, barX + barWidth/2, yPosition + chartHeight - barHeight - 5, 8, 'normal', 'center', '#333333');
@@ -535,7 +537,7 @@ const RIASECResults = () => {
         pdf.circle(margin + 15, yPosition + 15, 8, 'F');
         addStyledText(type, margin + 15, yPosition + 15 + 2, 10, 'bold', 'center', '#FFFFFF');
         
-        addStyledText(`${index+1}. ${info.name}`, margin + 35, yPosition + 15, 14, 'bold', 'left', hexToRgb(color[1]).r, hexToRgb(color[1]).g, hexToRgb(color[1]).b);
+        addStyledText(`${index+1}. ${info.name}`, margin + 35, yPosition + 15, 14, 'bold', 'left', '#333333');
         addStyledText(`"${info.title}"`, margin + 35 + info.name.length * 5, yPosition + 15, 10, 'italic', 'left', '#555555');
         
         const typeDesc = pdf.splitTextToSize(info.description, contentWidth - 25);
