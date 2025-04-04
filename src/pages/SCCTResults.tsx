@@ -421,7 +421,7 @@ const SCCTResults = () => {
       const margin = 15;
       const contentWidth = pageWidth - (margin * 2);
       
-      const addStyledText = (text, x, y, size, style = 'normal', align = 'left', color = '#000000') => {
+      const addStyledText = (text, x, y, size, style = 'normal', align: 'left' | 'center' | 'right' | 'justify' = 'left', color = '#000000') => {
         pdf.setTextColor(color);
         pdf.setFontSize(size);
         pdf.setFont('helvetica', style);
@@ -465,7 +465,7 @@ const SCCTResults = () => {
       
       pdf.setFillColor(255, 255, 255);
       pdf.roundedRect(margin, 205, contentWidth, 65, 5, 5, 'F');
-      pdf.setDrawColor(200, 210, 230);
+      pdf.setDrawColor(200, 220, 200);
       pdf.roundedRect(margin, 205, contentWidth, 65, 5, 5, 'S');
       
       addStyledText('ABOUT THIS ASSESSMENT', margin + 10, 220, 14, 'bold', 'left', '#4CAF50');
