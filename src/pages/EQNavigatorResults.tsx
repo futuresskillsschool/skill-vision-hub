@@ -147,7 +147,7 @@ const EQNavigatorResults = () => {
   const { scores } = resultsData;
   
   // Calculate the total EQ score by summing all numerical values
-  // Add null check to prevent "Cannot convert undefined or null to object" error
+  // Fix the type error by ensuring we're only adding numbers
   const totalEQScore = scores ? Object.values(scores).reduce((sum, score) => {
     return typeof score === 'number' ? sum + score : sum;
   }, 0) : 0;
