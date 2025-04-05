@@ -1,3 +1,4 @@
+
 import { useEffect, useState, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -225,7 +226,124 @@ const SCCTResults = () => {
             )}
 
             <div ref={reportRef} className="pdf-report">
-              {/* Add your SCCT-specific results display here */}
+              <Card className="mb-6 overflow-hidden">
+                <div className="bg-purple-100 p-6">
+                  <h2 className="text-xl font-semibold mb-2 text-gray-800">SCCT Assessment Results</h2>
+                  <p className="text-gray-600">
+                    Your score measures how you approach career decision making based on Social Cognitive Career Theory.
+                  </p>
+                </div>
+                
+                <div className="p-6">
+                  <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-6">
+                    <div className="flex flex-col items-center">
+                      <div className="relative w-32 h-32">
+                        <div className="absolute inset-0 rounded-full bg-purple-100 flex items-center justify-center">
+                          <div className="text-2xl font-bold text-purple-700">{scoreData.totalScore}</div>
+                        </div>
+                        <svg className="w-32 h-32" viewBox="0 0 100 100">
+                          <circle 
+                            cx="50" 
+                            cy="50" 
+                            r="45" 
+                            fill="none" 
+                            stroke="#e2e8f0" 
+                            strokeWidth="8" 
+                          />
+                          <circle 
+                            cx="50" 
+                            cy="50" 
+                            r="45" 
+                            fill="none" 
+                            stroke="#8b5cf6" 
+                            strokeWidth="8" 
+                            strokeDasharray={`${2 * Math.PI * 45 * (scorePercentage / 100)} ${2 * Math.PI * 45}`} 
+                            strokeDashoffset="0" 
+                            strokeLinecap="round" 
+                            transform="rotate(-90 50 50)" 
+                          />
+                        </svg>
+                      </div>
+                      <p className="mt-2 text-lg font-medium text-gray-800">Total Score</p>
+                      <p className="text-sm text-gray-600">Out of 40 possible points</p>
+                    </div>
+                    
+                    <div className="flex-1">
+                      <h3 className="text-lg font-medium mb-3 text-gray-800">Score Analysis</h3>
+                      <div className="space-y-4">
+                        <div>
+                          <div className="flex justify-between mb-1">
+                            <span className="text-sm font-medium text-gray-700">Career Self-Efficacy</span>
+                            <span className="text-sm font-medium text-gray-700">75%</span>
+                          </div>
+                          <Progress value={75} className="h-2 bg-purple-100" indicatorClassName="bg-purple-500" />
+                        </div>
+                        <div>
+                          <div className="flex justify-between mb-1">
+                            <span className="text-sm font-medium text-gray-700">Outcome Expectations</span>
+                            <span className="text-sm font-medium text-gray-700">82%</span>
+                          </div>
+                          <Progress value={82} className="h-2 bg-purple-100" indicatorClassName="bg-purple-500" />
+                        </div>
+                        <div>
+                          <div className="flex justify-between mb-1">
+                            <span className="text-sm font-medium text-gray-700">Goal Setting</span>
+                            <span className="text-sm font-medium text-gray-700">68%</span>
+                          </div>
+                          <Progress value={68} className="h-2 bg-purple-100" indicatorClassName="bg-purple-500" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+              
+              <Card className="mb-6">
+                <div className="p-6">
+                  <h3 className="text-xl font-semibold mb-4 text-gray-800">Key Insights</h3>
+                  
+                  <div className="space-y-4">
+                    <div className="flex gap-3">
+                      <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
+                        <div className="text-purple-600 font-bold">1</div>
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-gray-800">Self-Efficacy Development</h4>
+                        <p className="text-gray-600">
+                          Your responses indicate moderate confidence in your ability to perform career-related tasks. 
+                          Consider exploring activities that build mastery experiences in your areas of interest.
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex gap-3">
+                      <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
+                        <div className="text-purple-600 font-bold">2</div>
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-gray-800">Outcome Expectations</h4>
+                        <p className="text-gray-600">
+                          You have a positive outlook on the results of career-related actions. This optimism can be 
+                          channeled into exploring diverse career paths and opportunities.
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex gap-3">
+                      <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
+                        <div className="text-purple-600 font-bold">3</div>
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-gray-800">Goal-Setting</h4>
+                        <p className="text-gray-600">
+                          Your approach to setting career goals shows potential. Consider creating more specific, 
+                          measurable, and time-bound goals to enhance your career development journey.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Card>
             </div>
             
             <div className="flex flex-col sm:flex-row justify-center gap-4 mt-8">
