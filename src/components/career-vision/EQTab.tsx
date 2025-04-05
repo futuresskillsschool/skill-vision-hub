@@ -1,9 +1,11 @@
+
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { CircularProgressIndicator } from './ChartComponents';
 import { eqLevelDescriptions } from './DataTypes';
 import { Briefcase, Heart, Brain, Users, Star, Sparkles, Shield, ArrowUpRight, Info } from 'lucide-react';
 import EQDomainBreakdown from '../assessment-results/EQDomainBreakdown';
+import { Card } from '@/components/ui/card';
 
 interface EQTabProps {
   eqScore: number;
@@ -57,9 +59,10 @@ const EQTab: React.FC<EQTabProps> = ({ eqScore }) => {
             <div className="absolute inset-0 rounded-full bg-gradient-to-br from-green-100 to-blue-100 animate-pulse opacity-70"></div>
             <div className="w-56 h-56 relative">
               <CircularProgressIndicator 
-                percentage={scorePercentage}
+                value={scorePercentage}
+                max={100}
                 label="EQ Score"
-                strokeColor="stroke-green-400"
+                colorClass="text-green-400"
               />
             </div>
           </div>
