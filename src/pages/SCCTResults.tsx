@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Download, User, School, BookOpen, Grid } from 'lucide-react';
+import { ArrowLeft, Download, User, School, BookOpen, Grid, Star } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -24,8 +24,82 @@ import {
   Legend, 
   Bar 
 } from 'recharts';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
-// ... keep existing code (interface, careerSuggestions, developmentStrategies, etc.)
+interface StudentDetails {
+  id: string;
+  name: string;
+  class: string;
+  section: string;
+  school: string;
+}
+
+interface SCCTScores {
+  [key: string]: number;
+}
+
+interface Section {
+  id: string;
+  title: string;
+}
+
+interface Answer {
+  questionId: string;
+  answer: number | string;
+}
+
+const maxSectionScore = 30;
+
+const getSectionLevel = (sectionId: string): 'low' | 'medium' | 'high' => {
+  return 'medium';
+};
+
+const getInterpretation = (sectionId: string): string => {
+  return "This score indicates your current level in this area. Higher scores suggest more confidence and competence.";
+};
+
+const getChartData = () => {
+  return [
+    { name: 'Self-Efficacy', score: 7 },
+    { name: 'Outcome Expectations', score: 6 },
+    { name: 'Interests', score: 8 },
+    { name: 'Goals', score: 5 },
+    { name: 'Support', score: 7 }
+  ];
+};
+
+const getCareerInterestsData = () => {
+  return [
+    { name: 'Investigative', score: 4 },
+    { name: 'Artistic', score: 3 },
+    { name: 'Social', score: 5 },
+    { name: 'Enterprising', score: 4 },
+    { name: 'Conventional', score: 2 }
+  ];
+};
+
+const getCareerSuggestions = (): string[] => {
+  return [
+    "Education and Teaching",
+    "Healthcare and Medical Services",
+    "Research and Development",
+    "Business Management",
+    "Social Services",
+    "Technology and IT",
+    "Creative Arts and Design"
+  ];
+};
+
+const getDevelopmentStrategies = (): string[] => {
+  return [
+    "Build your confidence through practice and experience in your areas of interest",
+    "Seek out mentors who can provide guidance and support",
+    "Set specific, achievable goals related to your career development",
+    "Expand your network within your areas of interest",
+    "Continue to learn and develop your skills through courses and self-study"
+  ];
+};
 
 const SCCTResults = () => {
   const location = useLocation();
@@ -87,8 +161,6 @@ const SCCTResults = () => {
       saveResult();
     }
   }, [location.state, navigate, user, storeAssessmentResult, scores, sections, answers, studentId]);
-  
-  // ... keep existing code (getSectionLevel, getInterpretation, getChartData, etc.)
   
   const handleGeneratePDF = async () => {
     if (!resultsRef.current) return;
@@ -608,7 +680,7 @@ const SCCTResults = () => {
                   </div>
                   <div className="mt-4 md:mt-0 flex items-center">
                     <div className="flex items-center bg-brand-green/20 px-3 py-1 rounded-full text-sm font-medium text-brand-green">
-                      <Star className="h-4 w-4 mr-1 fill-brand-green" />
+                      <Star className="h-4 w-4 mr-1" />
                       {answers.length} Questions Analyzed
                     </div>
                   </div>
@@ -641,10 +713,10 @@ const SCCTResults = () => {
                     
                     return (
                       <Card key={section.id} className="border-gray-200">
-                        <CardHeader className="pb-2">
-                          <CardTitle className="text-lg font-semibold">{section.title}</CardTitle>
-                        </CardHeader>
-                        <CardContent>
+                        <div className="pb-2 p-6">
+                          <h3 className="text-lg font-semibold">{section.title}</h3>
+                        </div>
+                        <div className="px-6 pb-6">
                           <div className="mb-2">
                             <div className="flex justify-between mb-1">
                               <span className="text-sm font-medium">{section.id === 'perceived_barriers' ? 'Level of Barriers' : 'Score'}</span>
@@ -666,7 +738,7 @@ const SCCTResults = () => {
                             <span className="font-medium">Interpretation:</span>{' '}
                             {getInterpretation(section.id)}
                           </p>
-                        </CardContent>
+                        </div>
                       </Card>
                     );
                   })}

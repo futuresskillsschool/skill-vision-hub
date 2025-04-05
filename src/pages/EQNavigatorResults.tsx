@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
+
+import { useEffect, useState, useRef } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -107,8 +108,10 @@ const EQNavigatorResults = () => {
           const { scores, studentId } = resultsData;
           
           const scoresObject: Record<string, number> = {};
-          Object.entries(scores).forEach(([key, value]) => {
-            scoresObject[key] = value;
+          Object.entries(scores || {}).forEach(([key, value]) => {
+            if (typeof value === 'number') {
+              scoresObject[key] = value;
+            }
           });
           
           const resultData = {
@@ -144,9 +147,9 @@ const EQNavigatorResults = () => {
   
   const { scores } = resultsData;
   
-  const chartData = Object.entries(scores).map(([domain, score]) => ({
+  const chartData = Object.entries(scores || {}).map(([domain, score]) => ({
     domain,
-    score,
+    score: typeof score === 'number' ? score : 0,
     fullMark: 10
   }));
   
@@ -486,29 +489,32 @@ const EQNavigatorResults = () => {
                 <h3 className="text-xl font-semibold mb-4">Domain Breakdown</h3>
                 
                 <div className="space-y-6">
-                  {Object.entries(scores).map(([domain, score]) => (
-                    <Card key={domain} className="bg-brand-orange/5 border border-brand-orange/10">
-                      <div className="p-4">
-                        <h4 className="text-lg font-semibold text-brand-orange mb-2">{domain.replace(/([A-Z])/g, ' $1').trim()}</h4>
-                        <p className="text-foreground/80 mb-3">
-                          {
-                            domain === "selfAwareness" ? "Understanding your own emotions and how they affect your behavior." :
-                            domain === "selfRegulation" ? "Managing your emotions and impulses effectively." :
-                            domain === "motivation" ? "Using your emotions to achieve goals and persist through challenges." :
-                            domain === "empathy" ? "Understanding and sharing the feelings of others." :
-                            domain === "socialSkills" ? "Managing relationships and building rapport with others." :
-                            "Description not available."
-                          }
-                        </p>
-                        
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium">Score:</span>
-                          <span className="text-sm font-semibold">{score}/10</span>
+                  {Object.entries(scores || {}).map(([domain, scoreValue]) => {
+                    const score = typeof scoreValue === 'number' ? scoreValue : 0;
+                    return (
+                      <Card key={domain} className="bg-brand-orange/5 border border-brand-orange/10">
+                        <div className="p-4">
+                          <h4 className="text-lg font-semibold text-brand-orange mb-2">{domain.replace(/([A-Z])/g, ' $1').trim()}</h4>
+                          <p className="text-foreground/80 mb-3">
+                            {
+                              domain === "selfAwareness" ? "Understanding your own emotions and how they affect your behavior." :
+                              domain === "selfRegulation" ? "Managing your emotions and impulses effectively." :
+                              domain === "motivation" ? "Using your emotions to achieve goals and persist through challenges." :
+                              domain === "empathy" ? "Understanding and sharing the feelings of others." :
+                              domain === "socialSkills" ? "Managing relationships and building rapport with others." :
+                              "Description not available."
+                            }
+                          </p>
+                          
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium">Score:</span>
+                            <span className="text-sm font-semibold">{score}/10</span>
+                          </div>
+                          <Progress value={(score / 10) * 100} className="mt-2" />
                         </div>
-                        <Progress value={(score / 10) * 100} className="mt-2" />
-                      </div>
-                    </Card>
-                  ))}
+                      </Card>
+                    );
+                  })}
                 </div>
               </div>
             </div>
