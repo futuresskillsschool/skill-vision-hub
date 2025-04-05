@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -542,15 +541,6 @@ const FuturePathwaysResults = () => {
                 <ArrowLeft className="mr-2 h-4 w-4" /> Back
               </Button>
               
-              {/* New Back to Assessments button */}
-              <Button
-                variant="outline"
-                onClick={() => navigate('/assessment')}
-                className="ml-4 mb-4 text-gray-600 hover:text-gray-800"
-              >
-                Back to Assessments
-              </Button>
-              
               <h1 className="text-3xl md:text-4xl font-bold mb-2">Your Future Pathways Results</h1>
               <p className="text-foreground/70 max-w-3xl">
                 Based on your responses, we've identified your unique technology career pathway preferences.
@@ -642,7 +632,7 @@ const FuturePathwaysResults = () => {
                 <div className="space-y-4">
                   {Object.entries(clusterScores).map(([cluster, score]) => {
                     const maxScore = 5 * questions.filter(q => q.careerClusters.includes(cluster)).length;
-                    const percentage = Math.round((score as number / maxScore) * 100);
+                    const percentage = Math.round((score as number / maxPossibleScore) * 100);
                     
                     return (
                       <div key={cluster}>
@@ -695,72 +685,4 @@ const FuturePathwaysResults = () => {
                 
                 <div className="bg-gray-50 p-5 rounded-lg border border-gray-100">
                   <h4 className="font-medium mb-3">Recommended subjects to explore:</h4>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                    {primaryCluster === "tech-innovator" && (
-                      <>
-                        <div className="bg-white p-3 rounded border">Computer Science</div>
-                        <div className="bg-white p-3 rounded border">Engineering</div>
-                        <div className="bg-white p-3 rounded border">Robotics</div>
-                        <div className="bg-white p-3 rounded border">Electronics</div>
-                        <div className="bg-white p-3 rounded border">Math</div>
-                        <div className="bg-white p-3 rounded border">Physics</div>
-                      </>
-                    )}
-                    
-                    {primaryCluster === "digital-creator" && (
-                      <>
-                        <div className="bg-white p-3 rounded border">Digital Arts</div>
-                        <div className="bg-white p-3 rounded border">Graphic Design</div>
-                        <div className="bg-white p-3 rounded border">Media Studies</div>
-                        <div className="bg-white p-3 rounded border">Communications</div>
-                        <div className="bg-white p-3 rounded border">UX Design</div>
-                        <div className="bg-white p-3 rounded border">Web Development</div>
-                      </>
-                    )}
-                    
-                    {primaryCluster === "data-analyst" && (
-                      <>
-                        <div className="bg-white p-3 rounded border">Statistics</div>
-                        <div className="bg-white p-3 rounded border">Data Science</div>
-                        <div className="bg-white p-3 rounded border">Mathematics</div>
-                        <div className="bg-white p-3 rounded border">Computer Science</div>
-                        <div className="bg-white p-3 rounded border">Economics</div>
-                        <div className="bg-white p-3 rounded border">Machine Learning</div>
-                      </>
-                    )}
-                    
-                    {primaryCluster === "entrepreneur" && (
-                      <>
-                        <div className="bg-white p-3 rounded border">Business Studies</div>
-                        <div className="bg-white p-3 rounded border">Economics</div>
-                        <div className="bg-white p-3 rounded border">Marketing</div>
-                        <div className="bg-white p-3 rounded border">Product Management</div>
-                        <div className="bg-white p-3 rounded border">Communications</div>
-                        <div className="bg-white p-3 rounded border">Psychology</div>
-                      </>
-                    )}
-                    
-                    {primaryCluster === "helper" && (
-                      <>
-                        <div className="bg-white p-3 rounded border">Social Sciences</div>
-                        <div className="bg-white p-3 rounded border">Global Studies</div>
-                        <div className="bg-white p-3 rounded border">Public Health</div>
-                        <div className="bg-white p-3 rounded border">Environmental Science</div>
-                        <div className="bg-white p-3 rounded border">Education</div>
-                        <div className="bg-white p-3 rounded border">Ethics</div>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </main>
-      
-      <Footer />
-    </div>
-  );
-};
-
-export default FuturePathwaysResults;
+                  <div className="grid grid-cols-2 md:
