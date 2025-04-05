@@ -18,11 +18,16 @@ export interface CareerVisionResultsProps {
   selectedOptions: Record<string, string>;
 }
 
+// Create a function to generate BookOpen icon element
+const createBookOpenIcon = (): JSX.Element => {
+  return React.createElement(BookOpen, { className: "h-8 w-8 text-white" });
+};
+
 // Define the profile data
 export const RealismProfile: CareerProfile = {
   title: "Realistic",
   subtitle: "The Doer",
-  icon: <BookOpen className="h-8 w-8 text-white" />,
+  icon: createBookOpenIcon(),
   description: "You enjoy working with your hands and solving concrete problems. You may prefer working outdoors or with tools, machines, or electronics.",
   characteristics: [
     "Practical and hands-on",
@@ -78,7 +83,7 @@ export const RealismProfile: CareerProfile = {
 export const InvestigativeProfile: CareerProfile = {
   title: "Investigative",
   subtitle: "The Thinker",
-  icon: <BookOpen className="h-8 w-8 text-white" />,
+  icon: createBookOpenIcon(),
   description: "You enjoy analyzing information and solving abstract problems. You may have a scientific or analytical mindset and enjoy research and intellectual challenges.",
   characteristics: [
     "Analytical and curious",
@@ -134,7 +139,7 @@ export const InvestigativeProfile: CareerProfile = {
 export const ArtisticProfile: CareerProfile = {
   title: "Artistic",
   subtitle: "The Creator",
-  icon: <BookOpen className="h-8 w-8 text-white" />,
+  icon: createBookOpenIcon(),
   description: "You enjoy creative expression and aesthetic activities. You may have talents in visual arts, music, writing, or performance and value originality and self-expression.",
   characteristics: [
     "Creative and imaginative",
@@ -190,7 +195,7 @@ export const ArtisticProfile: CareerProfile = {
 export const SocialProfile: CareerProfile = {
   title: "Social",
   subtitle: "The Helper",
-  icon: <BookOpen className="h-8 w-8 text-white" />,
+  icon: createBookOpenIcon(),
   description: "You enjoy working with and helping others. You may be drawn to teaching, counseling, or healthcare roles, and value making a difference in people's lives.",
   characteristics: [
     "Empathetic and supportive",
@@ -246,7 +251,7 @@ export const SocialProfile: CareerProfile = {
 export const EnterprisingProfile: CareerProfile = {
   title: "Enterprising",
   subtitle: "The Persuader",
-  icon: <BookOpen className="h-8 w-8 text-white" />,
+  icon: createBookOpenIcon(),
   description: "You enjoy leading, persuading, and influencing others. You may be drawn to sales, management, or entrepreneurship, and value achievement and success.",
   characteristics: [
     "Persuasive and confident",
@@ -302,7 +307,7 @@ export const EnterprisingProfile: CareerProfile = {
 export const ConventionalProfile: CareerProfile = {
   title: "Conventional",
   subtitle: "The Organizer",
-  icon: <BookOpen className="h-8 w-8 text-white" />,
+  icon: createBookOpenIcon(),
   description: "You enjoy organizing, managing data, and following procedures. You may be drawn to administrative, financial, or operational roles, and value accuracy and structure.",
   characteristics: [
     "Organized and detail-oriented",
