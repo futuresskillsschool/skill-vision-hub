@@ -1,3 +1,4 @@
+
 import {
   RealismProfile,
   InvestigativeProfile,
@@ -5,8 +6,8 @@ import {
   SocialProfile,
   EnterprisingProfile,
   ConventionalProfile,
-  CareerProfile,
-  CareerVisionResultsProps
+  CareerProfile as CareerProfileType,
+  CareerVisionResultsProps as CareerVisionResultsPropsType
 } from './ProfileTypes';
 
 export {
@@ -15,10 +16,12 @@ export {
   ArtisticProfile,
   SocialProfile,
   EnterprisingProfile,
-  ConventionalProfile,
-  CareerProfile,
-  CareerVisionResultsProps
+  ConventionalProfile
 };
+
+// Export types with explicit 'export type' syntax
+export type CareerProfile = CareerProfileType;
+export type CareerVisionResultsProps = CareerVisionResultsPropsType;
 
 export interface RiasecDescription {
   title: string;
