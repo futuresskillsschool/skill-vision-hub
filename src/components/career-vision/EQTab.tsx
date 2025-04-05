@@ -1,11 +1,11 @@
 
 import React, { useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { Card } from '@/components/ui/card';
 import { CircularProgressIndicator } from './ChartComponents';
 import { eqLevelDescriptions } from './DataTypes';
 import { Briefcase, Heart, Brain, Users, Star, Sparkles, Shield, ArrowUpRight, Info } from 'lucide-react';
-import EQDomainBreakdown from '../assessment-results/EQDomainBreakdown';
-import { Card } from '@/components/ui/card';
+import { motion } from 'framer-motion';
+import { Progress } from '@/components/ui/progress';
 
 interface EQTabProps {
   eqScore: number;
@@ -20,14 +20,6 @@ const EQTab: React.FC<EQTabProps> = ({ eqScore }) => {
   
   // Ensure the score percentage is capped at 100%
   const scorePercentage = Math.min(Math.round((eqScore / 40) * 100), 100);
-  
-  // Sample EQ scores for the domain breakdown
-  const sampleScores = {
-    selfAwareness: Math.round(eqScore * 0.25),
-    empathy: Math.round(eqScore * 0.25),
-    socialSkills: Math.round(eqScore * 0.25),
-    selfRegulation: Math.round(eqScore * 0.25)
-  };
   
   return (
     <>
@@ -58,12 +50,40 @@ const EQTab: React.FC<EQTabProps> = ({ eqScore }) => {
           <div className="relative w-64 h-64 flex items-center justify-center">
             <div className="absolute inset-0 rounded-full bg-gradient-to-br from-green-100 to-blue-100 animate-pulse opacity-70"></div>
             <div className="w-56 h-56 relative">
-              <CircularProgressIndicator 
-                value={scorePercentage}
-                max={100}
-                label="EQ Score"
-                colorClass="text-green-400"
-              />
+              <svg className="w-full h-full" viewBox="0 0 100 100">
+                <circle 
+                  className="stroke-green-200" 
+                  cx="50" cy="50" r="40" 
+                  strokeWidth="8" 
+                  fill="none"
+                />
+                <circle 
+                  className="stroke-green-400" 
+                  cx="50" cy="50" r="40" 
+                  strokeWidth="8" 
+                  fill="none"
+                  strokeLinecap="round"
+                  strokeDasharray={`${2 * Math.PI * 40}`}
+                  strokeDashoffset={`${2 * Math.PI * 40 * (1 - scorePercentage / 100)}`}
+                  transform="rotate(-90 50 50)"
+                />
+                <text 
+                  x="50" y="43" 
+                  dominantBaseline="middle" 
+                  textAnchor="middle"
+                  className="fill-green-500 text-2xl font-bold"
+                >
+                  {scorePercentage}%
+                </text>
+                <text 
+                  x="50" y="60" 
+                  dominantBaseline="middle" 
+                  textAnchor="middle"
+                  className="fill-gray-500 text-xs"
+                >
+                  EQ Score
+                </text>
+              </svg>
             </div>
           </div>
           <motion.p 
@@ -76,7 +96,29 @@ const EQTab: React.FC<EQTabProps> = ({ eqScore }) => {
           </motion.p>
           
           <div className="mt-6 w-full space-y-4">
-            <EQDomainBreakdown scores={sampleScores} />
+            <div>
+              <div className="flex justify-between mb-1">
+                <span className="text-sm font-medium text-gray-700">Self-Awareness</span>
+                <span className="text-sm font-medium text-gray-700">{Math.round(scorePercentage * 0.9)}%</span>
+              </div>
+              <Progress 
+                value={scorePercentage * 0.9} 
+                className="h-2.5 bg-green-100" 
+                indicatorClassName="bg-gradient-to-r from-green-300 to-blue-300"
+              />
+            </div>
+            
+            <div>
+              <div className="flex justify-between mb-1">
+                <span className="text-sm font-medium text-gray-700">Empathy</span>
+                <span className="text-sm font-medium text-gray-700">{Math.round(scorePercentage * 0.95)}%</span>
+              </div>
+              <Progress 
+                value={scorePercentage * 0.95} 
+                className="h-2.5 bg-green-100" 
+                indicatorClassName="bg-gradient-to-r from-green-300 to-blue-300"
+              />
+            </div>
           </div>
         </motion.div>
         
