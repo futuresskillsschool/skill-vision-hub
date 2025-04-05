@@ -1,3 +1,4 @@
+
 import {
   useEffect,
   useState,
@@ -868,4 +869,246 @@ const FuturePathwaysResults = () => {
                 </p>
               </div>
 
-              <div className="flex
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Button
+                  onClick={() => navigate("/assessment/categories")}
+                  variant="outline"
+                  className="flex items-center gap-2"
+                >
+                  <Home className="h-4 w-4" />
+                  Back to Assessments
+                </Button>
+                
+                <Button
+                  onClick={downloadAsPDF}
+                  disabled={isGeneratingPDF}
+                  className="bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2"
+                >
+                  {isGeneratingPDF ? (
+                    "Preparing PDF..."
+                  ) : (
+                    <>
+                      <Download className="h-4 w-4" /> Download Report
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            <div ref={reportRef}>
+              <Card className="overflow-hidden mb-8 border-none shadow-md">
+                <div
+                  className={cn(
+                    "py-6 px-8 text-white",
+                    profile.color || "bg-purple-400"
+                  )}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="bg-white/20 p-3 rounded-full">
+                      {profile.icon}
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold">{profile.title}</h2>
+                      <p className="opacity-90 text-sm font-medium">
+                        {profile.subtitle}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-6 md:p-8 bg-white">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div className="col-span-2">
+                      <h3 className="text-lg font-semibold mb-3 text-gray-800">
+                        Your Profile
+                      </h3>
+                      <p className="text-gray-600">{profile.description}</p>
+                    </div>
+
+                    <div className="bg-gray-50 rounded-lg p-4 flex flex-col items-center justify-center">
+                      <div className="mb-2 text-center">
+                        <p className="text-sm text-gray-500 mb-1">Your Score</p>
+                        <div className="relative">
+                          <div className="w-24 h-24 mx-auto">
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <span className="text-2xl font-bold text-purple-600">
+                                {scorePercentage}%
+                              </span>
+                            </div>
+                            <svg
+                              className="w-full h-full"
+                              viewBox="0 0 36 36"
+                            >
+                              <path
+                                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                fill="none"
+                                stroke="#E0E0E0"
+                                strokeWidth="3"
+                                strokeLinecap="round"
+                              />
+                              <path
+                                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                fill="none"
+                                stroke="#9333ea"
+                                strokeWidth="3"
+                                strokeLinecap="round"
+                                strokeDasharray={`${scorePercentage}, 100`}
+                              />
+                            </svg>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 w-full">
+                        <div className="bg-white rounded p-2 text-center">
+                          <p className="text-xs text-gray-500">Raw Score</p>
+                          <p className="font-semibold text-purple-600">
+                            {scoreData.totalScore}/40
+                          </p>
+                        </div>
+                        <div className="bg-white rounded p-2 text-center">
+                          <p className="text-xs text-gray-500">Range</p>
+                          <p className="font-semibold text-purple-600">
+                            {scoreRange}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mb-8">
+                    <h3 className="text-lg font-semibold mb-4 text-gray-800">
+                      Your Strengths
+                    </h3>
+                    <p className="text-gray-600 mb-4">{profile.strengthsIntro}</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {profile.strengths.map((strength, index) => (
+                        <div
+                          key={index}
+                          className="flex items-start gap-3 bg-green-50 p-3 rounded-md border border-green-100"
+                        >
+                          <div className="mt-1 bg-green-100 rounded-full p-1">
+                            <Check className="h-3 w-3 text-green-600" />
+                          </div>
+                          <p className="text-gray-700 text-sm">{strength}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="mb-8">
+                    <h3 className="text-lg font-semibold mb-4 text-gray-800 flex items-center gap-2">
+                      <Award className="h-5 w-5 text-amber-500" /> Growth
+                      Opportunities
+                    </h3>
+                    <p className="text-gray-600 mb-4">{profile.growthIntro}</p>
+                    <div className="space-y-4">
+                      {profile.growthAreas.map((area, index) => (
+                        <div
+                          key={index}
+                          className="bg-purple-50 rounded-lg p-4 border border-purple-100"
+                        >
+                          <h4 className="font-medium text-purple-800 mb-2">
+                            {area.area}
+                          </h4>
+                          <div className="flex items-start gap-2">
+                            <Info className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
+                            <p className="text-gray-600 text-sm">{area.tip}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4 text-gray-800 flex items-center">
+                      <BookOpen className="h-5 w-5 text-sky-500 mr-2" /> Helpful
+                      Resources
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {profile.resources.map((resource, index) => (
+                        <div
+                          key={index}
+                          className="bg-gray-50 rounded-lg p-4 border border-gray-100 flex flex-col"
+                        >
+                          <div className="bg-white rounded-full p-2 w-10 h-10 flex items-center justify-center mb-3 text-purple-500">
+                            {resource.icon}
+                          </div>
+                          <h4 className="font-medium text-gray-800 mb-2">
+                            {resource.title}
+                          </h4>
+                          <p className="text-gray-600 text-sm flex-grow">
+                            {resource.description}
+                          </p>
+                          <Button
+                            variant="ghost"
+                            className="mt-3 text-purple-600 hover:text-purple-700 hover:bg-purple-50 p-0 h-auto font-medium text-sm flex justify-start"
+                          >
+                            Learn more <ArrowRight className="h-4 w-4 ml-1" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {studentDetails && (
+                    <div className="mt-8 border-t pt-6">
+                      <div className="flex flex-col sm:flex-row gap-6">
+                        <div>
+                          <p className="text-xs text-gray-500 mb-1">Student Name</p>
+                          <div className="flex items-center">
+                            <User className="h-4 w-4 text-gray-400 mr-1" />
+                            <p className="font-medium">{studentDetails.name}</p>
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500 mb-1">Class & Section</p>
+                          <div className="flex items-center">
+                            <ClipboardList className="h-4 w-4 text-gray-400 mr-1" />
+                            <p className="font-medium">
+                              {studentDetails.class} - {studentDetails.section}
+                            </p>
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500 mb-1">School</p>
+                          <div className="flex items-center">
+                            <School className="h-4 w-4 text-gray-400 mr-1" />
+                            <p className="font-medium">{studentDetails.school}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </Card>
+            </div>
+
+            <div className="flex justify-center mt-8">
+              <Button
+                onClick={() => navigate("/assessment/future-pathways/take")}
+                variant="outline"
+                className="mx-2"
+              >
+                <ZoomIn className="mr-2 h-4 w-4" />
+                Take Assessment Again
+              </Button>
+              <Button onClick={downloadAsPDF} disabled={isGeneratingPDF} className="mx-2 bg-purple-600 hover:bg-purple-700">
+                {isGeneratingPDF ? (
+                  "Preparing..."
+                ) : (
+                  <>
+                    <Download className="mr-2 h-4 w-4" /> Download Report
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <Footer />
+    </div>
+  );
+};
+
+export default FuturePathwaysResults;
