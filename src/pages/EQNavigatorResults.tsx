@@ -1,4 +1,3 @@
-
 import { useEffect, useState, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -7,7 +6,7 @@ import { Card } from '@/components/ui/card';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Progress } from '@/components/ui/progress';
-import { Sparkles, Heart, ArrowRight, Brain, BookOpen, PenTool, Home, Download, Check, Award, ArrowLeft, Info, User, School, ClipboardList } from 'lucide-react';
+import { Sparkles, Heart, ArrowRight, Brain, BookOpen, PenTool, Home, Download, Check, Award, ArrowLeft, Info, User, School } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -1097,15 +1096,6 @@ const EQNavigatorResults = () => {
                 className="bg-purple-500 hover:bg-purple-600 text-white"
               >
                 Take Another Assessment
-              </Button>
-              
-              <Button 
-                onClick={() => navigate('/assessment/categories')}
-                variant="outline"
-                className="flex items-center gap-2 border-purple-200 text-purple-600 hover:bg-purple-50"
-              >
-                <ClipboardList className="h-4 w-4" />
-                Back to Assessments
               </Button>
             </div>
           </div>

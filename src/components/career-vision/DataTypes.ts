@@ -1,28 +1,4 @@
 
-import {
-  RealismProfile,
-  InvestigativeProfile,
-  ArtisticProfile,
-  SocialProfile,
-  EnterprisingProfile,
-  ConventionalProfile,
-  CareerProfile as CareerProfileType,
-  CareerVisionResultsProps as CareerVisionResultsPropsType
-} from './ProfileTypes';
-
-export {
-  RealismProfile,
-  InvestigativeProfile,
-  ArtisticProfile,
-  SocialProfile,
-  EnterprisingProfile,
-  ConventionalProfile
-};
-
-// Export types with explicit 'export type' syntax
-export type CareerProfile = CareerProfileType;
-export type CareerVisionResultsProps = CareerVisionResultsPropsType;
-
 export interface RiasecDescription {
   title: string;
   description: string;
@@ -172,6 +148,7 @@ export const getCareerRecommendations = (
         "Cybersecurity Specialist",
         "UX/UI Designer"
       ],
+      // Add RIASEC categories and cluster info for PDF generation
       riasecCategory: topRiasecEntries.some(([key]) => ["R", "I"].includes(key)) 
         ? topRiasecEntries.filter(([key]) => ["R", "I"].includes(key)).map(([key]) => key) 
         : topRiasecEntries.map(([key]) => key).slice(0, 1),
@@ -191,6 +168,7 @@ export const getCareerRecommendations = (
         "Digital Marketer",
         "Multimedia Artist"
       ],
+      // Add RIASEC categories and cluster info for PDF generation
       riasecCategory: topRiasecEntries.some(([key]) => ["A", "E"].includes(key)) 
         ? topRiasecEntries.filter(([key]) => ["A", "E"].includes(key)).map(([key]) => key) 
         : topRiasecEntries.map(([key]) => key).slice(0, 1),
@@ -210,6 +188,7 @@ export const getCareerRecommendations = (
         "Management Consultant",
         "Growth Strategist"
       ],
+      // Add RIASEC categories and cluster info for PDF generation
       riasecCategory: topRiasecEntries.some(([key]) => ["E", "C"].includes(key)) 
         ? topRiasecEntries.filter(([key]) => ["E", "C"].includes(key)).map(([key]) => key) 
         : topRiasecEntries.map(([key]) => key).slice(0, 1),
@@ -229,6 +208,7 @@ export const getCareerRecommendations = (
         "Mental Health App Developer",
         "Education Consultant"
       ],
+      // Add RIASEC categories and cluster info for PDF generation
       riasecCategory: topRiasecEntries.some(([key]) => ["S", "A"].includes(key)) 
         ? topRiasecEntries.filter(([key]) => ["S", "A"].includes(key)).map(([key]) => key) 
         : topRiasecEntries.map(([key]) => key).slice(0, 1),
@@ -248,6 +228,7 @@ export const getCareerRecommendations = (
         "Wellness App Designer",
         "Healthcare AI Specialist"
       ],
+      // Add RIASEC categories and cluster info for PDF generation
       riasecCategory: topRiasecEntries.some(([key]) => ["S", "I"].includes(key)) 
         ? topRiasecEntries.filter(([key]) => ["S", "I"].includes(key)).map(([key]) => key) 
         : topRiasecEntries.map(([key]) => key).slice(0, 1),
@@ -267,6 +248,7 @@ export const getCareerRecommendations = (
         "Business Intelligence Analyst",
         "Economic Analyst"
       ],
+      // Add RIASEC categories and cluster info for PDF generation
       riasecCategory: topRiasecEntries.some(([key]) => ["I", "C"].includes(key)) 
         ? topRiasecEntries.filter(([key]) => ["I", "C"].includes(key)).map(([key]) => key) 
         : topRiasecEntries.map(([key]) => key).slice(0, 1),

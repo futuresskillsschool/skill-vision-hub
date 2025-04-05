@@ -1,7 +1,8 @@
+
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Download, Star, User, School, BookOpen, Home, ClipboardList } from 'lucide-react';
+import { ArrowLeft, Download, Star, User, School, BookOpen } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useAuth } from '@/contexts/AuthContext';
@@ -480,6 +481,7 @@ const RIASECResults = () => {
         pdf.roundedRect(barX, yPosition + chartHeight - barHeight, barWidth, barHeight, 2, 2, 'F');
         
         pdf.setFillColor(hexToRgb(color[1]).r, hexToRgb(color[1]).g, hexToRgb(color[1]).b);
+        // FIX: Use correct signature for roundedRect with individual corner radii
         pdf.roundedRect(barX, yPosition + chartHeight - barHeight, barWidth, 5, 2, 2, 'F');
         
         addStyledText(type, barX + barWidth/2, yPosition + chartHeight + 10, 10, 'bold', 'center', '#333333');
@@ -651,7 +653,7 @@ const RIASECResults = () => {
         yPosition = 40;
       }
       
-      const disclaimer = "Note: This assessment is based on the Holland Occupational Themes (RIASEC) model developed by psychologist John Holland. The results are meant to provide guidance and self-awareness, not to limit your options.";
+      const disclaimer = "Note: This assessment is based on the Holland Occupational Themes (RIASEC) model developed by psychologist John Holland. The results are meant to provide guidance and self-awareness, not to limit your options. Consider exploring careers that combine elements of your top interest areas.";
       
       pdf.setFontSize(8);
       pdf.setTextColor(100, 100, 100);
@@ -848,33 +850,6 @@ const RIASECResults = () => {
           </div>
         </div>
       </main>
-      
-      <div className="flex flex-col sm:flex-row justify-center gap-4 mt-8">
-        <Button 
-          onClick={() => navigate('/')}
-          variant="outline"
-          className="flex items-center gap-2 border-purple-200 text-purple-600 hover:bg-purple-50"
-        >
-          <Home className="h-4 w-4" />
-          Return Home
-        </Button>
-        
-        <Button 
-          onClick={() => navigate('/assessment/riasec')}
-          className="bg-purple-500 hover:bg-purple-600 text-white"
-        >
-          Take Another Assessment
-        </Button>
-        
-        <Button 
-          onClick={() => navigate('/assessment/categories')}
-          variant="outline"
-          className="flex items-center gap-2 border-purple-200 text-purple-600 hover:bg-purple-50"
-        >
-          <ClipboardList className="h-4 w-4" />
-          Back to Assessments
-        </Button>
-      </div>
       
       <Footer />
     </div>
