@@ -1,26 +1,12 @@
-import { useEffect, useRef, useState } from 'react';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { 
-  ArrowLeft, 
-  Download, 
-  BrainCircuit, 
-  CheckCircle2, 
-  XCircle,
-  User,
-  School,
-  BookOpen,
-  Star,
-  Loader2
-} from 'lucide-react';
+import { useEffect, useState, useRef } from 'react';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
+import { motion } from 'framer-motion';
+import { ArrowLeft, Download, User, School, BookOpen, Grid } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -39,181 +25,7 @@ import {
   Bar 
 } from 'recharts';
 
-interface StudentDetails {
-  id: string;
-  name: string;
-  class: string;
-  section: string;
-  school: string;
-}
-
-const careerSuggestions = {
-  self_efficacy: {
-    high: [
-      "Leadership positions",
-      "Public speaking roles",
-      "Entrepreneurship",
-      "Competitive fields",
-      "Project management"
-    ],
-    low: [
-      "Structured environments",
-      "Mentored positions",
-      "Collaborative roles",
-      "Step-by-step learning paths",
-      "Positions with clear expectations"
-    ]
-  },
-  outcome_expectations: {
-    high: [
-      "Long-term career paths",
-      "Fields requiring commitment",
-      "Higher education tracks",
-      "Specialized professions",
-      "Role model positions"
-    ],
-    low: [
-      "Short-term rewarding roles",
-      "Careers with visible outcomes",
-      "Internships and shadowing",
-      "Career exposure programs",
-      "Positions with quick feedback loops"
-    ]
-  },
-  career_interests: {
-    investigative: "Science, Research, Analytics, Technology",
-    artistic: "Design, Media, Creative Writing, Performing Arts",
-    enterprising: "Business, Politics, Management, Sales",
-    social: "Teaching, Counseling, Healthcare, Community Service",
-    conventional: "Accounting, Administration, Data Management, Quality Control"
-  },
-  environmental_support: {
-    high: [
-      "Independent career paths",
-      "Self-directed learning",
-      "Remote work opportunities",
-      "Creative entrepreneurship",
-      "Cross-disciplinary careers"
-    ],
-    low: [
-      "Structured mentorship programs",
-      "Team-based environments",
-      "Career guidance services",
-      "Professional networks",
-      "Supportive work cultures"
-    ]
-  },
-  perceived_barriers: {
-    high: [
-      "Careers with strong support systems",
-      "Inclusive workplace environments",
-      "Fields with good entry-level opportunities",
-      "Careers with multiple entry paths",
-      "Step-by-step professional development tracks"
-    ],
-    low: [
-      "Competitive fields",
-      "Paths requiring risk-taking",
-      "Leadership positions",
-      "Innovative industries",
-      "Entrepreneurial ventures"
-    ]
-  }
-};
-
-const developmentStrategies = {
-  self_efficacy: {
-    high: [
-      "Take on leadership roles in extracurricular activities",
-      "Participate in debate or public speaking competitions",
-      "Mentor others in your areas of strength",
-      "Challenge yourself with increasingly difficult projects",
-      "Journal about successful experiences to reinforce confidence"
-    ],
-    low: [
-      "Break tasks into smaller, achievable steps",
-      "Find a mentor who can provide guidance and support",
-      "Practice skills in safe, low-pressure environments",
-      "Focus on improvement rather than perfection",
-      "Celebrate small successes and progress"
-    ]
-  },
-  outcome_expectations: {
-    high: [
-      "Research career paths of role models you admire",
-      "Set long-term goals with meaningful milestones",
-      "Connect with professionals through informational interviews",
-      "Explore how your values align with different career options",
-      "Create a vision board of your career aspirations"
-    ],
-    low: [
-      "Learn about success stories in fields you're interested in",
-      "Seek out information about job satisfaction in different careers",
-      "Explore the connection between education and career outcomes",
-      "Participate in career fairs and information sessions",
-      "Identify short-term benefits of pursuing your interests"
-    ]
-  },
-  career_interests: {
-    general: [
-      "Take career interest inventories and assessments",
-      "Try volunteering in different fields",
-      "Shadow professionals in various careers",
-      "Join clubs or activities related to potential interests",
-      "Take diverse elective courses to explore new subjects"
-    ]
-  },
-  environmental_support: {
-    high: [
-      "Leverage your support network for opportunities",
-      "Seek out advanced learning opportunities",
-      "Share your goals with supportive people in your life",
-      "Use available resources to explore career options",
-      "Connect with school counselors and career services"
-    ],
-    low: [
-      "Research online communities related to your interests",
-      "Find mentoring programs in your area or online",
-      "Look for scholarships and financial aid opportunities",
-      "Connect with teachers or professionals for guidance",
-      "Seek out free career development resources online"
-    ]
-  },
-  perceived_barriers: {
-    high: [
-      "Identify specific concerns and research solutions",
-      "Connect with people who have overcome similar challenges",
-      "Break long-term goals into manageable steps",
-      "Seek out diversity and inclusion programs in your field of interest",
-      "Practice positive self-talk and mindfulness"
-    ],
-    low: [
-      "Take on challenges that push your comfort zone",
-      "Set stretch goals in addition to achievable ones",
-      "Explore careers that might seem out of reach",
-      "Network with professionals in competitive fields",
-      "Consider entrepreneurial opportunities"
-    ]
-  }
-};
-
-type Section = {
-  id: string;
-  title: string;
-  description: string;
-  interpretation: {
-    high: string;
-    low: string;
-  };
-};
-
-type Answer = {
-  questionId: number;
-  answer: number;
-  section: string;
-};
-
-type SCCTScores = Record<string, number>;
+// ... keep existing code (interface, careerSuggestions, developmentStrategies, etc.)
 
 const SCCTResults = () => {
   const location = useLocation();
@@ -276,129 +88,7 @@ const SCCTResults = () => {
     }
   }, [location.state, navigate, user, storeAssessmentResult, scores, sections, answers, studentId]);
   
-  const maxSectionScore = 25;
-  
-  const getSectionLevel = (sectionId: string) => {
-    const score = scores[sectionId] || 0;
-    const percentage = (score / maxSectionScore) * 100;
-    
-    if (percentage >= 70) return 'high';
-    if (percentage >= 40) return 'medium';
-    return 'low';
-  };
-  
-  const getInterpretation = (sectionId: string) => {
-    const section = sections.find(s => s.id === sectionId);
-    const level = getSectionLevel(sectionId);
-    
-    if (!section) return '';
-    
-    return level === 'high' ? section.interpretation.high : section.interpretation.low;
-  };
-  
-  const getChartData = () => {
-    return sections.map(section => {
-      const rawScore = scores[section.id] || 0;
-      
-      if (section.id === 'perceived_barriers') {
-        return {
-          name: section.title.split('(')[0].trim(),
-          score: ((maxSectionScore - rawScore) / maxSectionScore) * 100
-        };
-      }
-      
-      return {
-        name: section.title.split('(')[0].trim(),
-        score: (rawScore / maxSectionScore) * 100
-      };
-    });
-  };
-  
-  const getCareerInterestsData = () => {
-    const careerQuestions = answers.filter(a => a.section === 'career_interests');
-    const interestAreas = ['Investigative', 'Artistic', 'Enterprising', 'Social', 'Conventional'];
-    
-    const questionMapping: Record<number, string> = {
-      11: 'Investigative',
-      12: 'Artistic',
-      13: 'Enterprising',
-      14: 'Social',
-      15: 'Conventional'
-    };
-    
-    return interestAreas.map(area => {
-      const question = careerQuestions.find(q => 
-        questionMapping[q.questionId] === area
-      );
-      return {
-        name: area,
-        score: question ? (question.answer + 1) : 0
-      };
-    });
-  };
-  
-  const getCareerSuggestions = () => {
-    const suggestions: string[] = [];
-    
-    const selfEfficacyLevel = getSectionLevel('self_efficacy');
-    if (selfEfficacyLevel === 'high' || selfEfficacyLevel === 'medium') {
-      suggestions.push(...careerSuggestions.self_efficacy.high.slice(0, 3));
-    } else {
-      suggestions.push(...careerSuggestions.self_efficacy.low.slice(0, 3));
-    }
-    
-    const outcomeExpectationsLevel = getSectionLevel('outcome_expectations');
-    if (outcomeExpectationsLevel === 'high' || outcomeExpectationsLevel === 'medium') {
-      suggestions.push(...careerSuggestions.outcome_expectations.high.slice(0, 2));
-    } else {
-      suggestions.push(...careerSuggestions.outcome_expectations.low.slice(0, 2));
-    }
-    
-    const perceivedBarriersLevel = getSectionLevel('perceived_barriers');
-    if (perceivedBarriersLevel === 'high') {
-      suggestions.push(...careerSuggestions.perceived_barriers.high.slice(0, 2));
-    } else {
-      suggestions.push(...careerSuggestions.perceived_barriers.low.slice(0, 2));
-    }
-    
-    return [...new Set(suggestions)];
-  };
-  
-  const getDevelopmentStrategies = () => {
-    const strategies: string[] = [];
-    
-    const selfEfficacyLevel = getSectionLevel('self_efficacy');
-    if (selfEfficacyLevel === 'high' || selfEfficacyLevel === 'medium') {
-      strategies.push(...developmentStrategies.self_efficacy.high.slice(0, 2));
-    } else {
-      strategies.push(...developmentStrategies.self_efficacy.low.slice(0, 2));
-    }
-    
-    const outcomeExpectationsLevel = getSectionLevel('outcome_expectations');
-    if (outcomeExpectationsLevel === 'high' || outcomeExpectationsLevel === 'medium') {
-      strategies.push(...developmentStrategies.outcome_expectations.high.slice(0, 2));
-    } else {
-      strategies.push(...developmentStrategies.outcome_expectations.low.slice(0, 2));
-    }
-    
-    strategies.push(...developmentStrategies.career_interests.general.slice(0, 2));
-    
-    const environmentalSupportLevel = getSectionLevel('environmental_support');
-    if (environmentalSupportLevel === 'high' || environmentalSupportLevel === 'medium') {
-      strategies.push(...developmentStrategies.environmental_support.high.slice(0, 2));
-    } else {
-      strategies.push(...developmentStrategies.environmental_support.low.slice(0, 2));
-    }
-    
-    const perceivedBarriersLevel = getSectionLevel('perceived_barriers');
-    if (perceivedBarriersLevel === 'high') {
-      strategies.push(...developmentStrategies.perceived_barriers.high.slice(0, 2));
-    } else {
-      strategies.push(...developmentStrategies.perceived_barriers.low.slice(0, 2));
-    }
-    
-    return [...new Set(strategies)];
-  };
+  // ... keep existing code (getSectionLevel, getInterpretation, getChartData, etc.)
   
   const handleGeneratePDF = async () => {
     if (!resultsRef.current) return;
@@ -845,34 +535,34 @@ const SCCTResults = () => {
               <Button
                 variant="ghost"
                 onClick={() => navigate(-1)}
-                className="mb-4 text-brand-green hover:text-brand-green/80 -ml-3"
+                className="mb-4 text-brand-blue hover:text-brand-blue/80 -ml-3"
               >
                 <ArrowLeft className="mr-2 h-4 w-4" /> Back
               </Button>
               
-              <h1 className="text-3xl md:text-4xl font-bold mb-2">Your SCCT Assessment Results</h1>
+              <h1 className="text-3xl md:text-4xl font-bold mb-2">Your SCCT Results</h1>
               <p className="text-foreground/70 max-w-3xl">
-                Here's a detailed analysis of your responses to help you understand your career potential.
+                Based on your responses, here's your self-efficacy and outcome expectations across different domains.
               </p>
             </div>
             
-            <Button 
-              className="flex items-center bg-brand-green text-white hover:bg-brand-green/90 mt-4 md:mt-0"
-              onClick={handleGeneratePDF}
-              disabled={isGeneratingPDF}
-            >
-              {isGeneratingPDF ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> 
-                  Generating PDF...
-                </>
-              ) : (
-                <>
-                  <Download className="mr-2 h-4 w-4" /> 
-                  Download Results
-                </>
-              )}
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-3 mt-4 md:mt-0">
+              <Link to="/">
+                <Button variant="outline" className="flex items-center">
+                  <Grid className="mr-2 h-4 w-4" />
+                  Back to Assessments
+                </Button>
+              </Link>
+              
+              <Button 
+                className="flex items-center bg-brand-blue text-white hover:bg-brand-blue/90"
+                onClick={handleGeneratePDF}
+                disabled={isGeneratingPDF}
+              >
+                <Download className="mr-2 h-4 w-4" /> 
+                {isGeneratingPDF ? 'Generating PDF...' : 'Download Results'}
+              </Button>
+            </div>
           </div>
           
           {studentDetails && (

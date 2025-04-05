@@ -11,7 +11,8 @@ import {
   BarChart3,
   User,
   School,
-  BookOpen
+  BookOpen,
+  Grid
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -548,14 +549,23 @@ const FuturePathwaysResults = () => {
               </p>
             </div>
             
-            <Button 
-              className="flex items-center bg-brand-green text-white hover:bg-brand-green/90 mt-4 md:mt-0"
-              onClick={handleGeneratePDF}
-              disabled={isGeneratingPDF}
-            >
-              <Download className="mr-2 h-4 w-4" /> 
-              {isGeneratingPDF ? 'Generating PDF...' : 'Download Results'}
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-3 mt-4 md:mt-0">
+              <Link to="/">
+                <Button variant="outline" className="flex items-center">
+                  <Grid className="mr-2 h-4 w-4" />
+                  Back to Assessments
+                </Button>
+              </Link>
+              
+              <Button 
+                className="flex items-center bg-brand-green text-white hover:bg-brand-green/90"
+                onClick={handleGeneratePDF}
+                disabled={isGeneratingPDF}
+              >
+                <Download className="mr-2 h-4 w-4" /> 
+                {isGeneratingPDF ? 'Generating PDF...' : 'Download Results'}
+              </Button>
+            </div>
           </div>
           
           {/* Student Details Section */}
