@@ -861,6 +861,17 @@ const RIASECResults = () => {
         </div>
       </main>
       
+      <div className="w-full flex justify-center pb-8">
+        <Button 
+          variant="outline" 
+          onClick={() => navigate('/assessment')}
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to Assessments
+        </Button>
+      </div>
+      
       <Footer />
     </div>
   );
