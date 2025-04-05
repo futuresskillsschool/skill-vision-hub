@@ -147,9 +147,10 @@ const EQNavigatorResults = () => {
   const { scores } = resultsData;
   
   // Calculate the total EQ score by summing all numerical values
-  const totalEQScore = Object.values(scores).reduce((sum, score) => {
+  // Add null check to prevent "Cannot convert undefined or null to object" error
+  const totalEQScore = scores ? Object.values(scores).reduce((sum, score) => {
     return typeof score === 'number' ? sum + score : sum;
-  }, 0);
+  }, 0) : 0;
   
   const chartData = Object.entries(scores || {}).map(([domain, score]) => ({
     domain,
