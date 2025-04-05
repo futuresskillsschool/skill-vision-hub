@@ -313,7 +313,7 @@ const EQNavigatorResults = () => {
       addStyledText('Domain Scores', margin, yPosition, 14, 'bold', 'left', '#F97316');
       yPosition += 15;
       
-      const domainDescriptions = {
+      const domainDescriptions: Record<string, string> = {
         "selfAwareness": "Understanding your own emotions and how they affect your behavior.",
         "selfRegulation": "Managing your emotions and impulses effectively.",
         "motivation": "Using your emotions to achieve goals and persist through challenges.",
@@ -322,7 +322,8 @@ const EQNavigatorResults = () => {
       };
       
       Object.entries(scores).forEach(([domain, score], index) => {
-        const description = domainDescriptions[domain as keyof typeof domainDescriptions];
+        const scoreValue: number = typeof score === 'number' ? score : 0;
+        const description = domainDescriptions[domain] || "No description available.";
         
         pdf.setFillColor(index % 2 === 0 ? 255 : 250, index % 2 === 0 ? 248 : 242, index % 2 === 0 ? 235 : 230);
         pdf.rect(margin, yPosition, contentWidth, 25, 'F');
@@ -330,12 +331,12 @@ const EQNavigatorResults = () => {
         pdf.rect(margin, yPosition, contentWidth, 25, 'S');
         
         addStyledText(domain.replace(/([A-Z])/g, ' $1').trim(), margin + 5, yPosition + 10, 11, 'bold', 'left', '#333333');
-        addStyledText(`${score}/10`, margin + contentWidth - 20, yPosition + 10, 11, 'normal', 'left', '#333333');
+        addStyledText(`${scoreValue}/10`, margin + contentWidth - 20, yPosition + 10, 11, 'normal', 'left', '#333333');
         
         pdf.setFillColor(255, 230, 204);
         pdf.roundedRect(margin + 5, yPosition + 15, contentWidth - 10, 6, 3, 3, 'F');
         
-        const barWidth = (contentWidth - 10) * (score / 10);
+        const barWidth = (contentWidth - 10) * (scoreValue / 10);
         pdf.setFillColor(255, 153, 51);
         pdf.roundedRect(margin + 5, yPosition + 15, barWidth, 6, 3, 3, 'F');
         
@@ -351,7 +352,8 @@ const EQNavigatorResults = () => {
       yPosition += 15;
       
       Object.entries(scores).forEach(([domain, score], index) => {
-        const description = domainDescriptions[domain as keyof typeof domainDescriptions];
+        const scoreValue: number = typeof score === 'number' ? score : 0;
+        const description = domainDescriptions[domain] || "No description available.";
         
         pdf.setFillColor(index % 2 === 0 ? 255 : 250, index % 2 === 0 ? 248 : 242, index % 2 === 0 ? 235 : 230);
         pdf.roundedRect(margin, yPosition, contentWidth, 50, 5, 5, 'F');
@@ -359,7 +361,7 @@ const EQNavigatorResults = () => {
         pdf.roundedRect(margin, yPosition, contentWidth, 50, 5, 5, 'S');
         
         addStyledText(domain.replace(/([A-Z])/g, ' $1').trim(), margin + 5, yPosition + 10, 12, 'bold', 'left', '#333333');
-        addStyledText(`${score}/10`, margin + contentWidth - 20, yPosition + 10, 12, 'normal', 'left', '#333333');
+        addStyledText(`${scoreValue}/10`, margin + contentWidth - 20, yPosition + 10, 12, 'normal', 'left', '#333333');
         
         const splitDescription = pdf.splitTextToSize(description, contentWidth - 10);
         pdf.text(splitDescription, margin + 5, yPosition + 25);
