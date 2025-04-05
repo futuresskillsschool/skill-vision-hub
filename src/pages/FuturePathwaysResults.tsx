@@ -542,6 +542,15 @@ const FuturePathwaysResults = () => {
                 <ArrowLeft className="mr-2 h-4 w-4" /> Back
               </Button>
               
+              {/* New Back to Assessments button */}
+              <Button
+                variant="outline"
+                onClick={() => navigate('/assessment')}
+                className="ml-4 mb-4 text-gray-600 hover:text-gray-800"
+              >
+                Back to Assessments
+              </Button>
+              
               <h1 className="text-3xl md:text-4xl font-bold mb-2">Your Future Pathways Results</h1>
               <p className="text-foreground/70 max-w-3xl">
                 Based on your responses, we've identified your unique technology career pathway preferences.
