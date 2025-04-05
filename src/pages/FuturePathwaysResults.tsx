@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -685,4 +686,147 @@ const FuturePathwaysResults = () => {
                 
                 <div className="bg-gray-50 p-5 rounded-lg border border-gray-100">
                   <h4 className="font-medium mb-3">Recommended subjects to explore:</h4>
-                  <div className="grid grid-cols-2 md:
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {/* Tech Innovator subjects */}
+                    {primaryCluster === "tech-innovator" && (
+                      <>
+                        <div className="bg-white px-3 py-2 rounded-lg border border-gray-200 text-center">
+                          <span className="text-sm font-medium">Computer Science</span>
+                        </div>
+                        <div className="bg-white px-3 py-2 rounded-lg border border-gray-200 text-center">
+                          <span className="text-sm font-medium">Engineering</span>
+                        </div>
+                        <div className="bg-white px-3 py-2 rounded-lg border border-gray-200 text-center">
+                          <span className="text-sm font-medium">Robotics</span>
+                        </div>
+                        <div className="bg-white px-3 py-2 rounded-lg border border-gray-200 text-center">
+                          <span className="text-sm font-medium">Electronics</span>
+                        </div>
+                        <div className="bg-white px-3 py-2 rounded-lg border border-gray-200 text-center">
+                          <span className="text-sm font-medium">Math</span>
+                        </div>
+                        <div className="bg-white px-3 py-2 rounded-lg border border-gray-200 text-center">
+                          <span className="text-sm font-medium">Physics</span>
+                        </div>
+                      </>
+                    )}
+                    
+                    {/* Digital Creator subjects */}
+                    {primaryCluster === "digital-creator" && (
+                      <>
+                        <div className="bg-white px-3 py-2 rounded-lg border border-gray-200 text-center">
+                          <span className="text-sm font-medium">Digital Arts</span>
+                        </div>
+                        <div className="bg-white px-3 py-2 rounded-lg border border-gray-200 text-center">
+                          <span className="text-sm font-medium">Graphic Design</span>
+                        </div>
+                        <div className="bg-white px-3 py-2 rounded-lg border border-gray-200 text-center">
+                          <span className="text-sm font-medium">Media Studies</span>
+                        </div>
+                        <div className="bg-white px-3 py-2 rounded-lg border border-gray-200 text-center">
+                          <span className="text-sm font-medium">Communications</span>
+                        </div>
+                        <div className="bg-white px-3 py-2 rounded-lg border border-gray-200 text-center">
+                          <span className="text-sm font-medium">UX Design</span>
+                        </div>
+                        <div className="bg-white px-3 py-2 rounded-lg border border-gray-200 text-center">
+                          <span className="text-sm font-medium">Web Development</span>
+                        </div>
+                      </>
+                    )}
+                    
+                    {/* Data Analyst subjects */}
+                    {primaryCluster === "data-analyst" && (
+                      <>
+                        <div className="bg-white px-3 py-2 rounded-lg border border-gray-200 text-center">
+                          <span className="text-sm font-medium">Statistics</span>
+                        </div>
+                        <div className="bg-white px-3 py-2 rounded-lg border border-gray-200 text-center">
+                          <span className="text-sm font-medium">Data Science</span>
+                        </div>
+                        <div className="bg-white px-3 py-2 rounded-lg border border-gray-200 text-center">
+                          <span className="text-sm font-medium">Mathematics</span>
+                        </div>
+                        <div className="bg-white px-3 py-2 rounded-lg border border-gray-200 text-center">
+                          <span className="text-sm font-medium">Computer Science</span>
+                        </div>
+                        <div className="bg-white px-3 py-2 rounded-lg border border-gray-200 text-center">
+                          <span className="text-sm font-medium">Economics</span>
+                        </div>
+                        <div className="bg-white px-3 py-2 rounded-lg border border-gray-200 text-center">
+                          <span className="text-sm font-medium">Machine Learning</span>
+                        </div>
+                      </>
+                    )}
+                    
+                    {/* Entrepreneur subjects */}
+                    {primaryCluster === "entrepreneur" && (
+                      <>
+                        <div className="bg-white px-3 py-2 rounded-lg border border-gray-200 text-center">
+                          <span className="text-sm font-medium">Business Studies</span>
+                        </div>
+                        <div className="bg-white px-3 py-2 rounded-lg border border-gray-200 text-center">
+                          <span className="text-sm font-medium">Economics</span>
+                        </div>
+                        <div className="bg-white px-3 py-2 rounded-lg border border-gray-200 text-center">
+                          <span className="text-sm font-medium">Marketing</span>
+                        </div>
+                        <div className="bg-white px-3 py-2 rounded-lg border border-gray-200 text-center">
+                          <span className="text-sm font-medium">Product Management</span>
+                        </div>
+                        <div className="bg-white px-3 py-2 rounded-lg border border-gray-200 text-center">
+                          <span className="text-sm font-medium">Communications</span>
+                        </div>
+                        <div className="bg-white px-3 py-2 rounded-lg border border-gray-200 text-center">
+                          <span className="text-sm font-medium">Psychology</span>
+                        </div>
+                      </>
+                    )}
+                    
+                    {/* Helper subjects */}
+                    {primaryCluster === "helper" && (
+                      <>
+                        <div className="bg-white px-3 py-2 rounded-lg border border-gray-200 text-center">
+                          <span className="text-sm font-medium">Social Sciences</span>
+                        </div>
+                        <div className="bg-white px-3 py-2 rounded-lg border border-gray-200 text-center">
+                          <span className="text-sm font-medium">Global Studies</span>
+                        </div>
+                        <div className="bg-white px-3 py-2 rounded-lg border border-gray-200 text-center">
+                          <span className="text-sm font-medium">Public Health</span>
+                        </div>
+                        <div className="bg-white px-3 py-2 rounded-lg border border-gray-200 text-center">
+                          <span className="text-sm font-medium">Environmental Science</span>
+                        </div>
+                        <div className="bg-white px-3 py-2 rounded-lg border border-gray-200 text-center">
+                          <span className="text-sm font-medium">Education</span>
+                        </div>
+                        <div className="bg-white px-3 py-2 rounded-lg border border-gray-200 text-center">
+                          <span className="text-sm font-medium">Ethics</span>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Back to Assessments Button added at the bottom of the page, above footer */}
+          <div className="flex justify-center mt-12 mb-8">
+            <Button
+              className="bg-brand-green text-white hover:bg-brand-green/90 px-6 py-2"
+              onClick={() => navigate('/assessment')}
+            >
+              Back to Assessments
+            </Button>
+          </div>
+        </div>
+      </main>
+      
+      <Footer />
+    </div>
+  );
+};
+
+export default FuturePathwaysResults;
