@@ -1,10 +1,12 @@
+
 import {
   ArrowLeft,
   ChevronRight,
   Download,
   ExternalLink,
   Home,
-  ClipboardList
+  ClipboardList,
+  BookOpen
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -29,8 +31,9 @@ import {
   SocialProfile,
   EnterprisingProfile,
   ConventionalProfile,
+  CareerProfile,
   CareerVisionResultsProps,
-} from '@/components/career-vision/DataTypes';
+} from '@/components/career-vision/ProfileTypes';
 import { toast } from 'sonner';
 
 const CareerVisionResults = () => {
@@ -39,7 +42,7 @@ const CareerVisionResults = () => {
   const { user } = useAuth();
 
   const [isLoading, setIsLoading] = useState(true);
-  const [dominantProfile, setDominantProfile] = useState<any>(null);
+  const [dominantProfile, setDominantProfile] = useState<CareerProfile | null>(null);
   const [dominantScore, setDominantScore] = useState<number>(0);
   const [isDownloadingPDF, setIsDownloadingPDF] = useState(false);
 
