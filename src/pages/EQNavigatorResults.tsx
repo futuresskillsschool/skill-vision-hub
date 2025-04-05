@@ -9,8 +9,18 @@ import { supabase } from '@/integrations/supabase/client';
 import { StudentDetails } from '@/components/assessment-results/StudentInfoCard';
 import StudentInfoCard from '@/components/assessment-results/StudentInfoCard';
 import ResultsHeader from '@/components/assessment-results/ResultsHeader';
-import EQResultsSummary from '@/components/assessment-results/EQResultsSummary';
 import { generateEQNavigatorPDF } from '@/services/PDFGenerationService';
+import { Card, CardHeader, CardContent } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { motion } from 'framer-motion';
+import { 
+  ResponsiveContainer, 
+  RadarChart, 
+  PolarGrid, 
+  PolarAngleAxis, 
+  PolarRadiusAxis, 
+  Radar 
+} from 'recharts';
 
 interface ScoresObj {
   [key: string]: number | string;
@@ -136,6 +146,11 @@ const EQNavigatorResults = () => {
   
   const { scores } = resultsData;
   
+  // Calculate the total EQ score by summing all numerical values
+  const totalEQScore = Object.values(scores).reduce((sum, score) => {
+    return typeof score === 'number' ? sum + score : sum;
+  }, 0);
+  
   const chartData = Object.entries(scores || {}).map(([domain, score]) => ({
     domain,
     score: typeof score === 'number' ? score : 0,
@@ -161,6 +176,15 @@ const EQNavigatorResults = () => {
     }
   };
 
+  // Domain descriptions for the domains
+  const domainDescriptions: Record<string, string> = {
+    "selfAwareness": "Understanding your own emotions and how they affect your behavior.",
+    "selfRegulation": "Managing your emotions and impulses effectively.",
+    "motivation": "Using your emotions to achieve goals and persist through challenges.",
+    "empathy": "Understanding and sharing the feelings of others.",
+    "socialSkills": "Managing relationships and building rapport with others."
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -176,8 +200,58 @@ const EQNavigatorResults = () => {
           
           {studentDetails && <StudentInfoCard studentDetails={studentDetails} />}
           
-          <div ref={resultsRef}>
-            <EQResultsSummary scores={scores} chartData={chartData} />
+          <div ref={resultsRef} className="mt-8">
+            <Card className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+              <CardHeader>
+                <div className="mb-6">
+                  <h2 className="text-2xl font-bold text-brand-orange mb-2">Your Emotional Intelligence Profile</h2>
+                  <p className="text-foreground/70">
+                    Here's a breakdown of your emotional intelligence across different domains:
+                  </p>
+                </div>
+              </CardHeader>
+              
+              <CardContent>
+                <div className="mb-8">
+                  <h3 className="text-xl font-semibold mb-4">EQ Navigator Scores</h3>
+                  <div className="relative h-[300px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <RadarChart data={chartData}>
+                        <PolarGrid />
+                        <PolarAngleAxis dataKey="domain" />
+                        <PolarRadiusAxis angle={30} domain={[0, 10]} />
+                        <Radar name="EQ Score" dataKey="score" stroke="#F97316" fill="#F97316" fillOpacity={0.6} />
+                      </RadarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+                
+                <div className="space-y-6">
+                  <h3 className="text-xl font-semibold mb-4">Domain Breakdown</h3>
+                  {Object.entries(scores || {}).map(([domain, scoreValue]) => {
+                    const score = typeof scoreValue === 'number' ? scoreValue : 0;
+                    return (
+                      <Card key={domain} className="bg-brand-orange/5 border border-brand-orange/10">
+                        <div className="p-4">
+                          <h4 className="text-lg font-semibold text-brand-orange mb-2">
+                            {domain.replace(/([A-Z])/g, ' $1').trim()}
+                          </h4>
+                          <p className="text-foreground/80 mb-3">
+                            {domainDescriptions[domain] || "Description not available."}
+                          </p>
+                          
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium">Score:</span>
+                            <span className="text-sm font-semibold">{score}/10</span>
+                          </div>
+                          <Progress value={(score / 10) * 100} className="mt-2" />
+                        </div>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </main>
