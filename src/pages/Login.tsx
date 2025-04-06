@@ -55,7 +55,8 @@ const Login = () => {
           password,
           options: {
             data: {
-              name,
+              first_name: name.split(' ')[0] || '',
+              last_name: name.split(' ').slice(1).join(' ') || '',
               class_section: classSection,
               school,
               phone

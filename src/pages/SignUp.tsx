@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -12,7 +11,6 @@ import { User, KeyRound, Mail, Phone, Briefcase } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-// Stream options
 const streamOptions = [
   'Business & Commerce',
   'Science & Engineering',
@@ -23,7 +21,6 @@ const streamOptions = [
   'Other'
 ];
 
-// Interest options
 const interestOptions = [
   'Career Development',
   'Personal Growth',
@@ -59,7 +56,6 @@ const SignUp = () => {
       [name]: value
     }));
     
-    // Clear error when field is updated
     if (errors[name]) {
       setErrors(prev => {
         const newErrors = { ...prev };
@@ -75,7 +71,6 @@ const SignUp = () => {
       [name]: value
     }));
     
-    // Clear error when field is updated
     if (errors[name]) {
       setErrors(prev => {
         const newErrors = { ...prev };
@@ -138,7 +133,6 @@ const SignUp = () => {
     setIsLoading(true);
     
     try {
-      // Register the user with Supabase
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
@@ -155,7 +149,6 @@ const SignUp = () => {
       
       if (authError) throw authError;
       
-      // Update the profile with additional information
       if (authData.user) {
         const { error: profileError } = await supabase
           .from('profiles')
