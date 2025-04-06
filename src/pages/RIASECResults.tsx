@@ -696,8 +696,8 @@ const RIASECResults = () => {
             className="ml-4 text-gray-600 hover:text-gray-800"
           >
             Back to Assessments
-          </Button> */}
-          
+          </Button>
+           */}
           <h1 className="text-3xl md:text-4xl font-bold">Your RIASEC Results</h1>
           <p className="text-gray-600 mt-2">
             Based on your responses, here are your RIASEC personality type results
