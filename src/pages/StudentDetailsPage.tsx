@@ -45,6 +45,7 @@ const StudentDetailsPage = () => {
           // Only create a student record if one doesn't already exist or if not downloading PDF
           // If downloadPdf flag is true, we should use the existing student record instead of creating a new one
           let studentId = resultsData.studentId;
+          let studentDetails = null;
           
           if (!studentId && !resultsData.downloadPdf) {
             // Create a student record from the profile data
@@ -87,39 +88,67 @@ const StudentDetailsPage = () => {
             }
           }
           
+          // If we have a studentId, fetch the complete student details
+          if (studentId) {
+            const { data: fullStudentDetails, error: detailsError } = await supabase
+              .from('student_details')
+              .select('*')
+              .eq('id', studentId)
+              .single();
+              
+            if (!detailsError) {
+              studentDetails = fullStudentDetails;
+            }
+          }
+          
           const assessmentType = id || resultsData.assessmentType || 'scct';
           
-          // Save the assessment results to the assessment_results table
+          // Check if an assessment result already exists before creating a new one
           if (assessmentType === 'eq-navigator' && resultsData.totalScore !== undefined) {
-            const { error: resultError } = await supabase
+            const { data: existingResult, error: fetchError } = await supabase
               .from('assessment_results')
-              .insert({
-                user_id: user.id,
-                assessment_type: assessmentType,
-                result_data: {
-                  totalScore: resultsData.totalScore,
-                  selectedOptions: resultsData.selectedOptions,
-                  primary_result: getPrimaryResult(resultsData.totalScore)
-                }
-              });
+              .select('id')
+              .eq('user_id', user.id)
+              .eq('assessment_type', assessmentType)
+              .eq('result_data->totalScore', resultsData.totalScore)
+              .maybeSingle();
               
-            if (resultError) {
-              console.error('Error saving assessment results:', resultError);
-              toast.error("Could not save your assessment results");
+            // Only save if no existing result with the same score is found
+            if (!existingResult && !resultsData.viewOnly) {
+              const { error: resultError } = await supabase
+                .from('assessment_results')
+                .insert({
+                  user_id: user.id,
+                  assessment_type: assessmentType,
+                  result_data: {
+                    totalScore: resultsData.totalScore,
+                    selectedOptions: resultsData.selectedOptions,
+                    primary_result: getPrimaryResult(resultsData.totalScore)
+                  }
+                });
+                
+              if (resultError) {
+                console.error('Error saving assessment results:', resultError);
+                toast.error("Could not save your assessment results");
+              } else {
+                console.log('Assessment results saved successfully');
+              }
             } else {
-              console.log('Assessment results saved successfully');
+              console.log('Using existing assessment result or view-only mode');
             }
           }
           
           // Add download flag for the first pass if needed
           const shouldDownloadPdf = resultsData.downloadPdf || false;
           
-          // Navigate directly to results page with the student ID
+          // Navigate directly to results page with the student ID and student details
           navigate(`/assessment/${assessmentType}/results`, {
             state: {
               ...resultsData,
               studentId: studentId,
-              downloadPdf: shouldDownloadPdf
+              downloadPdf: shouldDownloadPdf,
+              viewOnly: true, // Mark as view-only to prevent duplicate records
+              studentDetails: studentDetails // Pass complete student details to results page
             }
           });
         } else {

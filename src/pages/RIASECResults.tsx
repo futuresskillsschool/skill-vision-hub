@@ -199,6 +199,11 @@ const RIASECResults = () => {
     window.scrollTo(0, 0);
     
     const fetchStudentDetails = async () => {
+      if (location.state?.studentDetails) {
+        setStudentDetails(location.state.studentDetails);
+        return;
+      }
+      
       if (location.state?.studentId) {
         try {
           const { data, error } = await supabase
@@ -275,9 +280,21 @@ const RIASECResults = () => {
     fetchStudentDetails();
     
     const saveResultsToDB = async () => {
-      if (user && scores) {
+      if (user && scores && !location.state?.viewOnly) {
         try {
           console.log('Saving RIASEC results to database for user:', user.id);
+          
+          const { data: existingResults, error: checkError } = await supabase
+            .from('assessment_results')
+            .select('id')
+            .eq('user_id', user.id)
+            .eq('assessment_type', 'riasec')
+            .maybeSingle();
+            
+          if (existingResults) {
+            console.log('Using existing RIASEC results record');
+            return;
+          }
           
           const scoresObject: Record<string, number> = {};
           Object.entries(scores).forEach(([key, value]) => {
@@ -291,7 +308,7 @@ const RIASECResults = () => {
           
           const { error } = await supabase
             .from('assessment_results')
-            .upsert({
+            .insert({
               user_id: user.id,
               assessment_type: 'riasec',
               result_data: resultData
@@ -305,6 +322,8 @@ const RIASECResults = () => {
         } catch (error) {
           console.error('Exception when saving results:', error);
         }
+      } else {
+        console.log('Skipping save to database (view-only mode or missing user/scores)');
       }
     };
     
