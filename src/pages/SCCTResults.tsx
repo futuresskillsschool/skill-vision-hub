@@ -543,53 +543,63 @@ const SCCTResults = () => {
       pdf.setFontSize(12);
       pdf.setFont('helvetica', 'normal');
       const dateWidth = pdf.getStringUnitWidth(formattedDate) * 12 / pdf.internal.scaleFactor;
-      pdf.text(formattedDate, (pageWidth - dateWidth) / 2, 250);
+      pdf.text(formattedDate, (pageWidth - dateWidth) / 2, 180);
       
-      // Student Information section
-      pdf.roundedRect(margin, 335, contentWidth, 120, 5, 5, 'S');
+      // Student Information section - Updated to match the screenshot
+      pdf.setFillColor(255, 255, 255); // White background
+      pdf.roundedRect(margin, 210, contentWidth, 120, 5, 5, 'F');
+      pdf.setDrawColor(200, 200, 200); // Light gray border
+      pdf.roundedRect(margin, 210, contentWidth, 120, 5, 5, 'S');
       
       // Section title with underline
       pdf.setTextColor(76, 175, 80); // Green color
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(18);
-      pdf.text("STUDENT INFORMATION", margin + 10, 360);
+      pdf.text("STUDENT INFORMATION", margin + 10, 235);
       
       // Green underline
       pdf.setDrawColor(76, 175, 80);
-      pdf.setLineWidth(0.5);
-      pdf.line(margin + 10, 367, margin + 215, 367);
+      pdf.setLineWidth(1);
+      pdf.line(margin + 10, 240, margin + 120, 240);
       
-      // Student details
+      // Student details with left alignment for labels and data
       pdf.setTextColor(60, 60, 60); // Dark gray text
       pdf.setFontSize(14);
+      
+      // Name
       pdf.setFont('helvetica', 'bold');
-      pdf.text("Name:", margin + 10, 390);
-      pdf.text("Class:", margin + 10, 420);
-      pdf.text("School:", margin + 10, 450);
-      
+      pdf.text("Name:", margin + 20, 270);
       pdf.setFont('helvetica', 'normal');
-      pdf.text(studentDetails?.name || 'Not specified', margin + 90, 390);
-      pdf.text(studentDetails?.class ? `${studentDetails.class} - ${studentDetails.section || 'Not specified'}` : 'Not specified - Not specified', margin + 90, 420);
-      pdf.text(studentDetails?.school || 'Not specified', margin + 90, 450);
+      pdf.text(studentDetails?.name || 'Not specified', margin + 90, 270);
       
-      // Add second page
-      pdf.addPage();
-      pdf.setFillColor(245, 247, 250);
-      pdf.rect(0, 0, pageWidth, pageHeight, 'F');
+      // Class
+      pdf.setFont('helvetica', 'bold');
+      pdf.text("Class:", margin + 20, 290);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text(studentDetails?.class ? `${studentDetails.class} - ${studentDetails.section || 'Not specified'}` : 'Not specified - Not specified', margin + 90, 290);
+      
+      // School
+      pdf.setFont('helvetica', 'bold');
+      pdf.text("School:", margin + 20, 310);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text(studentDetails?.school || 'Not specified', margin + 90, 310);
       
       // About This Assessment section
-      pdf.roundedRect(margin, 30, contentWidth, 120, 5, 5, 'S');
+      pdf.setFillColor(255, 255, 255);
+      pdf.roundedRect(margin, 350, contentWidth, 120, 5, 5, 'F');
+      pdf.setDrawColor(200, 200, 200);
+      pdf.roundedRect(margin, 350, contentWidth, 120, 5, 5, 'S');
       
-      // Section title with underline
+      // About section title with underline
       pdf.setTextColor(76, 175, 80); // Green color
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(18);
-      pdf.text("ABOUT THIS ASSESSMENT", margin + 10, 55);
+      pdf.text("ABOUT THIS ASSESSMENT", margin + 10, 375);
       
       // Green underline
       pdf.setDrawColor(76, 175, 80);
-      pdf.setLineWidth(0.5);
-      pdf.line(margin + 10, 62, margin + 240, 62);
+      pdf.setLineWidth(1);
+      pdf.line(margin + 10, 380, margin + 120, 380);
       
       // Assessment description
       pdf.setTextColor(60, 60, 60);
@@ -597,7 +607,7 @@ const SCCTResults = () => {
       pdf.setFont('helvetica', 'normal');
       const aboutText = "The Social Cognitive Career Theory (SCCT) Assessment evaluates your career development across five key dimensions: Self-Efficacy (confidence in abilities), Outcome Expectations (anticipated results), Career Interests (field preferences), Environmental Support (resources available), and Perceived Barriers (challenges to overcome).";
       const splitAbout = pdf.splitTextToSize(aboutText, contentWidth - 20);
-      pdf.text(splitAbout, margin + 10, 80);
+      pdf.text(splitAbout, margin + 10, 400);
       
       // Add a header for subsequent pages
       pdf.setFillColor(240, 245, 240);
