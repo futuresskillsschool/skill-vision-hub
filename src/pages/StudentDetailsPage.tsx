@@ -79,7 +79,7 @@ const StudentDetailsPage = () => {
                 : (user.email || 'Anonymous User'),
               class: profileData.stream || 'Not specified',
               section: profileData.interest || 'Not specified',
-              school: profileData.school || 'Not specified'  // Include school from profile data
+              school: 'Not specified'  // Since 'school' doesn't exist in profileData type, use default string
             };
           }
           

@@ -47,7 +47,7 @@ export const createStudentRecord = async (userId: string, profileData: any, asse
         : (userId ? 'User' : 'Anonymous User'),
       class: profileData?.stream || 'Not specified',
       section: profileData?.interest || 'Not specified',
-      school: profileData?.school || 'Not specified', // Use school from profile data if available
+      school: 'Not specified', // Use a default value since 'school' may not exist in profileData
       assessment_type: assessmentType,
       user_id: userId
     })

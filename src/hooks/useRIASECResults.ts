@@ -147,7 +147,7 @@ export const useRIASECResults = (): UseRIASECResultsReturn => {
               : (user.email || 'Anonymous User'),
             class: profileData.stream || 'Not specified',
             section: profileData.interest || 'Not specified',
-            school: profileData.school || 'Not specified'  // Add school from profile if available
+            school: 'Not specified'  // Since 'school' doesn't exist in profileData type, use default string
           };
           
           console.log("Created student details from profile:", studentDetails);
