@@ -70,6 +70,17 @@ const StudentDetailsPage = () => {
               studentDetails = fullStudentDetails;
               console.log("Retrieved student details for results page:", studentDetails);
             }
+          } else if (profileData) {
+            // Create student details from profile data if we don't have a student record
+            studentDetails = {
+              id: user.id,
+              name: profileData.first_name && profileData.last_name 
+                ? `${profileData.first_name} ${profileData.last_name}` 
+                : (user.email || 'Anonymous User'),
+              class: profileData.stream || 'Not specified',
+              section: profileData.interest || 'Not specified',
+              school: profileData.school || 'Not specified'  // Include school from profile data
+            };
           }
           
           const assessmentType = id || 'scct';

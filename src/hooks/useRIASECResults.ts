@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -66,7 +67,15 @@ export const useRIASECResults = (): UseRIASECResultsReturn => {
           
           if (data) {
             console.log("Found student details:", data);
-            setStudentDetails(data as StudentDetails);
+            setStudentDetails({
+              id: data.id,
+              name: data.name,
+              class: data.class || 'Not specified',
+              section: data.section || 'Not specified',
+              school: data.school || 'Not specified'
+            });
+          } else {
+            await tryFetchProfileAsFallback();
           }
         } catch (error) {
           console.error('Error in student details fetch:', error);
@@ -93,7 +102,13 @@ export const useRIASECResults = (): UseRIASECResultsReturn => {
           
           if (data) {
             console.log("Found latest student record:", data);
-            setStudentDetails(data as StudentDetails);
+            setStudentDetails({
+              id: data.id,
+              name: data.name,
+              class: data.class || 'Not specified',
+              section: data.section || 'Not specified',
+              school: data.school || 'Not specified'
+            });
           } else {
             await tryFetchProfileAsFallback();
           }
@@ -132,7 +147,7 @@ export const useRIASECResults = (): UseRIASECResultsReturn => {
               : (user.email || 'Anonymous User'),
             class: profileData.stream || 'Not specified',
             section: profileData.interest || 'Not specified',
-            school: 'Not specified'
+            school: profileData.school || 'Not specified'  // Add school from profile if available
           };
           
           console.log("Created student details from profile:", studentDetails);
