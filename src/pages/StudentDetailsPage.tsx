@@ -58,7 +58,7 @@ const StudentDetailsPage = () => {
                 class: profileData?.stream || 'Not specified',
                 section: profileData?.interest || 'Not specified',
                 school: 'Not specified',
-                assessment_type: id || resultsData.assessmentType || 'scct',
+                assessment_type: id || 'scct',
                 user_id: user.id
               })
               .select('id')
@@ -78,7 +78,7 @@ const StudentDetailsPage = () => {
               .from('student_details')
               .select('id')
               .eq('user_id', user.id)
-              .eq('assessment_type', id || resultsData.assessmentType || 'scct')
+              .eq('assessment_type', id || 'scct')
               .order('created_at', { ascending: false })
               .limit(1)
               .single();
@@ -105,12 +105,13 @@ const StudentDetailsPage = () => {
           
           // Check if an assessment result already exists before creating a new one
           if (assessmentType === 'eq-navigator' && resultsData.totalScore !== undefined) {
+            // Fix: Remove this type issue by explicitly specifying the type or simplifying the condition
             const { data: existingResult, error: fetchError } = await supabase
               .from('assessment_results')
               .select('id')
               .eq('user_id', user.id)
               .eq('assessment_type', assessmentType)
-              .eq('result_data->totalScore', resultsData.totalScore)
+              .eq('result_data->>totalScore', resultsData.totalScore.toString())
               .maybeSingle();
               
             // Only save if no existing result with the same score is found
