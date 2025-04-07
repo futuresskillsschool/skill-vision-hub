@@ -545,44 +545,44 @@ const SCCTResults = () => {
       const dateWidth = pdf.getStringUnitWidth(formattedDate) * 12 / pdf.internal.scaleFactor;
       pdf.text(formattedDate, (pageWidth - dateWidth) / 2, 180);
       
-      // Student Information section - Updated to match the screenshot
+      // Student Information section - Updated to match the screenshot exactly
       pdf.setFillColor(255, 255, 255); // White background
       pdf.roundedRect(margin, 210, contentWidth, 120, 5, 5, 'F');
       pdf.setDrawColor(200, 200, 200); // Light gray border
       pdf.roundedRect(margin, 210, contentWidth, 120, 5, 5, 'S');
       
-      // Section title with underline
+      // Section title with underline - match the screenshot with green text
       pdf.setTextColor(76, 175, 80); // Green color
       pdf.setFont('helvetica', 'bold');
-      pdf.setFontSize(18);
-      pdf.text("STUDENT INFORMATION", margin + 10, 235);
+      pdf.setFontSize(24); // Larger font size to match screenshot
+      pdf.text("STUDENT INFORMATION", margin + 15, 240); // Positioned higher up
       
-      // Green underline
+      // Green underline - thicker and wider to match screenshot
       pdf.setDrawColor(76, 175, 80);
-      pdf.setLineWidth(1);
-      pdf.line(margin + 10, 240, margin + 120, 240);
+      pdf.setLineWidth(1.5);
+      pdf.line(margin + 15, 245, margin + 200, 245); // Wider line
       
-      // Student details with left alignment for labels and data
+      // Student details with left-right alignment to match screenshot
       pdf.setTextColor(60, 60, 60); // Dark gray text
-      pdf.setFontSize(14);
+      pdf.setFontSize(16); // Larger font size
       
       // Name
       pdf.setFont('helvetica', 'bold');
-      pdf.text("Name:", margin + 20, 270);
+      pdf.text("Name:", margin + 30, 280); // Increased spacing
       pdf.setFont('helvetica', 'normal');
-      pdf.text(studentDetails?.name || 'Not specified', margin + 90, 270);
+      pdf.text(studentDetails?.name || 'Not specified', margin + 120, 280);
       
       // Class
       pdf.setFont('helvetica', 'bold');
-      pdf.text("Class:", margin + 20, 290);
+      pdf.text("Class:", margin + 30, 310); // Increased spacing between rows
       pdf.setFont('helvetica', 'normal');
-      pdf.text(studentDetails?.class ? `${studentDetails.class} - ${studentDetails.section || 'Not specified'}` : 'Not specified - Not specified', margin + 90, 290);
+      pdf.text(studentDetails?.class ? `${studentDetails.class} - ${studentDetails.section || 'Not specified'}` : 'Not specified - Not specified', margin + 120, 310);
       
-      // School
-      pdf.setFont('helvetica', 'bold');
-      pdf.text("School:", margin + 20, 310);
+      // Add page number at the bottom right
+      pdf.setFontSize(12);
       pdf.setFont('helvetica', 'normal');
-      pdf.text(studentDetails?.school || 'Not specified', margin + 90, 310);
+      pdf.setTextColor(100, 100, 100);
+      pdf.text(`Page 1 of 4`, pageWidth - margin - 25, 310);
       
       // About This Assessment section
       pdf.setFillColor(255, 255, 255);
@@ -608,6 +608,9 @@ const SCCTResults = () => {
       const aboutText = "The Social Cognitive Career Theory (SCCT) Assessment evaluates your career development across five key dimensions: Self-Efficacy (confidence in abilities), Outcome Expectations (anticipated results), Career Interests (field preferences), Environmental Support (resources available), and Perceived Barriers (challenges to overcome).";
       const splitAbout = pdf.splitTextToSize(aboutText, contentWidth - 20);
       pdf.text(splitAbout, margin + 10, 400);
+      
+      // Adding a new page for SCCT Profile
+      pdf.addPage();
       
       // Add a header for subsequent pages
       pdf.setFillColor(240, 245, 240);
@@ -690,42 +693,32 @@ const SCCTResults = () => {
       const radarChartImage = radarChartCanvas.toDataURL('image/png');
       pdf.addImage(radarChartImage, 'PNG', margin, 50, contentWidth, contentWidth);
       
-      // Add profile overview title
+      // Add profile overview title - Adjusted to match the screenshot
       pdf.setTextColor(76, 175, 80); // Green color
       pdf.setFont('helvetica', 'bold');
-      pdf.setFontSize(20);
+      pdf.setFontSize(24); // Larger font size to match screenshot
       const overviewTitle = "Your SCCT Profile Overview";
-      const overviewTitleWidth = pdf.getStringUnitWidth(overviewTitle) * 20 / pdf.internal.scaleFactor;
+      const overviewTitleWidth = pdf.getStringUnitWidth(overviewTitle) * 24 / pdf.internal.scaleFactor;
       pdf.text(overviewTitle, (pageWidth - overviewTitleWidth) / 2, 235);
       
-      // Add explanation text
+      // Green underline for the overview title to match screenshot
+      pdf.setDrawColor(76, 175, 80);
+      pdf.setLineWidth(1.5);
+      pdf.line(margin + 15, 240, pageWidth - margin - 15, 240);
+      
+      // Add explanation text with green color to match screenshot
       pdf.setTextColor(76, 175, 80); // Green color
       pdf.setFont('helvetica', 'normal');
-      pdf.setFontSize(11);
+      pdf.setFontSize(12);
       const explanationText = "This radar chart represents your scores across the five key areas of the SCCT framework. Higher scores indicate greater strength in that area. For Perceived Barriers, higher scores on the chart indicate fewer barriers to career development.";
       const splitExplanation = pdf.splitTextToSize(explanationText, contentWidth);
-      pdf.text(splitExplanation, margin, 250);
+      pdf.text(splitExplanation, margin, 255);
       
-      // Add third page for dimension scores
-      pdf.addPage();
-      
-      // Add the same header
-      pdf.setFillColor(240, 245, 240);
-      pdf.rect(0, 0, pageWidth, 20, 'F');
-      
-      pdf.setTextColor(100, 100, 100);
-      pdf.setFontSize(10);
-      pdf.setFont('helvetica', 'italic');
-      pdf.text("SCCT Assessment", margin, 15);
-      
-      pdf.setTextColor(76, 175, 80);
-      pdf.setFont('helvetica', 'bold');
+      // Add page number
       pdf.setFontSize(12);
-      pdf.text("Your SCCT Dimensions", pageWidth - margin - 37, 15);
-      
-      pdf.setDrawColor(200, 200, 200);
-      pdf.setLineWidth(0.2);
-      pdf.line(0, 20, pageWidth, 20);
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(100, 100, 100);
+      pdf.text(`Page 2 of 4`, pageWidth - margin - 25, pageHeight - 10);
       
       // SCCT Dimensions
       let yPos = 40;
