@@ -1,11 +1,16 @@
 
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
+import LoadingScreen from '@/components/assessment/LoadingScreen';
 import { toast } from "sonner";
+import {
+  fetchUserProfile,
+  createStudentRecord,
+  fetchLatestStudentRecord,
+  fetchStudentDetails,
+  checkAndSaveAssessmentResult
+} from '@/utils/assessmentUtils';
 
 const StudentDetailsPage = () => {
   const location = useLocation();
@@ -31,113 +36,45 @@ const StudentDetailsPage = () => {
         
         if (user) {
           // Get user profile from profiles table
-          const { data: profileData, error: profileError } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', user.id)
-            .single();
+          const { profileData } = await fetchUserProfile(user.id);
             
-          if (profileError) {
-            console.error('Error fetching user profile:', profileError);
-            toast.error("Could not load your profile information");
-          }
-          
           // Only create a student record if one doesn't already exist or if not downloading PDF
-          // If downloadPdf flag is true, we should use the existing student record instead of creating a new one
           let studentId = resultsData.studentId;
           let studentDetails = null;
           
           if (!studentId && !resultsData.downloadPdf) {
             // Create a student record from the profile data
-            const { data: studentData, error: studentError } = await supabase
-              .from('student_details')
-              .insert({
-                name: profileData?.first_name && profileData?.last_name 
-                  ? `${profileData.first_name} ${profileData.last_name}` 
-                  : (user.email || 'Anonymous User'),
-                class: profileData?.stream || 'Not specified',
-                section: profileData?.interest || 'Not specified',
-                school: 'Not specified',
-                assessment_type: id || 'scct',
-                user_id: user.id
-              })
-              .select('id')
-              .single();
+            const { studentData } = await createStudentRecord(
+              user.id, 
+              profileData, 
+              id || 'scct'
+            );
               
-            if (studentError) {
-              console.error('Error creating student record:', studentError);
-              toast.error("Could not save your assessment details");
-              // Still continue to results even if there's an error creating the student record
-            } else {
+            if (studentData) {
               console.log('Created student record:', studentData);
               studentId = studentData.id;
             }
           } else if (!studentId && resultsData.downloadPdf) {
             // If we're downloading PDF but don't have a student ID, try to fetch the latest one
-            const { data: existingStudent, error: fetchError } = await supabase
-              .from('student_details')
-              .select('id')
-              .eq('user_id', user.id)
-              .eq('assessment_type', id || 'scct')
-              .order('created_at', { ascending: false })
-              .limit(1)
-              .single();
+            const { existingStudent } = await fetchLatestStudentRecord(user.id, id || 'scct');
               
-            if (!fetchError && existingStudent) {
+            if (existingStudent) {
               studentId = existingStudent.id;
             }
           }
           
           // If we have a studentId, fetch the complete student details
           if (studentId) {
-            const { data: fullStudentDetails, error: detailsError } = await supabase
-              .from('student_details')
-              .select('*')
-              .eq('id', studentId)
-              .single();
-              
-            if (!detailsError) {
+            const { fullStudentDetails } = await fetchStudentDetails(studentId);
+            if (fullStudentDetails) {
               studentDetails = fullStudentDetails;
             }
           }
           
-          const assessmentType = id || resultsData.assessmentType || 'scct';
+          const assessmentType = id || 'scct';
           
           // Check if an assessment result already exists before creating a new one
-          if (assessmentType === 'eq-navigator' && resultsData.totalScore !== undefined) {
-            // Fix: Remove this type issue by explicitly specifying the type or simplifying the condition
-            const { data: existingResult, error: fetchError } = await supabase
-              .from('assessment_results')
-              .select('id')
-              .eq('user_id', user.id)
-              .eq('assessment_type', assessmentType)
-              .eq('result_data->>totalScore', resultsData.totalScore.toString())
-              .maybeSingle();
-              
-            // Only save if no existing result with the same score is found
-            if (!existingResult && !resultsData.viewOnly) {
-              const { error: resultError } = await supabase
-                .from('assessment_results')
-                .insert({
-                  user_id: user.id,
-                  assessment_type: assessmentType,
-                  result_data: {
-                    totalScore: resultsData.totalScore,
-                    selectedOptions: resultsData.selectedOptions,
-                    primary_result: getPrimaryResult(resultsData.totalScore)
-                  }
-                });
-                
-              if (resultError) {
-                console.error('Error saving assessment results:', resultError);
-                toast.error("Could not save your assessment results");
-              } else {
-                console.log('Assessment results saved successfully');
-              }
-            } else {
-              console.log('Using existing assessment result or view-only mode');
-            }
-          }
+          await checkAndSaveAssessmentResult(user.id, assessmentType, resultsData);
           
           // Add download flag for the first pass if needed
           const shouldDownloadPdf = resultsData.downloadPdf || false;
@@ -171,32 +108,8 @@ const StudentDetailsPage = () => {
     processUserData();
   }, [resultsData, navigate, id, user]);
   
-  // Helper function to determine the primary result based on the score
-  const getPrimaryResult = (totalScore: number) => {
-    if (totalScore >= 32) {
-      return 'Empathetic Explorer';
-    } else if (totalScore >= 24) {
-      return 'Developing Navigator';
-    } else if (totalScore >= 16) {
-      return 'Emerging Explorer';
-    } else {
-      return 'Compass Explorer';
-    }
-  };
-  
-  // Return a minimal component (which should never be visible for more than a moment)
-  return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-white via-orange-50 to-amber-50">
-      <Navbar />
-      <main className="flex-grow pt-24 pb-16 px-4 flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-brand-purple border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
-          <p className="mt-4 text-gray-600">Processing your results...</p>
-        </div>
-      </main>
-      <Footer />
-    </div>
-  );
+  // Return the loading component
+  return <LoadingScreen />;
 };
 
 export default StudentDetailsPage;
