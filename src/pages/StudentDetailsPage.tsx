@@ -68,6 +68,7 @@ const StudentDetailsPage = () => {
             const { fullStudentDetails } = await fetchStudentDetails(studentId);
             if (fullStudentDetails) {
               studentDetails = fullStudentDetails;
+              console.log("Retrieved student details for results page:", studentDetails);
             }
           }
           
@@ -102,6 +103,8 @@ const StudentDetailsPage = () => {
         console.error('Error processing user data:', error);
         toast.error("There was an error processing your assessment results");
         navigate(`/assessment/${id || 'scct'}`);
+      } finally {
+        setLoading(false);
       }
     };
     

@@ -16,15 +16,15 @@ const formSchema = z.object({
   school: z.string().min(1, { message: "School name is required" }),
 });
 
-type FormValues = z.infer<typeof formSchema>;
+export type StudentFormValues = z.infer<typeof formSchema>;
 
 interface StudentFormContentProps {
-  onSubmit: (data: FormValues) => Promise<void>;
+  onSubmit: (data: StudentFormValues) => Promise<void>;
   isSubmitting: boolean;
 }
 
 const StudentFormContent = ({ onSubmit, isSubmitting }: StudentFormContentProps) => {
-  const form = useForm<FormValues>({
+  const form = useForm<StudentFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
