@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -353,80 +352,80 @@ const RIASECResults = () => {
         pdf.text(text, x, y, { align });
       };
 
-      pdf.setFillColor(245, 242, 255);
+      pdf.setFillColor(250, 250, 252);
       pdf.rect(0, 0, pageWidth, pageHeight, 'F');
       
-      pdf.setFillColor(230, 220, 255, 0.5);
+      pdf.setFillColor(230, 240, 255, 0.5);
       pdf.circle(170, 240, 30, 'F');
       
-      pdf.setFillColor(220, 230, 255, 0.5);
+      pdf.setFillColor(240, 255, 240, 0.5);
       pdf.circle(40, 260, 20, 'F');
       
-      addStyledText('RIASEC ASSESSMENT', pageWidth/2, 70, 28, 'bold', 'center', '#8B5CF6');
-      addStyledText('RESULTS', pageWidth/2, 85, 24, 'bold', 'center', '#8B5CF6');
+      addStyledText('RIASEC ASSESSMENT', pageWidth/2, 70, 28, 'bold', 'center', '#9370DB');
+      addStyledText('RESULTS', pageWidth/2, 85, 24, 'bold', 'center', '#9370DB');
       
       const currentDate = new Date().toLocaleDateString('en-US', { 
         year: 'numeric', 
         month: 'long', 
         day: 'numeric' 
       });
-      addStyledText(`Report Generated: ${currentDate}`, pageWidth/2, 105, 12, 'italic', 'center', '#555555');
+      addStyledText(`Report Generated: ${currentDate}`, pageWidth/2, 105, 12, 'italic', 'center', '#777777');
 
       if (studentDetails) {
         pdf.setFillColor(255, 255, 255);
         pdf.roundedRect(margin, 120, contentWidth, 70, 5, 5, 'F');
-        pdf.setDrawColor(200, 190, 230);
+        pdf.setDrawColor(220, 215, 240);
         pdf.setLineWidth(0.5);
         pdf.roundedRect(margin, 120, contentWidth, 70, 5, 5, 'S');
         
-        addStyledText('STUDENT INFORMATION', margin + 10, 135, 14, 'bold', 'left', '#8B5CF6');
+        addStyledText('STUDENT INFORMATION', margin + 10, 135, 14, 'bold', 'left', '#9370DB');
         pdf.setLineWidth(0.5);
-        pdf.setDrawColor('#8B5CF6');
+        pdf.setDrawColor('#9370DB');
         pdf.line(margin + 10, 138, margin + 80, 138);
         
-        addStyledText('Name:', margin + 10, 155, 12, 'bold', 'left', '#333333');
-        addStyledText(studentDetails.name, margin + 50, 155, 12, 'normal', 'left', '#333333');
+        addStyledText('Name:', margin + 10, 155, 12, 'bold', 'left', '#555555');
+        addStyledText(studentDetails.name, margin + 50, 155, 12, 'normal', 'left', '#555555');
         
-        addStyledText('Class:', margin + 10, 170, 12, 'bold', 'left', '#333333');
-        addStyledText(`${studentDetails.class} - ${studentDetails.section}`, margin + 50, 170, 12, 'normal', 'left', '#333333');
+        addStyledText('Class:', margin + 10, 170, 12, 'bold', 'left', '#555555');
+        addStyledText(`${studentDetails.class} - ${studentDetails.section}`, margin + 50, 170, 12, 'normal', 'left', '#555555');
         
-        addStyledText('School:', margin + 10, 185, 12, 'bold', 'left', '#333333');
-        addStyledText(studentDetails.school, margin + 50, 185, 12, 'normal', 'left', '#333333');
+        addStyledText('School:', margin + 10, 185, 12, 'bold', 'left', '#555555');
+        addStyledText(studentDetails.school, margin + 50, 185, 12, 'normal', 'left', '#555555');
       }
       
       pdf.setFillColor(255, 255, 255);
       pdf.roundedRect(margin, 205, contentWidth, 65, 5, 5, 'F');
-      pdf.setDrawColor(200, 190, 230);
+      pdf.setDrawColor(220, 215, 240);
       pdf.roundedRect(margin, 205, contentWidth, 65, 5, 5, 'S');
       
-      addStyledText('ABOUT THIS ASSESSMENT', margin + 10, 220, 14, 'bold', 'left', '#8B5CF6');
+      addStyledText('ABOUT THIS ASSESSMENT', margin + 10, 220, 14, 'bold', 'left', '#9370DB');
       pdf.line(margin + 10, 223, margin + 85, 223);
       
       addStyledText('The RIASEC Assessment identifies your career preferences based on six interest types:', 
-        margin + 10, 235, 10, 'normal', 'left', '#333333');
+        margin + 10, 235, 10, 'normal', 'left', '#555555');
       addStyledText('• Realistic: Working with hands, tools, machines, or outdoors', 
-        margin + 10, 247, 10, 'normal', 'left', '#333333');
+        margin + 10, 247, 10, 'normal', 'left', '#555555');
       addStyledText('• Investigative: Analytical thinking, research, and problem-solving', 
-        margin + 10, 257, 10, 'normal', 'left', '#333333');
+        margin + 10, 257, 10, 'normal', 'left', '#555555');
       addStyledText('• Artistic: Creative expression, innovation, and originality', 
-        margin + 10, 267, 10, 'normal', 'left', '#333333');
+        margin + 10, 267, 10, 'normal', 'left', '#555555');
 
-      addStyledText('RIASEC Assessment Results', pageWidth/2, 285, 9, 'italic', 'center', '#555555');
-      addStyledText('Page 1', margin, pageHeight - 10, 9, 'normal', 'left', '#555555');
+      addStyledText('RIASEC Assessment Results', pageWidth/2, 285, 9, 'italic', 'center', '#777777');
+      addStyledText('Page 1', margin, pageHeight - 10, 9, 'normal', 'left', '#777777');
       
       const addPageHeader = (pageNumber: number) => {
-        pdf.setFillColor(245, 242, 255);
+        pdf.setFillColor(250, 250, 252);
         pdf.rect(0, 0, pageWidth, 20, 'F');
         
-        addStyledText('RIASEC Assessment', margin, 15, 10, 'italic', 'left', '#555555');
-        addStyledText('Career Interest Profile', pageWidth - margin, 15, 12, 'bold', 'right', '#8B5CF6');
+        addStyledText('RIASEC Assessment', margin, 15, 10, 'italic', 'left', '#777777');
+        addStyledText('Career Interest Profile', pageWidth - margin, 15, 12, 'bold', 'right', '#9370DB');
         
-        pdf.setDrawColor(200, 190, 230);
+        pdf.setDrawColor(220, 215, 240);
         pdf.setLineWidth(0.5);
         pdf.line(margin, 20, pageWidth - margin, 20);
         
-        addStyledText(`Page ${pageNumber}`, margin, pageHeight - 10, 9, 'normal', 'left', '#555555');
-        addStyledText(currentDate, pageWidth - margin, pageHeight - 10, 9, 'normal', 'right', '#555555');
+        addStyledText(`Page ${pageNumber}`, margin, pageHeight - 10, 9, 'normal', 'left', '#777777');
+        addStyledText(currentDate, pageWidth - margin, pageHeight - 10, 9, 'normal', 'right', '#777777');
       };
       
       pdf.addPage();
@@ -434,15 +433,15 @@ const RIASECResults = () => {
       
       let yPosition = 40;
       
-      addStyledText('Your Holland Code', pageWidth/2, yPosition, 18, 'bold', 'center', '#8B5CF6');
+      addStyledText('Your Holland Code', pageWidth/2, yPosition, 18, 'bold', 'center', '#9370DB');
       yPosition += 15;
       
-      pdf.setFillColor(245, 242, 255);
+      pdf.setFillColor(245, 245, 255);
       pdf.roundedRect(margin, yPosition, contentWidth, 50, 5, 5, 'F');
-      pdf.setDrawColor(200, 190, 230);
+      pdf.setDrawColor(220, 215, 240);
       pdf.roundedRect(margin, yPosition, contentWidth, 50, 5, 5, 'S');
       
-      addStyledText(`${primaryType}${secondaryType}${tertiaryType}`, pageWidth/2, yPosition + 20, 24, 'bold', 'center', '#8B5CF6');
+      addStyledText(`${primaryType}${secondaryType}${tertiaryType}`, pageWidth/2, yPosition + 20, 24, 'bold', 'center', '#9370DB');
       
       const codeDesc = 'Your three-letter Holland Code represents your top interest areas. These indicate your strongest career preferences and work-related values.';
       pdf.setFontSize(10);
@@ -451,23 +450,23 @@ const RIASECResults = () => {
       
       yPosition += 65;
       
-      addStyledText('Your RIASEC Profile', pageWidth/2, yPosition, 16, 'bold', 'center', '#8B5CF6');
+      addStyledText('Your RIASEC Profile', pageWidth/2, yPosition, 16, 'bold', 'center', '#9370DB');
       yPosition += 20;
       
       const typeColors = {
-        'R': ['#D6E4FF', '#2563EB'],
-        'I': ['#E2D9F3', '#7E22CE'],
-        'A': ['#FCE7F3', '#DB2777'],
-        'S': ['#FEFBC2', '#CA8A04'],
-        'E': ['#FFE2CC', '#EA580C'],
-        'C': ['#DCFCE7', '#16A34A']
+        'R': ['#D3E4FD', '#6C8EBF'],
+        'I': ['#E5DEFF', '#9370DB'],
+        'A': ['#FFDEE2', '#D87093'],
+        'S': ['#FEF7CD', '#D4B94E'],
+        'E': ['#FDE1D3', '#E69B7B'],
+        'C': ['#F2FCE2', '#8FBC8F']
       };
       
       const maxPercentage = 100;
       const barWidth = contentWidth / 8;
       const chartHeight = 120;
       
-      pdf.setDrawColor(180, 180, 180);
+      pdf.setDrawColor(220, 220, 230);
       pdf.setLineWidth(0.3);
       pdf.line(margin, yPosition + chartHeight, margin + contentWidth, yPosition + chartHeight);
       
@@ -481,36 +480,35 @@ const RIASECResults = () => {
         pdf.roundedRect(barX, yPosition + chartHeight - barHeight, barWidth, barHeight, 2, 2, 'F');
         
         pdf.setFillColor(hexToRgb(color[1]).r, hexToRgb(color[1]).g, hexToRgb(color[1]).b);
-        // FIX: Use correct signature for roundedRect with individual corner radii
         pdf.roundedRect(barX, yPosition + chartHeight - barHeight, barWidth, 5, 2, 2, 'F');
         
-        addStyledText(type, barX + barWidth/2, yPosition + chartHeight + 10, 10, 'bold', 'center', '#333333');
-        addStyledText(`${percentage}%`, barX + barWidth/2, yPosition + chartHeight - barHeight - 5, 8, 'normal', 'center', '#333333');
+        addStyledText(type, barX + barWidth/2, yPosition + chartHeight + 10, 10, 'bold', 'center', '#555555');
+        addStyledText(`${percentage}%`, barX + barWidth/2, yPosition + chartHeight - barHeight - 5, 8, 'normal', 'center', '#555555');
       });
       
       yPosition += chartHeight + 25;
       
-      addStyledText('Legend:', margin, yPosition, 10, 'bold', 'left', '#333333');
+      addStyledText('Legend:', margin, yPosition, 10, 'bold', 'left', '#555555');
       yPosition += 15;
       
       Object.entries(riasecTypes).forEach(([type, info], index) => {
         if (index % 2 === 0) {
           if (index > 0) yPosition += 12;
           pdf.setFillColor(hexToRgb(typeColors[type as keyof typeof typeColors][1]).r, 
-                           hexToRgb(typeColors[type as keyof typeof typeColors][1]).g,
-                           hexToRgb(typeColors[type as keyof typeof typeColors][1]).b);
+                          hexToRgb(typeColors[type as keyof typeof typeColors][1]).g,
+                          hexToRgb(typeColors[type as keyof typeof typeColors][1]).b);
           pdf.circle(margin + 3, yPosition, 3, 'F');
           
-          addStyledText(`${type}: ${info.name}`, margin + 10, yPosition + 1, 8, 'normal', 'left', '#333333');
-          addStyledText(`(${info.title})`, margin + 45, yPosition + 1, 8, 'italic', 'left', '#555555');
+          addStyledText(`${type}: ${info.name}`, margin + 10, yPosition + 1, 8, 'normal', 'left', '#555555');
+          addStyledText(`(${info.title})`, margin + 45, yPosition + 1, 8, 'italic', 'left', '#777777');
         } else {
           pdf.setFillColor(hexToRgb(typeColors[type as keyof typeof typeColors][1]).r,
-                           hexToRgb(typeColors[type as keyof typeof typeColors][1]).g,
-                           hexToRgb(typeColors[type as keyof typeof typeColors][1]).b);
+                          hexToRgb(typeColors[type as keyof typeof typeColors][1]).g,
+                          hexToRgb(typeColors[type as keyof typeof typeColors][1]).b);
           pdf.circle(margin + contentWidth/2, yPosition, 3, 'F');
           
-          addStyledText(`${type}: ${info.name}`, margin + contentWidth/2 + 7, yPosition + 1, 8, 'normal', 'left', '#333333');
-          addStyledText(`(${info.title})`, margin + contentWidth/2 + 42, yPosition + 1, 8, 'italic', 'left', '#555555');
+          addStyledText(`${type}: ${info.name}`, margin + contentWidth/2 + 7, yPosition + 1, 8, 'normal', 'left', '#555555');
+          addStyledText(`(${info.title})`, margin + contentWidth/2 + 42, yPosition + 1, 8, 'italic', 'left', '#777777');
         }
       });
       
@@ -519,7 +517,7 @@ const RIASECResults = () => {
       
       yPosition = 40;
       
-      addStyledText('Your Top RIASEC Types', pageWidth/2, yPosition, 18, 'bold', 'center', '#8B5CF6');
+      addStyledText('Your Top RIASEC Types', pageWidth/2, yPosition, 18, 'bold', 'center', '#9370DB');
       yPosition += 20;
       
       const typesToShow = [primaryType, secondaryType, tertiaryType];
@@ -537,21 +535,21 @@ const RIASECResults = () => {
         pdf.circle(margin + 15, yPosition + 15, 8, 'F');
         addStyledText(type, margin + 15, yPosition + 15 + 2, 10, 'bold', 'center', '#FFFFFF');
         
-        addStyledText(`${index+1}. ${info.name}`, margin + 35, yPosition + 15, 14, 'bold', 'left', '#333333');
-        addStyledText(`"${info.title}"`, margin + 35 + info.name.length * 5, yPosition + 15, 10, 'italic', 'left', '#555555');
+        addStyledText(`${index+1}. ${info.name}`, margin + 35, yPosition + 15, 14, 'bold', 'left', '#555555');
+        addStyledText(`"${info.title}"`, margin + 35 + info.name.length * 5, yPosition + 15, 10, 'italic', 'left', '#777777');
         
         const typeDesc = pdf.splitTextToSize(info.description, contentWidth - 25);
         pdf.text(typeDesc, margin + 15, yPosition + 30);
         
         if (index === 0) {
-          addStyledText('Key Strengths:', margin + 15, yPosition + 50, 10, 'bold', 'left', '#333333');
+          addStyledText('Key Strengths:', margin + 15, yPosition + 50, 10, 'bold', 'left', '#555555');
           
           let skillsText = "";
           info.skills.slice(0, 3).forEach((skill, i) => {
             skillsText += `• ${skill}${i < 2 ? "   " : ""}`;
           });
           
-          addStyledText(skillsText, margin + 15, yPosition + 60, 9, 'normal', 'left', '#333333');
+          addStyledText(skillsText, margin + 15, yPosition + 60, 9, 'normal', 'left', '#555555');
         }
         
         yPosition += 80;
@@ -565,7 +563,7 @@ const RIASECResults = () => {
         yPosition += 10;
       }
       
-      addStyledText('Career Recommendations', pageWidth/2, yPosition, 16, 'bold', 'center', '#8B5CF6');
+      addStyledText('Career Recommendations', pageWidth/2, yPosition, 16, 'bold', 'center', '#9370DB');
       yPosition += 20;
       
       const careerColumns = {
@@ -594,10 +592,10 @@ const RIASECResults = () => {
                      hexToRgb(careerColumns.primaryType.borderColor).b, 0.5);
       pdf.roundedRect(margin, yPosition, columnWidth, 120, 5, 5, 'S');
       
-      addStyledText(careerColumns.primaryType.title, margin + columnWidth/2, yPosition + 15, 12, 'bold', 'center', '#333333');
+      addStyledText(careerColumns.primaryType.title, margin + columnWidth/2, yPosition + 15, 12, 'bold', 'center', '#555555');
       
       careerColumns.primaryType.careers.forEach((career, i) => {
-        addStyledText(`• ${career}`, margin + 10, yPosition + 35 + (i * 15), 10, 'normal', 'left', '#333333');
+        addStyledText(`• ${career}`, margin + 10, yPosition + 35 + (i * 15), 10, 'normal', 'left', '#555555');
       });
       
       pdf.setFillColor(hexToRgb(careerColumns.secondaryType.color).r, 
@@ -609,10 +607,10 @@ const RIASECResults = () => {
                      hexToRgb(careerColumns.secondaryType.borderColor).b, 0.5);
       pdf.roundedRect(margin + columnWidth + 10, yPosition, columnWidth, 120, 5, 5, 'S');
       
-      addStyledText(careerColumns.secondaryType.title, margin + columnWidth + 10 + columnWidth/2, yPosition + 15, 12, 'bold', 'center', '#333333');
+      addStyledText(careerColumns.secondaryType.title, margin + columnWidth + 10 + columnWidth/2, yPosition + 15, 12, 'bold', 'center', '#555555');
       
       careerColumns.secondaryType.careers.forEach((career, i) => {
-        addStyledText(`• ${career}`, margin + columnWidth + 20, yPosition + 35 + (i * 15), 10, 'normal', 'left', '#333333');
+        addStyledText(`• ${career}`, margin + columnWidth + 20, yPosition + 35 + (i * 15), 10, 'normal', 'left', '#555555');
       });
       
       yPosition += 130;
@@ -625,12 +623,12 @@ const RIASECResults = () => {
         yPosition += 10;
       }
       
-      pdf.setFillColor(245, 242, 255);
+      pdf.setFillColor(245, 245, 255);
       pdf.roundedRect(margin, yPosition, contentWidth, 80, 5, 5, 'F');
-      pdf.setDrawColor(200, 190, 230);
+      pdf.setDrawColor(220, 215, 240);
       pdf.roundedRect(margin, yPosition, contentWidth, 80, 5, 5, 'S');
       
-      addStyledText('Next Steps', margin + 10, yPosition + 15, 14, 'bold', 'left', '#8B5CF6');
+      addStyledText('Next Steps', margin + 10, yPosition + 15, 14, 'bold', 'left', '#9370DB');
       
       const nextSteps = [
         "Research careers related to your top Holland Code types",
@@ -642,7 +640,7 @@ const RIASECResults = () => {
       ];
       
       nextSteps.forEach((step, i) => {
-        addStyledText(`${i+1}. ${step}`, margin + 15, yPosition + 35 + (i * 10), 9, 'normal', 'left', '#333333');
+        addStyledText(`${i+1}. ${step}`, margin + 15, yPosition + 35 + (i * 10), 9, 'normal', 'left', '#555555');
       });
       
       yPosition += 90;
@@ -656,7 +654,7 @@ const RIASECResults = () => {
       const disclaimer = "Note: This assessment is based on the Holland Occupational Themes (RIASEC) model developed by psychologist John Holland. The results are meant to provide guidance and self-awareness, not to limit your options. Consider exploring careers that combine elements of your top interest areas.";
       
       pdf.setFontSize(8);
-      pdf.setTextColor(100, 100, 100);
+      pdf.setTextColor(120, 120, 120);
       const splitDisclaimer = pdf.splitTextToSize(disclaimer, contentWidth);
       pdf.text(splitDisclaimer, pageWidth/2, yPosition, { align: 'center' });
       
@@ -689,15 +687,6 @@ const RIASECResults = () => {
             Back
           </Link>
 
-          {/* New Back to Assessments button */}
-          {/* <Button
-            variant="outline"
-            onClick={() => navigate('/assessment')}
-            className="ml-4 text-gray-600 hover:text-gray-800"
-          >
-            Back to Assessments
-          </Button>
-           */}
           <h1 className="text-3xl md:text-4xl font-bold">Your RIASEC Results</h1>
           <p className="text-gray-600 mt-2">
             Based on your responses, here are your RIASEC personality type results
