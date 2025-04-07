@@ -42,29 +42,50 @@ const StudentDetailsPage = () => {
             toast.error("Could not load your profile information");
           }
           
-          // Create a student record from the profile data
-          const { data: studentData, error: studentError } = await supabase
-            .from('student_details')
-            .insert({
-              name: profileData?.first_name && profileData?.last_name 
-                ? `${profileData.first_name} ${profileData.last_name}` 
-                : (user.email || 'Anonymous User'),
-              class: profileData?.stream || 'Not specified',
-              section: profileData?.interest || 'Not specified',
-              school: 'Not specified',
-              assessment_type: id || resultsData.assessmentType || 'scct',
-              user_id: user.id
-            })
-            .select('id')
-            .single();
-            
-          if (studentError) {
-            console.error('Error creating student record:', studentError);
-            toast.error("Could not save your assessment details");
-            // Still continue to results even if there's an error creating the student record
-          }
+          // Only create a student record if one doesn't already exist or if not downloading PDF
+          // If downloadPdf flag is true, we should use the existing student record instead of creating a new one
+          let studentId = resultsData.studentId;
           
-          console.log('Created student record:', studentData);
+          if (!studentId && !resultsData.downloadPdf) {
+            // Create a student record from the profile data
+            const { data: studentData, error: studentError } = await supabase
+              .from('student_details')
+              .insert({
+                name: profileData?.first_name && profileData?.last_name 
+                  ? `${profileData.first_name} ${profileData.last_name}` 
+                  : (user.email || 'Anonymous User'),
+                class: profileData?.stream || 'Not specified',
+                section: profileData?.interest || 'Not specified',
+                school: 'Not specified',
+                assessment_type: id || resultsData.assessmentType || 'scct',
+                user_id: user.id
+              })
+              .select('id')
+              .single();
+              
+            if (studentError) {
+              console.error('Error creating student record:', studentError);
+              toast.error("Could not save your assessment details");
+              // Still continue to results even if there's an error creating the student record
+            } else {
+              console.log('Created student record:', studentData);
+              studentId = studentData.id;
+            }
+          } else if (!studentId && resultsData.downloadPdf) {
+            // If we're downloading PDF but don't have a student ID, try to fetch the latest one
+            const { data: existingStudent, error: fetchError } = await supabase
+              .from('student_details')
+              .select('id')
+              .eq('user_id', user.id)
+              .eq('assessment_type', id || resultsData.assessmentType || 'scct')
+              .order('created_at', { ascending: false })
+              .limit(1)
+              .single();
+              
+            if (!fetchError && existingStudent) {
+              studentId = existingStudent.id;
+            }
+          }
           
           const assessmentType = id || resultsData.assessmentType || 'scct';
           
@@ -97,7 +118,7 @@ const StudentDetailsPage = () => {
           navigate(`/assessment/${assessmentType}/results`, {
             state: {
               ...resultsData,
-              studentId: studentData?.id,
+              studentId: studentId,
               downloadPdf: shouldDownloadPdf
             }
           });
