@@ -1,13 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Download, Star } from 'lucide-react';
+import { ArrowLeft, Download, Star, Book, User, School } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { useAuth } from '@/contexts/AuthContext';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 
 // Import Chart.js directly with type imports
@@ -221,6 +220,7 @@ const SCCTResults = () => {
   const sections: Section[] = location.state?.sections || [];
   const answers: Answer[] = location.state?.answers || [];
   const studentId = location.state?.studentId;
+  const studentDetails = location.state?.studentDetails || {};
   
   useEffect(() => {
     console.log("SCCTResults - Location state:", location.state);
@@ -306,13 +306,13 @@ const SCCTResults = () => {
         {
           label: 'Your SCCT Profile',
           data: dataValues,
-          backgroundColor: 'rgba(255, 149, 0, 0.2)',
-          borderColor: 'rgba(255, 149, 0, 1)',
+          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+          borderColor: 'rgba(75, 192, 192, 1)',
           borderWidth: 2,
-          pointBackgroundColor: 'rgba(255, 149, 0, 1)',
+          pointBackgroundColor: 'rgba(75, 192, 192, 1)',
           pointBorderColor: '#fff',
           pointHoverBackgroundColor: '#fff',
-          pointHoverBorderColor: 'rgba(255, 149, 0, 1)',
+          pointHoverBorderColor: 'rgba(75, 192, 192, 1)',
           pointRadius: 4,
         }
       ]
@@ -582,184 +582,194 @@ const SCCTResults = () => {
       <Navbar />
       
       <main className="flex-grow pt-24 pb-16">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="mb-8 flex flex-wrap justify-between items-center">
-            <div>
-              <Button
-                variant="ghost"
-                onClick={() => navigate(-1)}
-                className="mb-4 text-brand-orange hover:text-brand-orange/80 -ml-3"
-              >
-                <ArrowLeft className="mr-2 h-4 w-4" /> Back
-              </Button>
-              
-              <h1 className="text-3xl md:text-4xl font-bold mb-2">Your SCCT Results</h1>
-              <p className="text-foreground/70 max-w-3xl">
-                Based on your answers, we've analyzed your career confidence, interests, and challenges using
-                the Social Cognitive Career Theory framework. These insights can help guide your educational
-                and career decisions.
-              </p>
-            </div>
-            
-            <Button 
-              className="flex items-center bg-brand-orange text-white hover:bg-brand-orange/90 mt-4 md:mt-0"
-              onClick={downloadResults}
-              disabled={isDownloading}
+        <div className="container mx-auto px-4">
+          <div className="mb-6">
+            <Button
+              variant="ghost"
+              onClick={() => navigate(-1)}
+              className="mb-4 text-gray-600 hover:text-gray-800 -ml-2"
             >
-              <Download className="mr-2 h-4 w-4" /> {isDownloading ? 'Generating PDF...' : 'Download Results'}
+              <ArrowLeft className="mr-2 h-4 w-4" /> Back
             </Button>
-          </div>
-          
-          <div 
-            ref={resultsRef}
-            id="results-content"
-            className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm max-w-4xl mx-auto animate-fade-in"
-          >
-            <div className="bg-brand-orange/10 p-6 md:p-8 border-b border-gray-200">
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
-                <div>
-                  <h2 className="text-2xl font-bold text-brand-orange mb-1">SCCT Assessment Results</h2>
-                  <p className="text-foreground/70">Social Cognitive Career Theory Profile</p>
-                </div>
-                <div className="mt-4 md:mt-0 flex items-center">
-                  <div className="flex items-center bg-brand-orange/20 px-3 py-1 rounded-full text-sm font-medium text-brand-orange">
-                    <Star className="h-4 w-4 mr-1 fill-brand-orange" />
-                    {answers.length} Questions Analyzed
-                  </div>
-                </div>
-              </div>
-            </div>
             
-            <div className="p-6 md:p-8">
-              {/* Main Profile Chart */}
-              <div className="mb-10">
-                <h3 className="text-xl font-semibold mb-6">Your SCCT Profile</h3>
-                <div className="bg-gray-50 p-6 rounded-lg border border-gray-100 h-[300px] md:h-[400px]">
-                  <Radar data={getChartData()} options={radarOptions} />
-                </div>
-                <p className="mt-4 text-sm text-gray-600">
-                  Note: For 'Perceived Barriers,' higher scores on the chart indicate fewer barriers to career development.
+            <div className="flex justify-between items-center">
+              <div>
+                <h1 className="text-4xl font-bold mb-2">Your SCCT Assessment Results</h1>
+                <p className="text-gray-600">
+                  Here's a detailed analysis of your responses to help you understand your career potential.
                 </p>
               </div>
-              
-              {/* Section Scores */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-                {sections.map((section) => {
-                  const sectionScore = scores[section.id] || 0;
-                  const percentage = (sectionScore / maxSectionScore) * 100;
-                  const level = getSectionLevel(section.id);
-                  
-                  return (
-                    <Card key={section.id} className="border-gray-200">
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-lg font-semibold">{section.title}</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="mb-2">
-                          <div className="flex justify-between mb-1">
-                            <span className="text-sm font-medium">{section.id === 'perceived_barriers' ? 'Level of Barriers' : 'Score'}</span>
-                            <span className="text-sm font-medium">{sectionScore}/{maxSectionScore} ({Math.round(percentage)}%)</span>
-                          </div>
-                          <div className="w-full bg-gray-200 rounded-full h-2.5">
-                            <div 
-                              className={`h-2.5 rounded-full ${
-                                section.id === 'perceived_barriers'
-                                  ? (level === 'high' ? 'bg-yellow-500' : level === 'medium' ? 'bg-blue-500' : 'bg-green-500')
-                                  : (level === 'high' ? 'bg-green-500' : level === 'medium' ? 'bg-blue-500' : 'bg-yellow-500')
-                              }`}
-                              style={{ width: `${percentage}%` }}
-                            ></div>
-                          </div>
-                        </div>
-                        
-                        <p className="text-sm mt-4">
-                          <span className="font-medium">Interpretation:</span>{' '}
-                          {getInterpretation(section.id)}
-                        </p>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-              
-              {/* Career Interests Chart */}
-              <div className="mb-10">
-                <h3 className="text-xl font-semibold mb-6">Your Career Interests</h3>
-                <div className="bg-gray-50 p-6 rounded-lg border border-gray-100 h-[300px]">
-                  <Bar data={getCareerInterestsData()} options={barOptions} />
-                </div>
-                <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Button 
+                className="bg-green-500 text-white hover:bg-green-600"
+                onClick={downloadResults}
+                disabled={isDownloading}
+              >
+                <Download className="mr-2 h-4 w-4" /> {isDownloading ? 'Generating...' : 'Download Results'}
+              </Button>
+            </div>
+          </div>
+          
+          <div ref={resultsRef} className="space-y-6">
+            {/* Student Information */}
+            <div className="bg-green-50 p-6 rounded-lg">
+              <h2 className="text-2xl font-semibold text-green-600 mb-4">Student Information</h2>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="flex items-start">
+                  <User className="h-6 w-6 text-green-500 mr-3 mt-0.5" />
                   <div>
-                    <h4 className="font-semibold mb-2">Interest Areas Explained:</h4>
-                    <ul className="list-disc pl-5 space-y-1 text-sm">
-                      <li><span className="font-medium">Investigative:</span> Science, research, analytics, technology</li>
-                      <li><span className="font-medium">Artistic:</span> Design, media, creative writing, performing arts</li>
-                      <li><span className="font-medium">Enterprising:</span> Business, politics, management, sales</li>
-                      <li><span className="font-medium">Social:</span> Teaching, counseling, healthcare, community service</li>
-                      <li><span className="font-medium">Conventional:</span> Accounting, administration, data management</li>
-                    </ul>
+                    <p className="text-sm text-gray-600 mb-1">Name</p>
+                    <p className="font-medium">
+                      {studentDetails?.name || 'Anonymous User'}
+                    </p>
                   </div>
+                </div>
+                <div className="flex items-start">
+                  <Book className="h-6 w-6 text-green-500 mr-3 mt-0.5" />
                   <div>
-                    <h4 className="font-semibold mb-2">Your Top Interest Areas:</h4>
-                    <p className="text-sm">
-                      Based on your responses, you show strongest interest in the areas that scored highest
-                      on the chart. These interests can guide your exploration of related career fields and
-                      educational opportunities.
+                    <p className="text-sm text-gray-600 mb-1">Class & Section</p>
+                    <p className="font-medium">
+                      {studentDetails?.class ? `${studentDetails.class} - ${studentDetails.section || 'Not specified'}` : 'Not specified - Not specified'}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start">
+                  <School className="h-6 w-6 text-green-500 mr-3 mt-0.5" />
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">School</p>
+                    <p className="font-medium">
+                      {studentDetails?.school || 'Not specified'}
                     </p>
                   </div>
                 </div>
               </div>
-              
-              {/* Career Suggestions */}
-              <div className="mb-10">
-                <h3 className="text-xl font-semibold mb-4">Career Path Suggestions</h3>
-                <p className="mb-4 text-sm">
-                  Based on your unique profile, here are some career directions that may align with your
-                  pattern of confidence, expectations, interests, and perceived barriers:
-                </p>
-                
-                <div className="bg-gray-50 p-6 rounded-lg border border-gray-100">
-                  <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {getCareerSuggestions().map((suggestion, index) => (
-                      <li key={index} className="flex items-start">
-                        <div className="flex-shrink-0 w-8 h-8 bg-brand-orange/20 rounded-full flex items-center justify-center text-brand-orange mr-3 mt-0.5">
-                          {index + 1}
-                        </div>
-                        <span>{suggestion}</span>
-                      </li>
-                    ))}
-                  </ul>
+            </div>
+            
+            {/* SCCT Results Header */}
+            <div className="bg-green-50 p-6 rounded-lg">
+              <div className="flex flex-col md:flex-row md:justify-between md:items-center">
+                <div>
+                  <h2 className="text-2xl font-semibold text-green-600">SCCT Assessment Results</h2>
+                  <p className="text-gray-600">Social Cognitive Career Theory Profile</p>
+                </div>
+                <div className="mt-4 md:mt-0 flex items-center bg-green-100 px-4 py-1 rounded-full">
+                  <Star className="h-5 w-5 text-green-500 mr-2" />
+                  <span className="text-green-600 font-medium">{answers.length} Questions Analyzed</span>
                 </div>
               </div>
-              
-              {/* Development Strategies */}
-              <div className="mb-6">
-                <h3 className="text-xl font-semibold mb-4">Recommended Development Strategies</h3>
-                <p className="mb-4 text-sm">
-                  These personalized strategies can help you develop your career readiness based on your SCCT profile:
-                </p>
+            </div>
+            
+            {/* Radar Chart */}
+            <div className="bg-white p-6 rounded-lg border border-gray-200">
+              <h3 className="text-xl font-semibold mb-4">Your SCCT Profile</h3>
+              <div className="h-[400px]">
+                <Radar data={getChartData()} options={radarOptions} />
+              </div>
+              <p className="mt-4 text-sm text-gray-600">
+                Note: For 'Perceived Barriers,' higher scores on the chart indicate fewer barriers to career development.
+              </p>
+            </div>
+            
+            {/* Section Scores */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {sections.map((section) => {
+                const sectionScore = scores[section.id] || 0;
+                const percentage = (sectionScore / maxSectionScore) * 100;
+                const level = getSectionLevel(section.id);
                 
-                <div className="bg-gray-50 p-6 rounded-lg border border-gray-100">
-                  <ul className="space-y-4">
-                    {getDevelopmentStrategies().map((strategy, index) => (
-                      <li key={index} className="flex items-start">
-                        <div className="flex-shrink-0 w-8 h-8 bg-brand-orange/20 rounded-full flex items-center justify-center text-brand-orange mr-3 mt-0.5">
-                          {index + 1}
-                        </div>
-                        <span>{strategy}</span>
-                      </li>
-                    ))}
+                return (
+                  <div key={section.id} className="bg-white p-6 rounded-lg border border-gray-200">
+                    <h3 className="text-lg font-semibold mb-3">{section.title}</h3>
+                    <div className="mb-2">
+                      <div className="flex justify-between mb-1">
+                        <span className="text-sm font-medium">{section.id === 'perceived_barriers' ? 'Level of Barriers' : 'Score'}</span>
+                        <span className="text-sm font-medium">{sectionScore}/{maxSectionScore} ({Math.round(percentage)}%)</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2.5">
+                        <div 
+                          className={`h-2.5 rounded-full ${
+                            section.id === 'perceived_barriers'
+                              ? (level === 'high' ? 'bg-yellow-500' : level === 'medium' ? 'bg-blue-500' : 'bg-green-500')
+                              : (level === 'high' ? 'bg-green-500' : level === 'medium' ? 'bg-blue-500' : 'bg-yellow-500')
+                          }`}
+                          style={{ width: `${percentage}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                    
+                    <p className="text-sm mt-4">
+                      <span className="font-medium">Interpretation:</span>{' '}
+                      {getInterpretation(section.id)}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+            
+            {/* Career Interests Chart */}
+            <div className="bg-white p-6 rounded-lg border border-gray-200">
+              <h3 className="text-xl font-semibold mb-4">Your Career Interests</h3>
+              <div className="h-[300px] mb-4">
+                <Bar data={getCareerInterestsData()} options={barOptions} />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <h4 className="font-semibold mb-2">Interest Areas Explained:</h4>
+                  <ul className="list-disc pl-5 space-y-1 text-sm">
+                    <li><span className="font-medium">Investigative:</span> Science, research, analytics, technology</li>
+                    <li><span className="font-medium">Artistic:</span> Design, media, creative writing, performing arts</li>
+                    <li><span className="font-medium">Enterprising:</span> Business, politics, management, sales</li>
+                    <li><span className="font-medium">Social:</span> Teaching, counseling, healthcare, community service</li>
+                    <li><span className="font-medium">Conventional:</span> Accounting, administration, data management</li>
                   </ul>
                 </div>
+                <div>
+                  <h4 className="font-semibold mb-2">Your Top Interest Areas:</h4>
+                  <p className="text-sm">
+                    Based on your responses, you show strongest interest in the areas that scored highest
+                    on the chart. These interests can guide your exploration of related career fields and
+                    educational opportunities.
+                  </p>
+                </div>
               </div>
+            </div>
+            
+            {/* Career Suggestions */}
+            <div className="bg-white p-6 rounded-lg border border-gray-200">
+              <h3 className="text-xl font-semibold mb-4">Career Path Suggestions</h3>
+              <p className="mb-4 text-sm">
+                Based on your unique profile, here are some career directions that may align with your
+                pattern of confidence, expectations, interests, and perceived barriers:
+              </p>
               
-              <div className="mt-10 pt-6 border-t border-gray-200 text-sm text-foreground/70">
-                <p>
-                  Note: This assessment is based on Social Cognitive Career Theory developed by Robert Lent, Steven Brown, and Gail Hackett.
-                  The results are meant to provide guidance and self-awareness, not to limit your options.
-                  Consider discussing these results with a career counselor or mentor for deeper insights.
-                </p>
-              </div>
+              <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {getCareerSuggestions().map((suggestion, index) => (
+                  <li key={index} className="flex items-start">
+                    <div className="flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-600 mr-3 mt-0.5">
+                      {index + 1}
+                    </div>
+                    <span>{suggestion}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            
+            {/* Development Strategies */}
+            <div className="bg-white p-6 rounded-lg border border-gray-200">
+              <h3 className="text-xl font-semibold mb-4">Recommended Development Strategies</h3>
+              <p className="mb-4 text-sm">
+                These personalized strategies can help you develop your career readiness based on your SCCT profile:
+              </p>
+              
+              <ul className="space-y-4">
+                {getDevelopmentStrategies().map((strategy, index) => (
+                  <li key={index} className="flex items-start">
+                    <div className="flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-600 mr-3 mt-0.5">
+                      {index + 1}
+                    </div>
+                    <span>{strategy}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
           
@@ -767,12 +777,12 @@ const SCCTResults = () => {
             <h3 className="text-xl font-bold mb-4">Want to explore more about your career options?</h3>
             <div className="flex flex-wrap justify-center gap-4">
               <Link to="/assessment/riasec">
-                <Button variant="outline" className="border-brand-orange text-brand-orange hover:bg-brand-orange/5">
+                <Button variant="outline" className="border-green-500 text-green-600 hover:bg-green-50">
                   Try RIASEC Assessment
                 </Button>
               </Link>
               <Link to="/assessment/future-pathways">
-                <Button variant="outline" className="border-brand-orange text-brand-orange hover:bg-brand-orange/5">
+                <Button variant="outline" className="border-green-500 text-green-600 hover:bg-green-50">
                   Explore Future Pathways
                 </Button>
               </Link>
@@ -787,4 +797,3 @@ const SCCTResults = () => {
 };
 
 export default SCCTResults;
-
