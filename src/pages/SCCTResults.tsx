@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -520,193 +519,366 @@ const SCCTResults = () => {
       const margin = 15;
       const contentWidth = pageWidth - (margin * 2);
       
-      // Colors 
-      const primaryColor = [34, 197, 94]; // Green color
-      const secondaryColor = [3, 105, 161]; // Blue color
-      const tertiaryColor = [96, 165, 250]; // Light blue color
+      // Set background color for whole page
+      pdf.setFillColor(245, 247, 250); // Very light gray background
+      pdf.rect(0, 0, pageWidth, pageHeight, 'F');
       
-      // Add header
-      pdf.setFillColor(34, 197, 94); // Green color
-      pdf.rect(0, 0, pageWidth, 40, 'F');
+      // SCCT Assessment Results title - large and centered
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(76, 175, 80); // Green color
+      pdf.setFontSize(36);
       
-      pdf.setFont("helvetica", "bold");
-      pdf.setTextColor(255, 255, 255); // White
-      pdf.setFontSize(22);
-      pdf.text("SCCT Assessment Results", margin, 25);
+      const title = "SCCT ASSESSMENT";
+      const titleWidth = pdf.getStringUnitWidth(title) * 36 / pdf.internal.scaleFactor;
+      pdf.text(title, (pageWidth - titleWidth) / 2, 80);
       
-      pdf.setFontSize(12);
-      pdf.setFont("helvetica", "normal");
-      pdf.text("Social Cognitive Career Theory Profile", margin, 33);
+      const subtitle = "RESULTS";
+      const subtitleWidth = pdf.getStringUnitWidth(subtitle) * 36 / pdf.internal.scaleFactor;
+      pdf.text(subtitle, (pageWidth - subtitleWidth) / 2, 145);
       
-      // Add date
+      // Report Generation Date
       const today = new Date();
-      const formattedDate = `${today.toLocaleDateString()}`;
-      pdf.setFontSize(10);
-      pdf.text(formattedDate, pageWidth - margin - pdf.getStringUnitWidth(formattedDate) * 10/pdf.internal.scaleFactor, 33);
+      const formattedDate = `Report Generated: ${today.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`;
+      pdf.setTextColor(100, 100, 100);
+      pdf.setFontSize(12);
+      pdf.setFont('helvetica', 'normal');
+      const dateWidth = pdf.getStringUnitWidth(formattedDate) * 12 / pdf.internal.scaleFactor;
+      pdf.text(formattedDate, (pageWidth - dateWidth) / 2, 250);
       
-      // Student information section
-      pdf.setTextColor(0, 0, 0);
-      pdf.setFillColor(248, 250, 252); // Light gray background
-      pdf.rect(margin, 50, contentWidth, 30, 'F');
+      // Student Information section
+      pdf.roundedRect(margin, 335, contentWidth, 120, 5, 5, 'S');
       
+      // Section title with underline
+      pdf.setTextColor(76, 175, 80); // Green color
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(18);
+      pdf.text("STUDENT INFORMATION", margin + 10, 360);
+      
+      // Green underline
+      pdf.setDrawColor(76, 175, 80);
+      pdf.setLineWidth(0.5);
+      pdf.line(margin + 10, 367, margin + 215, 367);
+      
+      // Student details
+      pdf.setTextColor(60, 60, 60); // Dark gray text
       pdf.setFontSize(14);
-      pdf.setFont("helvetica", "bold");
-      pdf.text("Student Information", margin + 5, 58);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text("Name:", margin + 10, 390);
+      pdf.text("Class:", margin + 10, 420);
+      pdf.text("School:", margin + 10, 450);
       
+      pdf.setFont('helvetica', 'normal');
+      pdf.text(studentDetails?.name || 'Not specified', margin + 90, 390);
+      pdf.text(studentDetails?.class ? `${studentDetails.class} - ${studentDetails.section || 'Not specified'}` : 'Not specified - Not specified', margin + 90, 420);
+      pdf.text(studentDetails?.school || 'Not specified', margin + 90, 450);
+      
+      // Add second page
+      pdf.addPage();
+      pdf.setFillColor(245, 247, 250);
+      pdf.rect(0, 0, pageWidth, pageHeight, 'F');
+      
+      // About This Assessment section
+      pdf.roundedRect(margin, 30, contentWidth, 120, 5, 5, 'S');
+      
+      // Section title with underline
+      pdf.setTextColor(76, 175, 80); // Green color
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(18);
+      pdf.text("ABOUT THIS ASSESSMENT", margin + 10, 55);
+      
+      // Green underline
+      pdf.setDrawColor(76, 175, 80);
+      pdf.setLineWidth(0.5);
+      pdf.line(margin + 10, 62, margin + 240, 62);
+      
+      // Assessment description
+      pdf.setTextColor(60, 60, 60);
+      pdf.setFontSize(11);
+      pdf.setFont('helvetica', 'normal');
+      const aboutText = "The Social Cognitive Career Theory (SCCT) Assessment evaluates your career development across five key dimensions: Self-Efficacy (confidence in abilities), Outcome Expectations (anticipated results), Career Interests (field preferences), Environmental Support (resources available), and Perceived Barriers (challenges to overcome).";
+      const splitAbout = pdf.splitTextToSize(aboutText, contentWidth - 20);
+      pdf.text(splitAbout, margin + 10, 80);
+      
+      // Add a header for subsequent pages
+      pdf.setFillColor(240, 245, 240);
+      pdf.rect(0, 0, pageWidth, 20, 'F');
+      
+      pdf.setTextColor(100, 100, 100);
       pdf.setFontSize(10);
-      pdf.setFont("helvetica", "normal");
-      pdf.text(`Name: ${studentDetails?.name || 'Anonymous User'}`, margin + 5, 66);
-      pdf.text(`Class: ${studentDetails?.class || 'Not specified'}`, margin + 5, 73);
-      pdf.text(`School: ${studentDetails?.school || 'Not specified'}`, pageWidth / 2, 66);
-      pdf.text(`Section: ${studentDetails?.section || 'Not specified'}`, pageWidth / 2, 73);
+      pdf.setFont('helvetica', 'italic');
+      pdf.text("SCCT Assessment", margin, 15);
       
-      // SCCT Profile Overview
-      pdf.setFillColor(34, 197, 94, 0.1); // Light green background
-      pdf.rect(margin, 90, contentWidth, 30, 'F');
+      pdf.setTextColor(76, 175, 80); // Green color
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(12);
+      pdf.text("Your SCCT Profile", pageWidth - margin - 30, 15);
       
-      pdf.setFont("helvetica", "bold");
-      pdf.setFontSize(14);
-      pdf.setTextColor(0, 0, 0);
-      pdf.text("Your SCCT Profile Overview", margin + 5, 100);
+      pdf.setDrawColor(200, 200, 200);
+      pdf.setLineWidth(0.2);
+      pdf.line(0, 20, pageWidth, 20);
       
-      pdf.setFont("helvetica", "normal");
-      pdf.setFontSize(10);
-      pdf.text("This assessment evaluates your beliefs, goals, and environment related to career development.", margin + 5, 110);
-      
-      // Create chart images
+      // Create radar chart
       const radarChartCanvas = document.createElement('canvas');
-      radarChartCanvas.width = 400;
-      radarChartCanvas.height = 300;
+      radarChartCanvas.width = 500;
+      radarChartCanvas.height = 500;
       const radarCtx = radarChartCanvas.getContext('2d');
       
       if (radarCtx) {
         new Chart(radarCtx, {
           type: 'radar',
-          data: getChartData(),
-          options: {...radarOptions, responsive: false}
+          data: {
+            labels: ['Self-Efficacy', 'Outcome Expect', 'Interests', 'Goals', 'Support'],
+            datasets: [{
+              label: 'Your SCCT Profile',
+              data: sections.map(section => {
+                const rawScore = scores[section.id] || 0;
+                if (section.id === 'perceived_barriers') {
+                  return ((maxSectionScore - rawScore) / maxSectionScore) * 100;
+                }
+                return (rawScore / maxSectionScore) * 100;
+              }),
+              backgroundColor: 'rgba(76, 175, 80, 0.4)',
+              borderColor: 'rgba(76, 175, 80, 0.8)',
+              pointBackgroundColor: 'rgba(76, 175, 80, 1)',
+              borderWidth: 1
+            }]
+          },
+          options: {
+            scales: {
+              r: {
+                beginAtZero: true,
+                max: 100,
+                ticks: {
+                  display: false,
+                  stepSize: 20
+                },
+                pointLabels: {
+                  font: {
+                    size: 14
+                  },
+                  color: '#555555'
+                },
+                grid: {
+                  color: '#e0e0e0'
+                },
+                angleLines: {
+                  color: '#e0e0e0'
+                }
+              }
+            },
+            plugins: {
+              legend: {
+                display: false
+              }
+            },
+            responsive: false
+          }
         });
       }
       
       // Add radar chart to PDF
       const radarChartImage = radarChartCanvas.toDataURL('image/png');
-      pdf.addImage(radarChartImage, 'PNG', margin, 130, contentWidth, 100);
+      pdf.addImage(radarChartImage, 'PNG', margin, 50, contentWidth, contentWidth);
       
-      // Section scores
-      pdf.setFontSize(14);
-      pdf.setFont("helvetica", "bold");
-      pdf.text("Your SCCT Dimensions", margin, 245);
+      // Add profile overview title
+      pdf.setTextColor(76, 175, 80); // Green color
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(20);
+      const overviewTitle = "Your SCCT Profile Overview";
+      const overviewTitleWidth = pdf.getStringUnitWidth(overviewTitle) * 20 / pdf.internal.scaleFactor;
+      pdf.text(overviewTitle, (pageWidth - overviewTitleWidth) / 2, 235);
       
-      let yPos = 255;
+      // Add explanation text
+      pdf.setTextColor(76, 175, 80); // Green color
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(11);
+      const explanationText = "This radar chart represents your scores across the five key areas of the SCCT framework. Higher scores indicate greater strength in that area. For Perceived Barriers, higher scores on the chart indicate fewer barriers to career development.";
+      const splitExplanation = pdf.splitTextToSize(explanationText, contentWidth);
+      pdf.text(splitExplanation, margin, 250);
+      
+      // Add third page for dimension scores
+      pdf.addPage();
+      
+      // Add the same header
+      pdf.setFillColor(240, 245, 240);
+      pdf.rect(0, 0, pageWidth, 20, 'F');
+      
+      pdf.setTextColor(100, 100, 100);
+      pdf.setFontSize(10);
+      pdf.setFont('helvetica', 'italic');
+      pdf.text("SCCT Assessment", margin, 15);
+      
+      pdf.setTextColor(76, 175, 80);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(12);
+      pdf.text("Your SCCT Dimensions", pageWidth - margin - 37, 15);
+      
+      pdf.setDrawColor(200, 200, 200);
+      pdf.setLineWidth(0.2);
+      pdf.line(0, 20, pageWidth, 20);
+      
+      // SCCT Dimensions
+      let yPos = 40;
       
       sections.forEach((section, index) => {
-        if (index % 2 === 0 && index > 0) {
-          // Start new page if needed
-          if (yPos > pageHeight - 50) {
-            pdf.addPage();
-            yPos = 25;
-          }
-        }
-        
         const sectionScore = scores[section.id] || 0;
         const percentage = (sectionScore / maxSectionScore) * 100;
         const level = getSectionLevel(section.id);
         
-        pdf.setFillColor(248, 250, 252);
-        pdf.rect(margin, yPos, contentWidth, 40, 'F');
+        pdf.setTextColor(76, 175, 80);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setFontSize(14);
+        pdf.text(section.title, margin, yPos);
         
+        pdf.setTextColor(60, 60, 60);
+        pdf.setFont('helvetica', 'normal');
         pdf.setFontSize(12);
-        pdf.setFont("helvetica", "bold");
-        pdf.setTextColor(0, 0, 0);
-        pdf.text(section.title, margin + 5, yPos + 10);
-        
-        pdf.setFontSize(10);
-        pdf.setFont("helvetica", "normal");
-        pdf.text(`Score: ${sectionScore}/${maxSectionScore} (${Math.round(percentage)}%)`, margin + 5, yPos + 20);
+        pdf.text(`Score: ${sectionScore}/${maxSectionScore} (${Math.round(percentage)}%)`, margin, yPos + 12);
         
         // Draw score bar
         pdf.setDrawColor(220, 220, 220);
         pdf.setFillColor(220, 220, 220);
-        pdf.rect(margin + 5, yPos + 25, 100, 5, 'F');
+        pdf.rect(margin, yPos + 18, 150, 8, 'F');
         
         // Set color based on level
         if (level === 'high') {
-          pdf.setFillColor(34, 197, 94); // Green
+          pdf.setFillColor(76, 175, 80); // Green
         } else if (level === 'medium') {
           pdf.setFillColor(96, 165, 250); // Blue
         } else {
           pdf.setFillColor(251, 191, 36); // Yellow
         }
-        pdf.rect(margin + 5, yPos + 25, percentage, 5, 'F');
+        pdf.rect(margin, yPos + 18, 150 * (percentage / 100), 8, 'F');
         
-        pdf.setFontSize(9);
+        // Add interpretation
+        pdf.setFont('helvetica', 'italic');
+        pdf.setFontSize(10);
+        pdf.setTextColor(80, 80, 80);
         const interpretation = getInterpretation(section.id);
-        pdf.text(`Interpretation: ${interpretation}`, margin + 5, yPos + 35);
+        const splitInterpretation = pdf.splitTextToSize(`Interpretation: ${interpretation}`, contentWidth);
+        pdf.text(splitInterpretation, margin, yPos + 35);
         
-        yPos += 45;
+        yPos += 55;
         
-        // Add new page if needed
-        if (yPos > pageHeight - 45 && index < sections.length - 1) {
+        // Check if we need a new page
+        if (yPos > pageHeight - 40 && index < sections.length - 1) {
           pdf.addPage();
-          yPos = 25;
+          
+          // Add the same header
+          pdf.setFillColor(240, 245, 240);
+          pdf.rect(0, 0, pageWidth, 20, 'F');
+          
+          pdf.setTextColor(100, 100, 100);
+          pdf.setFontSize(10);
+          pdf.setFont('helvetica', 'italic');
+          pdf.text("SCCT Assessment", margin, 15);
+          
+          pdf.setTextColor(76, 175, 80);
+          pdf.setFont('helvetica', 'bold');
+          pdf.setFontSize(12);
+          pdf.text("Your SCCT Dimensions", pageWidth - margin - 37, 15);
+          
+          pdf.setDrawColor(200, 200, 200);
+          pdf.setLineWidth(0.2);
+          pdf.line(0, 20, pageWidth, 20);
+          
+          yPos = 40;
         }
       });
       
-      // Add new page for career suggestions
+      // Add career recommendations page
       pdf.addPage();
       
-      // Career suggestions
-      pdf.setFillColor(34, 197, 94); // Green color
+      // Add the same header
+      pdf.setFillColor(240, 245, 240);
       pdf.rect(0, 0, pageWidth, 20, 'F');
       
-      pdf.setFont("helvetica", "bold");
-      pdf.setTextColor(255, 255, 255);
-      pdf.setFontSize(14);
-      pdf.text("Career Recommendations & Development Strategies", margin, 15);
-      
-      // Career Suggestions section
-      pdf.setTextColor(0, 0, 0);
-      pdf.setFontSize(14);
-      pdf.text("Potential Career Paths", margin, 35);
-      
+      pdf.setTextColor(100, 100, 100);
       pdf.setFontSize(10);
-      pdf.setFont("helvetica", "normal");
-      pdf.text("Based on your profile, here are some suggested career paths that may align with your beliefs and preferences:", margin, 45);
+      pdf.setFont('helvetica', 'italic');
+      pdf.text("SCCT Assessment", margin, 15);
       
-      yPos = 55;
+      pdf.setTextColor(76, 175, 80);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(12);
+      pdf.text("Career Recommendations", pageWidth - margin - 45, 15);
+      
+      pdf.setDrawColor(200, 200, 200);
+      pdf.setLineWidth(0.2);
+      pdf.line(0, 20, pageWidth, 20);
+      
+      // Career suggestions
+      pdf.setTextColor(76, 175, 80);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(16);
+      pdf.text("Recommended Career Paths", margin, 40);
+      
+      pdf.setTextColor(60, 60, 60);
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(11);
+      pdf.text("Based on your SCCT profile, here are some career paths that may align with your development:", margin, 55);
+      
+      yPos = 65;
       getCareerSuggestions().forEach((suggestion, index) => {
-        pdf.setFillColor(34, 197, 94, 0.1);
-        pdf.circle(margin + 3, yPos + 3, 3, 'F');
-        pdf.text(suggestion, margin + 10, yPos + 5);
+        pdf.setDrawColor(76, 175, 80);
+        pdf.setFillColor(76, 175, 80);
+        pdf.circle(margin + 4, yPos + 3, 1.5, 'F');
+        pdf.setTextColor(60, 60, 60);
+        pdf.text(suggestion, margin + 10, yPos + 4);
         yPos += 10;
       });
       
-      // Development Strategies
-      pdf.setFontSize(14);
-      pdf.setFont("helvetica", "bold");
-      pdf.text("Development Strategies", margin, yPos + 15);
+      // Development strategies
+      pdf.setTextColor(76, 175, 80);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(16);
+      pdf.text("Development Strategies", margin, yPos + 20);
       
-      pdf.setFontSize(10);
-      pdf.setFont("helvetica", "normal");
-      pdf.text("Try these strategies to enhance your career development based on your SCCT profile:", margin, yPos + 25);
+      pdf.setTextColor(60, 60, 60);
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(11);
+      pdf.text("Consider these strategies to enhance your career development based on your SCCT profile:", margin, yPos + 35);
       
-      yPos += 35;
+      yPos += 45;
       getDevelopmentStrategies().forEach((strategy, index) => {
         if (yPos > pageHeight - 20) {
           pdf.addPage();
-          yPos = 25;
+          
+          // Add the same header
+          pdf.setFillColor(240, 245, 240);
+          pdf.rect(0, 0, pageWidth, 20, 'F');
+          
+          pdf.setTextColor(100, 100, 100);
+          pdf.setFontSize(10);
+          pdf.setFont('helvetica', 'italic');
+          pdf.text("SCCT Assessment", margin, 15);
+          
+          pdf.setTextColor(76, 175, 80);
+          pdf.setFont('helvetica', 'bold');
+          pdf.setFontSize(12);
+          pdf.text("Development Strategies", pageWidth - margin - 40, 15);
+          
+          pdf.setDrawColor(200, 200, 200);
+          pdf.setLineWidth(0.2);
+          pdf.line(0, 20, pageWidth, 20);
+          
+          yPos = 40;
         }
         
-        pdf.setFillColor(96, 165, 250, 0.1);
-        pdf.circle(margin + 3, yPos + 3, 3, 'F');
+        pdf.setDrawColor(76, 175, 80);
+        pdf.setFillColor(76, 175, 80);
+        pdf.circle(margin + 4, yPos + 3, 1.5, 'F');
         
-        // Handle wrapping text for longer strategies
-        const splitText = pdf.splitTextToSize(strategy, contentWidth - 15);
-        pdf.text(splitText, margin + 10, yPos + 5);
+        pdf.setTextColor(60, 60, 60);
+        pdf.setFont('helvetica', 'normal');
+        const splitStrategy = pdf.splitTextToSize(strategy, contentWidth - 15);
+        pdf.text(splitStrategy, margin + 10, yPos + 4);
         
-        yPos += 10 + (splitText.length - 1) * 5;
+        // Adjust yPos based on number of lines
+        yPos += 10 + (splitStrategy.length - 1) * 5;
       });
       
-      // Add footer to each page
+      // Add page numbers to all pages
       const totalPages = pdf.getNumberOfPages();
       for (let i = 1; i <= totalPages; i++) {
         pdf.setPage(i);
