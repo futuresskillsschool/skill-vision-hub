@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Star, Target, Heart, Sparkles, Download } from 'lucide-react';
@@ -12,6 +11,7 @@ import {
   eqLevelDescriptions 
 } from './DataTypes';
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar, BarChart, CartesianGrid, XAxis, Tooltip, Bar } from 'recharts';
+import { StudentDetails } from '@/components/assessment/StudentInfoCard';
 
 interface OverviewTabProps {
   riasec: Record<string, number>;
@@ -23,6 +23,7 @@ interface OverviewTabProps {
   riasecChartData: any[];
   pathwaysChartData: any[];
   handleDownloadPDF: () => void;
+  studentDetails?: StudentDetails | null;
 }
 
 const OverviewTab: React.FC<OverviewTabProps> = ({ 
@@ -34,7 +35,8 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
   topPathwaysClusters,
   riasecChartData,
   pathwaysChartData,
-  handleDownloadPDF 
+  handleDownloadPDF,
+  studentDetails
 }) => {
   const eqLevel = eqScore < 25 ? "low" : eqScore < 35 ? "medium" : "high";
   // Ensure the score percentage is capped at 100%
@@ -42,6 +44,29 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
 
   return (
     <>
+      {studentDetails && (
+        <Card className="p-6 bg-blue-50 mb-8">
+          <div className="flex items-center mb-4">
+            <Heart className="h-5 w-5 text-blue-600 mr-2" />
+            <h3 className="font-semibold">Student Profile</h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <p className="text-sm font-medium text-gray-500">Name</p>
+              <p className="font-medium">{studentDetails.name}</p>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-500">Class & Section</p>
+              <p className="font-medium">{studentDetails.class} - {studentDetails.section}</p>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-500">School</p>
+              <p className="font-medium">{studentDetails.school}</p>
+            </div>
+          </div>
+        </Card>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <Card className="p-6 bg-brand-blue/5">
           <div className="flex items-center mb-4">
@@ -89,9 +114,9 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
         </Card>
         
         <Card className="p-6 bg-blue-50">
-          <div className="flex items-center justify-center mb-4">
+          <div className="flex items-center mb-4">
             <Heart className="h-5 w-5 text-blue-600 mr-2" />
-            <p className="font-semibold">EQ<br /> Navigator</p>
+            <p className="font-semibold">EQ Navigator</p>
           </div>
           <p className="text-sm text-muted-foreground mb-4">
             Your emotional intelligence is at the {
@@ -99,42 +124,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
             } level.
           </p>
           <div className="flex items-center justify-center h-[120px]">
-            <div className="w-56 h-56 relative">
-              <svg className="w-full h-full" viewBox="0 0 100 100">
-                <circle 
-                  className="stroke-blue-200" 
-                  cx="50" cy="50" r="40" 
-                  strokeWidth="8" 
-                  fill="none"
-                />
-                <circle 
-                  className="stroke-blue-500" 
-                  cx="50" cy="50" r="40" 
-                  strokeWidth="8" 
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeDasharray={`${2 * Math.PI * 40}`}
-                  strokeDashoffset={`${2 * Math.PI * 40 * (1 - scorePercentage / 100)}`}
-                  transform="rotate(-90 50 50)"
-                />
-                <text 
-                  x="50" y="43" 
-                  dominantBaseline="middle" 
-                  textAnchor="middle"
-                  className="fill-blue-600 text-2xl font-bold"
-                >
-                  {scorePercentage}%
-                </text>
-                <text 
-                  x="50" y="60" 
-                  dominantBaseline="middle" 
-                  textAnchor="middle"
-                  className="fill-gray-500 text-xs"
-                >
-                  EQ Score
-                </text>
-              </svg>
-            </div>
+            <CircularProgressIndicator percentage={scorePercentage} label="EQ Score" color="blue" />
           </div>
         </Card>
       </div>
@@ -208,4 +198,3 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
 };
 
 export default OverviewTab;
-
