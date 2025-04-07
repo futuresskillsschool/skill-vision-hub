@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -6,37 +7,60 @@ import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipCont
 
 // Circular Progress Indicator
 interface CircularProgressProps {
-  value: number;
-  max: number;
+  value?: number;
+  max?: number;
   size?: 'sm' | 'md' | 'lg';
   colorClass?: string;
   trackClass?: string;
   label?: string;
+  percentage?: number;
+  color?: string;
 }
 
 export const CircularProgressIndicator: React.FC<CircularProgressProps> = ({ 
   value, 
-  max, 
+  max = 100, 
   size = 'md',
-  colorClass = 'text-brand-purple',
-  trackClass = 'text-brand-purple/20',
-  label
+  colorClass,
+  trackClass,
+  label,
+  percentage,
+  color
 }) => {
-  const percentage = (value / max) * 100;
+  // Calculate percentage if not directly provided
+  const calculatedPercentage = percentage !== undefined 
+    ? percentage 
+    : value !== undefined && max !== 0 
+      ? (value / max) * 100 
+      : 0;
+  
   const radius = size === 'sm' ? 35 : size === 'md' ? 45 : 60;
   const strokeWidth = size === 'sm' ? 5 : size === 'md' ? 7 : 10;
   const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (percentage / 100) * circumference;
+  const strokeDashoffset = circumference - (calculatedPercentage / 100) * circumference;
   
   // Determine sizing based on the size prop
   const containerSize = size === 'sm' ? 'w-20 h-20' : size === 'md' ? 'w-28 h-28' : 'w-40 h-40';
   const textSize = size === 'sm' ? 'text-sm' : size === 'md' ? 'text-base' : 'text-2xl';
   const fontSize = size === 'sm' ? 'text-xs' : size === 'md' ? 'text-xs' : 'text-sm';
   
+  // Determine color class based on color prop or colorClass
+  const finalColorClass = colorClass || 
+    (color === 'blue' ? 'text-blue-500' : 
+    color === 'green' ? 'text-green-500' : 
+    color === 'purple' ? 'text-brand-purple' : 
+    'text-brand-purple');
+  
+  const finalTrackClass = trackClass || 
+    (color === 'blue' ? 'text-blue-200' : 
+    color === 'green' ? 'text-green-200' : 
+    color === 'purple' ? 'text-brand-purple/20' : 
+    'text-brand-purple/20');
+  
   return (
     <div className={cn("relative flex items-center justify-center", containerSize)}>
       {/* Glowing effect */}
-      <div className={cn("absolute inset-0 rounded-full opacity-20 blur-md animate-pulse", colorClass)}></div>
+      <div className={cn("absolute inset-0 rounded-full opacity-20 blur-md animate-pulse", finalColorClass)}></div>
       
       {/* Track Circle */}
       <svg className="w-full h-full transform -rotate-90" viewBox={`0 0 ${radius * 2 + strokeWidth} ${radius * 2 + strokeWidth}`}>
@@ -46,7 +70,7 @@ export const CircularProgressIndicator: React.FC<CircularProgressProps> = ({
           r={radius}
           fill="none"
           strokeWidth={strokeWidth}
-          className={cn("transition-all duration-700 ease-out", trackClass)}
+          className={cn("transition-all duration-700 ease-out", finalTrackClass)}
         />
         
         {/* Progress Circle */}
@@ -59,14 +83,14 @@ export const CircularProgressIndicator: React.FC<CircularProgressProps> = ({
           strokeLinecap="round"
           strokeDasharray={circumference}
           strokeDashoffset={strokeDashoffset}
-          className={cn("transition-all duration-1000 ease-out", colorClass)}
+          className={cn("transition-all duration-1000 ease-out", finalColorClass)}
         />
       </svg>
       
       {/* Progress Text */}
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span className={cn("font-bold", textSize)}>
-          {label || `${Math.round(percentage)}%`}
+          {label || `${Math.round(calculatedPercentage)}%`}
         </span>
         {!label && <span className={cn("text-muted-foreground", fontSize)}>Score</span>}
       </div>

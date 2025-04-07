@@ -56,8 +56,14 @@ const RIASECResultsContent = ({
       throw new Error("Missing student details for PDF generation");
     }
     
+    // Convert RIASECScores to Record<string, number> by creating a new object
+    const scoresRecord: Record<string, number> = {};
+    Object.entries(scores).forEach(([key, value]) => {
+      scoresRecord[key] = value;
+    });
+    
     await generateRIASECPDF({
-      scores,
+      scores: scoresRecord,
       riasecTypes,
       studentDetails,
       primaryType,
