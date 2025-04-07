@@ -1,7 +1,8 @@
+
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Download, Star, Book, User, School } from 'lucide-react';
+import { ArrowLeft, Download, Star, Book, User, School, FileText, CheckCircle } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import html2canvas from 'html2canvas';
@@ -507,46 +508,216 @@ const SCCTResults = () => {
     try {
       setIsDownloading(true);
       
-      const canvas = await html2canvas(resultsRef.current, {
-        scale: 2,
-        logging: false,
-        useCORS: true,
-        backgroundColor: '#ffffff',
-        allowTaint: true
-      });
-      
-      const imgData = canvas.toDataURL('image/png', 1.0);
-      
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
-        format: 'a4',
-        compress: true
+        format: 'a4'
       });
       
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
+      // PDF constants and styling
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 15;
+      const contentWidth = pageWidth - (margin * 2);
       
-      const imgWidth = canvas.width;
-      const imgHeight = canvas.height;
-      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight) * 0.95;
+      // Colors 
+      const primaryColor = [34, 197, 94]; // Green color
+      const secondaryColor = [3, 105, 161]; // Blue color
+      const tertiaryColor = [96, 165, 250]; // Light blue color
       
-      const scaledWidth = imgWidth * ratio;
-      const scaledHeight = imgHeight * ratio;
+      // Add header
+      pdf.setFillColor(34, 197, 94); // Green color
+      pdf.rect(0, 0, pageWidth, 40, 'F');
       
-      const x = (pdfWidth - scaledWidth) / 2;
-      const y = 10;
+      pdf.setFont("helvetica", "bold");
+      pdf.setTextColor(255, 255, 255); // White
+      pdf.setFontSize(22);
+      pdf.text("SCCT Assessment Results", margin, 25);
       
-      pdf.addImage(
-        imgData, 
-        'PNG', 
-        x, 
-        y, 
-        scaledWidth, 
-        scaledHeight
-      );
+      pdf.setFontSize(12);
+      pdf.setFont("helvetica", "normal");
+      pdf.text("Social Cognitive Career Theory Profile", margin, 33);
       
+      // Add date
+      const today = new Date();
+      const formattedDate = `${today.toLocaleDateString()}`;
+      pdf.setFontSize(10);
+      pdf.text(formattedDate, pageWidth - margin - pdf.getStringUnitWidth(formattedDate) * 10/pdf.internal.scaleFactor, 33);
+      
+      // Student information section
+      pdf.setTextColor(0, 0, 0);
+      pdf.setFillColor(248, 250, 252); // Light gray background
+      pdf.rect(margin, 50, contentWidth, 30, 'F');
+      
+      pdf.setFontSize(14);
+      pdf.setFont("helvetica", "bold");
+      pdf.text("Student Information", margin + 5, 58);
+      
+      pdf.setFontSize(10);
+      pdf.setFont("helvetica", "normal");
+      pdf.text(`Name: ${studentDetails?.name || 'Anonymous User'}`, margin + 5, 66);
+      pdf.text(`Class: ${studentDetails?.class || 'Not specified'}`, margin + 5, 73);
+      pdf.text(`School: ${studentDetails?.school || 'Not specified'}`, pageWidth / 2, 66);
+      pdf.text(`Section: ${studentDetails?.section || 'Not specified'}`, pageWidth / 2, 73);
+      
+      // SCCT Profile Overview
+      pdf.setFillColor(34, 197, 94, 0.1); // Light green background
+      pdf.rect(margin, 90, contentWidth, 30, 'F');
+      
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(14);
+      pdf.setTextColor(0, 0, 0);
+      pdf.text("Your SCCT Profile Overview", margin + 5, 100);
+      
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(10);
+      pdf.text("This assessment evaluates your beliefs, goals, and environment related to career development.", margin + 5, 110);
+      
+      // Create chart images
+      const radarChartCanvas = document.createElement('canvas');
+      radarChartCanvas.width = 400;
+      radarChartCanvas.height = 300;
+      const radarCtx = radarChartCanvas.getContext('2d');
+      
+      if (radarCtx) {
+        new Chart(radarCtx, {
+          type: 'radar',
+          data: getChartData(),
+          options: {...radarOptions, responsive: false}
+        });
+      }
+      
+      // Add radar chart to PDF
+      const radarChartImage = radarChartCanvas.toDataURL('image/png');
+      pdf.addImage(radarChartImage, 'PNG', margin, 130, contentWidth, 100);
+      
+      // Section scores
+      pdf.setFontSize(14);
+      pdf.setFont("helvetica", "bold");
+      pdf.text("Your SCCT Dimensions", margin, 245);
+      
+      let yPos = 255;
+      
+      sections.forEach((section, index) => {
+        if (index % 2 === 0 && index > 0) {
+          // Start new page if needed
+          if (yPos > pageHeight - 50) {
+            pdf.addPage();
+            yPos = 25;
+          }
+        }
+        
+        const sectionScore = scores[section.id] || 0;
+        const percentage = (sectionScore / maxSectionScore) * 100;
+        const level = getSectionLevel(section.id);
+        
+        pdf.setFillColor(248, 250, 252);
+        pdf.rect(margin, yPos, contentWidth, 40, 'F');
+        
+        pdf.setFontSize(12);
+        pdf.setFont("helvetica", "bold");
+        pdf.setTextColor(0, 0, 0);
+        pdf.text(section.title, margin + 5, yPos + 10);
+        
+        pdf.setFontSize(10);
+        pdf.setFont("helvetica", "normal");
+        pdf.text(`Score: ${sectionScore}/${maxSectionScore} (${Math.round(percentage)}%)`, margin + 5, yPos + 20);
+        
+        // Draw score bar
+        pdf.setDrawColor(220, 220, 220);
+        pdf.setFillColor(220, 220, 220);
+        pdf.rect(margin + 5, yPos + 25, 100, 5, 'F');
+        
+        // Set color based on level
+        if (level === 'high') {
+          pdf.setFillColor(34, 197, 94); // Green
+        } else if (level === 'medium') {
+          pdf.setFillColor(96, 165, 250); // Blue
+        } else {
+          pdf.setFillColor(251, 191, 36); // Yellow
+        }
+        pdf.rect(margin + 5, yPos + 25, percentage, 5, 'F');
+        
+        pdf.setFontSize(9);
+        const interpretation = getInterpretation(section.id);
+        pdf.text(`Interpretation: ${interpretation}`, margin + 5, yPos + 35);
+        
+        yPos += 45;
+        
+        // Add new page if needed
+        if (yPos > pageHeight - 45 && index < sections.length - 1) {
+          pdf.addPage();
+          yPos = 25;
+        }
+      });
+      
+      // Add new page for career suggestions
+      pdf.addPage();
+      
+      // Career suggestions
+      pdf.setFillColor(34, 197, 94); // Green color
+      pdf.rect(0, 0, pageWidth, 20, 'F');
+      
+      pdf.setFont("helvetica", "bold");
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFontSize(14);
+      pdf.text("Career Recommendations & Development Strategies", margin, 15);
+      
+      // Career Suggestions section
+      pdf.setTextColor(0, 0, 0);
+      pdf.setFontSize(14);
+      pdf.text("Potential Career Paths", margin, 35);
+      
+      pdf.setFontSize(10);
+      pdf.setFont("helvetica", "normal");
+      pdf.text("Based on your profile, here are some suggested career paths that may align with your beliefs and preferences:", margin, 45);
+      
+      yPos = 55;
+      getCareerSuggestions().forEach((suggestion, index) => {
+        pdf.setFillColor(34, 197, 94, 0.1);
+        pdf.circle(margin + 3, yPos + 3, 3, 'F');
+        pdf.text(suggestion, margin + 10, yPos + 5);
+        yPos += 10;
+      });
+      
+      // Development Strategies
+      pdf.setFontSize(14);
+      pdf.setFont("helvetica", "bold");
+      pdf.text("Development Strategies", margin, yPos + 15);
+      
+      pdf.setFontSize(10);
+      pdf.setFont("helvetica", "normal");
+      pdf.text("Try these strategies to enhance your career development based on your SCCT profile:", margin, yPos + 25);
+      
+      yPos += 35;
+      getDevelopmentStrategies().forEach((strategy, index) => {
+        if (yPos > pageHeight - 20) {
+          pdf.addPage();
+          yPos = 25;
+        }
+        
+        pdf.setFillColor(96, 165, 250, 0.1);
+        pdf.circle(margin + 3, yPos + 3, 3, 'F');
+        
+        // Handle wrapping text for longer strategies
+        const splitText = pdf.splitTextToSize(strategy, contentWidth - 15);
+        pdf.text(splitText, margin + 10, yPos + 5);
+        
+        yPos += 10 + (splitText.length - 1) * 5;
+      });
+      
+      // Add footer to each page
+      const totalPages = pdf.getNumberOfPages();
+      for (let i = 1; i <= totalPages; i++) {
+        pdf.setPage(i);
+        pdf.setFontSize(10);
+        pdf.setTextColor(100, 100, 100);
+        pdf.text(`Page ${i} of ${totalPages}`, pageWidth - margin - 25, pageHeight - 10);
+      }
+      
+      // Save PDF
       pdf.save('SCCT-Assessment-Results.pdf');
+      
     } catch (error) {
       console.error('Error generating PDF:', error);
     } finally {
@@ -565,7 +736,7 @@ const SCCTResults = () => {
             <h1 className="text-3xl font-bold mb-4">No Results Available</h1>
             <p className="mb-8">No assessment results were found. Please complete the assessment first.</p>
             <Button 
-              onClick={() => navigate('/assessment/scct/take')}
+              onClick={() => navigate('/assessment/scct')}
               className="bg-brand-orange hover:bg-brand-orange/90"
             >
               Take SCCT Assessment
@@ -604,7 +775,7 @@ const SCCTResults = () => {
                 onClick={downloadResults}
                 disabled={isDownloading}
               >
-                <Download className="mr-2 h-4 w-4" /> {isDownloading ? 'Generating...' : 'Download Results'}
+                <FileText className="mr-2 h-4 w-4" /> {isDownloading ? 'Generating...' : 'Download PDF'}
               </Button>
             </div>
           </div>
@@ -652,7 +823,7 @@ const SCCTResults = () => {
                   <p className="text-gray-600">Social Cognitive Career Theory Profile</p>
                 </div>
                 <div className="mt-4 md:mt-0 flex items-center bg-green-100 px-4 py-1 rounded-full">
-                  <Star className="h-5 w-5 text-green-500 mr-2" />
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
                   <span className="text-green-600 font-medium">{answers.length} Questions Analyzed</span>
                 </div>
               </div>
