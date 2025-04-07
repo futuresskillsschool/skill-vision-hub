@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,6 +11,12 @@ import {
 } from './DataTypes';
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar, BarChart, CartesianGrid, XAxis, Tooltip, Bar } from 'recharts';
 import { StudentDetails } from '@/components/assessment/StudentInfoCard';
+
+interface CircularProgressProps {
+  percentage: number;
+  label: string;
+  color: string;
+}
 
 interface OverviewTabProps {
   riasec: Record<string, number>;
@@ -124,7 +129,11 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
             } level.
           </p>
           <div className="flex items-center justify-center h-[120px]">
-            <CircularProgressIndicator percentage={scorePercentage} label="EQ Score" color="blue" />
+            <CircularProgressIndicator 
+              percentage={scorePercentage} 
+              label="EQ Score" 
+              color="blue" 
+            />
           </div>
         </Card>
       </div>

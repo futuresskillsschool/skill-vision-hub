@@ -1,4 +1,3 @@
-
 import React, { useRef } from "react";
 import { motion } from "framer-motion";
 import { Star, Target, Heart } from "lucide-react";
@@ -53,10 +52,10 @@ const RIASECResultsContent = ({
   
   const handleDownloadPDF = async () => {
     if (!studentDetails) {
-      throw new Error("Missing student details for PDF generation");
+      console.error("Missing student details for PDF generation");
+      return;
     }
     
-    // Convert RIASECScores to Record<string, number> by creating a new object
     const scoresRecord: Record<string, number> = {};
     Object.entries(scores).forEach(([key, value]) => {
       scoresRecord[key] = value;

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -41,14 +40,18 @@ export const useRIASECResults = (): UseRIASECResultsReturn => {
     setLoading(true);
     
     const fetchStudentDetails = async () => {
+      // First, check if studentDetails are already available in location state
       if (location.state?.studentDetails) {
+        console.log("Using student details from location state:", location.state.studentDetails);
         setStudentDetails(location.state.studentDetails);
         setLoading(false);
         return;
       }
       
+      // Otherwise, try to fetch from student_details table using studentId
       if (location.state?.studentId) {
         try {
+          console.log("Fetching student details by ID:", location.state.studentId);
           const { data, error } = await supabase
             .from('student_details')
             .select('*')
@@ -62,6 +65,7 @@ export const useRIASECResults = (): UseRIASECResultsReturn => {
           }
           
           if (data) {
+            console.log("Found student details:", data);
             setStudentDetails(data as StudentDetails);
           }
         } catch (error) {
@@ -69,6 +73,35 @@ export const useRIASECResults = (): UseRIASECResultsReturn => {
           await tryFetchProfileAsFallback();
         }
       } else if (user) {
+        // If no studentId but user is logged in, try to get the latest student record
+        try {
+          console.log("Looking for latest student record for user:", user.id);
+          const { data, error } = await supabase
+            .from('student_details')
+            .select('*')
+            .eq('user_id', user.id)
+            .eq('assessment_type', 'riasec')
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+            
+          if (error) {
+            console.error('Error fetching latest student record:', error);
+            await tryFetchProfileAsFallback();
+            return;
+          }
+          
+          if (data) {
+            console.log("Found latest student record:", data);
+            setStudentDetails(data as StudentDetails);
+          } else {
+            await tryFetchProfileAsFallback();
+          }
+        } catch (error) {
+          console.error('Error fetching latest student record:', error);
+          await tryFetchProfileAsFallback();
+        }
+      } else {
         await tryFetchProfileAsFallback();
       }
       
@@ -79,6 +112,7 @@ export const useRIASECResults = (): UseRIASECResultsReturn => {
       if (!user) return;
       
       try {
+        console.log("Using profile data as fallback for student details");
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('*')
@@ -91,7 +125,7 @@ export const useRIASECResults = (): UseRIASECResultsReturn => {
         }
         
         if (profileData) {
-          setStudentDetails({
+          const studentDetails: StudentDetails = {
             id: user.id,
             name: profileData.first_name && profileData.last_name 
               ? `${profileData.first_name} ${profileData.last_name}` 
@@ -99,7 +133,10 @@ export const useRIASECResults = (): UseRIASECResultsReturn => {
             class: profileData.stream || 'Not specified',
             section: profileData.interest || 'Not specified',
             school: 'Not specified'
-          });
+          };
+          
+          console.log("Created student details from profile:", studentDetails);
+          setStudentDetails(studentDetails);
         }
       } catch (error) {
         console.error('Error fetching profile data:', error);

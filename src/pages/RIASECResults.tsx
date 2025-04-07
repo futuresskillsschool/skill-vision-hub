@@ -28,7 +28,11 @@ const RIASECResults = () => {
       <Navbar />
       <main className="flex-grow px-4 md:px-8 py-16 max-w-7xl mx-auto w-full mt-16">
         <RIASECResultsHeader />
-        <StudentInfoCard studentDetails={studentDetails} />
+        
+        {studentDetails && (
+          <StudentInfoCard studentDetails={studentDetails} />
+        )}
+        
         <RIASECResultsContent 
           scores={scores}
           riasecTypes={riasecTypes}
