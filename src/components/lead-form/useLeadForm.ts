@@ -124,13 +124,12 @@ export const useLeadForm = (id: string | undefined) => {
     setIsSubmitting(true);
     
     try {
-      // Fix: Ensure proper metadata structure when signing up
+      // Sign up with Supabase auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
         options: {
           data: {
-            // Explicitly structure the user metadata with proper field names
             first_name: formData.firstName,
             last_name: formData.lastName,
             phone: formData.phone,
@@ -143,18 +142,19 @@ export const useLeadForm = (id: string | undefined) => {
       if (authError) throw authError;
       
       if (authData.user) {
-        // Fix: Ensure proper field mapping when updating profile
+        // Update profile data directly
         const { error: profileError } = await supabase
           .from('profiles')
-          .update({
-            // Explicitly map each field to its corresponding column
+          .upsert({
+            id: authData.user.id,
             first_name: formData.firstName,
             last_name: formData.lastName,
+            email: formData.email,
             phone: formData.phone,
             stream: formData.stream,
-            interest: formData.interest
-          })
-          .eq('id', authData.user.id);
+            interest: formData.interest,
+            updated_at: new Date().toISOString()
+          });
           
         if (profileError) {
           console.error('Error updating profile:', profileError);

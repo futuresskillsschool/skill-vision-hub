@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -50,6 +51,7 @@ const Login = () => {
         
         navigate('/dashboard');
       } else {
+        // Sign up flow
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
@@ -58,13 +60,34 @@ const Login = () => {
               first_name: name.split(' ')[0] || '',
               last_name: name.split(' ').slice(1).join(' ') || '',
               class_section: classSection,
-              school,
-              phone
+              school: school,
+              phone: phone
             }
           }
         });
         
         if (error) throw error;
+        
+        // Update profile data directly with all fields
+        if (data.user) {
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .upsert({
+              id: data.user.id,
+              first_name: name.split(' ')[0] || '',
+              last_name: name.split(' ').slice(1).join(' ') || '',
+              email: email,
+              phone: phone,
+              // Store school information in profiles table
+              stream: classSection, // Use class_section as stream
+              interest: '',
+              updated_at: new Date().toISOString()
+            });
+            
+          if (profileError) {
+            console.error('Error updating profile:', profileError);
+          }
+        }
         
         toast({
           title: "Account created successfully",
