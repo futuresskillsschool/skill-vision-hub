@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -15,7 +16,8 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
-  const [classSection, setClassSection] = useState('');
+  const [className, setClassName] = useState('');
+  const [section, setSection] = useState('');
   const [school, setSchool] = useState('');
   const [phone, setPhone] = useState('');
   const [isLogin, setIsLogin] = useState(true);
@@ -57,14 +59,45 @@ const Login = () => {
             data: {
               first_name: name.split(' ')[0] || '',
               last_name: name.split(' ').slice(1).join(' ') || '',
-              class_section: classSection,
-              school,
               phone
             }
           }
         });
         
         if (error) throw error;
+        
+        if (data.user) {
+          // Update profiles table
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .upsert({
+              id: data.user.id,
+              first_name: name.split(' ')[0] || '',
+              last_name: name.split(' ').slice(1).join(' ') || '',
+              phone: phone,
+              email: email
+            });
+            
+          if (profileError) {
+            console.error('Error updating profile:', profileError);
+          }
+          
+          // Create student details record
+          const { error: studentError } = await supabase
+            .from('student_details')
+            .insert({
+              user_id: data.user.id,
+              name: name,
+              class: className,
+              section: section,
+              school: school,
+              assessment_type: 'signup'
+            });
+            
+          if (studentError) {
+            console.error('Error creating student record:', studentError);
+          }
+        }
         
         toast({
           title: "Account created successfully",
@@ -135,19 +168,37 @@ const Login = () => {
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="classSection">Class Section</Label>
-                    <div className="relative">
-                      <Input
-                        id="classSection"
-                        type="text"
-                        placeholder="Your class and section"
-                        value={classSection}
-                        onChange={(e) => setClassSection(e.target.value)}
-                        required={!isLogin}
-                        className="pl-10"
-                      />
-                      <BookOpen className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="className">Class</Label>
+                      <div className="relative">
+                        <Input
+                          id="className"
+                          type="text"
+                          placeholder="e.g. 10th"
+                          value={className}
+                          onChange={(e) => setClassName(e.target.value)}
+                          required={!isLogin}
+                          className="pl-10"
+                        />
+                        <BookOpen className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="section">Section</Label>
+                      <div className="relative">
+                        <Input
+                          id="section"
+                          type="text"
+                          placeholder="e.g. A"
+                          value={section}
+                          onChange={(e) => setSection(e.target.value)}
+                          required={!isLogin}
+                          className="pl-10"
+                        />
+                        <BookOpen className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      </div>
                     </div>
                   </div>
 

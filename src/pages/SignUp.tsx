@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -7,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useToast } from '@/hooks/use-toast';
-import { User, KeyRound, Mail, Phone, Briefcase } from 'lucide-react';
+import { User, KeyRound, Mail, Phone, Briefcase, School, BookOpen } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
@@ -39,6 +40,9 @@ const SignUp = () => {
     phone: '',
     stream: '',
     interest: '',
+    class: '',
+    section: '',
+    school: '',
     password: '',
     confirmPassword: ''
   });
@@ -108,6 +112,18 @@ const SignUp = () => {
     if (!formData.interest) {
       newErrors.interest = 'Please select an area of interest';
     }
+
+    if (!formData.class.trim()) {
+      newErrors.class = 'Class is required';
+    }
+
+    if (!formData.section.trim()) {
+      newErrors.section = 'Section is required';
+    }
+
+    if (!formData.school.trim()) {
+      newErrors.school = 'School name is required';
+    }
     
     if (!formData.password) {
       newErrors.password = 'Password is required';
@@ -150,19 +166,37 @@ const SignUp = () => {
       if (authError) throw authError;
       
       if (authData.user) {
+        // Update profiles table
         const { error: profileError } = await supabase
           .from('profiles')
-          .update({
+          .upsert({
+            id: authData.user.id,
             first_name: formData.firstName,
             last_name: formData.lastName,
             phone: formData.phone,
             stream: formData.stream,
-            interest: formData.interest
-          })
-          .eq('id', authData.user.id);
+            interest: formData.interest,
+            email: formData.email
+          });
           
         if (profileError) {
           console.error('Error updating profile:', profileError);
+        }
+        
+        // Create student details record
+        const { error: studentError } = await supabase
+          .from('student_details')
+          .insert({
+            user_id: authData.user.id,
+            name: `${formData.firstName} ${formData.lastName}`,
+            class: formData.class,
+            section: formData.section,
+            school: formData.school,
+            assessment_type: 'signup'
+          });
+          
+        if (studentError) {
+          console.error('Error creating student record:', studentError);
         }
       }
       
@@ -270,6 +304,59 @@ const SignUp = () => {
                   <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 </div>
                 {errors.phone && <p className="text-red-500 text-sm">{errors.phone}</p>}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="class">Class</Label>
+                  <div className="relative">
+                    <Input
+                      id="class"
+                      name="class"
+                      value={formData.class}
+                      onChange={handleChange}
+                      required
+                      className="pl-10"
+                      placeholder="e.g. 10th"
+                    />
+                    <BookOpen className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  </div>
+                  {errors.class && <p className="text-red-500 text-sm">{errors.class}</p>}
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="section">Section</Label>
+                  <div className="relative">
+                    <Input
+                      id="section"
+                      name="section"
+                      value={formData.section}
+                      onChange={handleChange}
+                      required
+                      className="pl-10"
+                      placeholder="e.g. A"
+                    />
+                    <BookOpen className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  </div>
+                  {errors.section && <p className="text-red-500 text-sm">{errors.section}</p>}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="school">School</Label>
+                <div className="relative">
+                  <Input
+                    id="school"
+                    name="school"
+                    value={formData.school}
+                    onChange={handleChange}
+                    required
+                    className="pl-10"
+                    placeholder="Your school name"
+                  />
+                  <School className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                </div>
+                {errors.school && <p className="text-red-500 text-sm">{errors.school}</p>}
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

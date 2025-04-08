@@ -146,18 +146,35 @@ export const useLeadForm = (id: string | undefined) => {
         // Fix: Ensure proper field mapping when updating profile
         const { error: profileError } = await supabase
           .from('profiles')
-          .update({
+          .upsert({
             // Explicitly map each field to its corresponding column
+            id: authData.user.id,
             first_name: formData.firstName,
             last_name: formData.lastName,
             phone: formData.phone,
             stream: formData.stream,
-            interest: formData.interest
-          })
-          .eq('id', authData.user.id);
+            interest: formData.interest,
+            email: formData.email
+          });
           
         if (profileError) {
           console.error('Error updating profile:', profileError);
+        }
+        
+        // Create student details record using stream as class and interest as section
+        const { error: studentError } = await supabase
+          .from('student_details')
+          .insert({
+            user_id: authData.user.id,
+            name: `${formData.firstName} ${formData.lastName}`,
+            class: formData.stream, // Using stream as class for lead form
+            section: formData.interest, // Using interest as section for lead form
+            school: 'Not specified', // Default value
+            assessment_type: id || 'lead' // Using assessment ID or default
+          });
+          
+        if (studentError) {
+          console.error('Error creating student record:', studentError);
         }
       }
       
