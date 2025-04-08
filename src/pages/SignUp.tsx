@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -151,19 +150,16 @@ const SignUp = () => {
       if (authError) throw authError;
       
       if (authData.user) {
-        // Update profile data directly with all fields
         const { error: profileError } = await supabase
           .from('profiles')
-          .upsert({
-            id: authData.user.id,
+          .update({
             first_name: formData.firstName,
             last_name: formData.lastName,
-            email: formData.email,
             phone: formData.phone,
             stream: formData.stream,
-            interest: formData.interest,
-            updated_at: new Date().toISOString()
-          });
+            interest: formData.interest
+          })
+          .eq('id', authData.user.id);
           
         if (profileError) {
           console.error('Error updating profile:', profileError);
