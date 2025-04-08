@@ -56,6 +56,7 @@ const StudentDetailsPage = () => {
             }
           } else if (!studentId && resultsData.downloadPdf) {
             // If we're downloading PDF but don't have a student ID, try to fetch the latest one
+            // Now fetching any student record, regardless of assessment type
             const { existingStudent } = await fetchLatestStudentRecord(user.id, id || 'scct');
               
             if (existingStudent) {

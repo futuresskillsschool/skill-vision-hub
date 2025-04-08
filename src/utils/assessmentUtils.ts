@@ -70,8 +70,7 @@ export const fetchLatestStudentRecord = async (userId: string, assessmentType: s
     .from('student_details')
     .select('id')
     .eq('user_id', userId)
-    .eq('assessment_type', assessmentType)
-    .order('created_at', { ascending: false })
+    // Remove assessment type filter to get any student record for the user
     .limit(1)
     .single();
     
