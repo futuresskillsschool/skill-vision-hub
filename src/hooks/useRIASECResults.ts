@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -89,8 +88,6 @@ export const useRIASECResults = (): UseRIASECResultsReturn => {
             .from('student_details')
             .select('*')
             .eq('user_id', user.id)
-            .eq('assessment_type', 'riasec')
-            .order('created_at', { ascending: false })
             .limit(1)
             .maybeSingle();
             
