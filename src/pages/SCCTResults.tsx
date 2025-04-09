@@ -35,7 +35,7 @@ const SCCTResults = () => {
     return Object.entries(scores).map(([domain, score]) => (
       <div key={domain} className="mb-4">
         <h3 className="text-lg font-semibold">{domainLabels[domain] || domain}</h3>
-        <p className="text-gray-600">Score: {score}</p>
+        <p className="text-gray-600">Score: {String(score)}</p>
       </div>
     ));
   };

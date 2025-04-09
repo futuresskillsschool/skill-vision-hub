@@ -14,7 +14,7 @@ const EQNavigatorResults = () => {
   
   // Get scores from location state
   const scores = location.state?.scores || {};
-  const totalScore = location.state?.totalScore || 0;
+  const totalScore = Number(location.state?.totalScore) || 0;
   
   // Use the shared hook to fetch student details
   const { studentDetails, loading } = useStudentDetails({

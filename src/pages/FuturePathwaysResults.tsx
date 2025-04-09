@@ -33,7 +33,7 @@ const FuturePathwaysResults = () => {
   const percentages = Object.fromEntries(
     Object.entries(scores).map(([category, score]) => [
       category,
-      totalScore > 0 ? Math.round((Number(score || 0) / totalScore) * 100) : 0
+      totalScore > 0 ? Math.round((Number(score || 0) / Number(totalScore)) * 100) : 0
     ])
   );
 
