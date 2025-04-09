@@ -8,12 +8,16 @@ import Footer from '@/components/Footer';
 import StudentInfoCard from '@/components/assessment/StudentInfoCard';
 import { useStudentDetails } from '@/hooks/useStudentDetails';
 
+interface ScoreType {
+  [key: string]: number;
+}
+
 const SCCTResults = () => {
   const location = useLocation();
   const navigate = useNavigate();
   
-  // Get scores from location state
-  const scores = location.state?.scores || {};
+  // Get scores from location state with proper typing
+  const scores: ScoreType = location.state?.scores || {};
   
   // Use the shared hook to fetch student details
   const { studentDetails, loading } = useStudentDetails({
