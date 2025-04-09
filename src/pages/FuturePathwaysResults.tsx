@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
@@ -27,13 +27,13 @@ const FuturePathwaysResults = () => {
   const topCategories = sortedScores.slice(0, 3).map(([category]) => category);
   
   // Get the total score - using Number() to ensure we're working with numbers
-  const totalScore = Object.values(scores).reduce((sum, score) => sum + Number(score), 0);
+  const totalScore = Object.values(scores).reduce((sum, score) => sum + Number(score || 0), 0);
   
   // Calculate percentages for each category
   const percentages = Object.fromEntries(
     Object.entries(scores).map(([category, score]) => [
       category,
-      totalScore > 0 ? Math.round((Number(score) / totalScore) * 100) : 0
+      totalScore > 0 ? Math.round((Number(score || 0) / totalScore) * 100) : 0
     ])
   );
 
