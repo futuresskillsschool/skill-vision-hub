@@ -8,19 +8,24 @@ import Footer from '@/components/Footer';
 import StudentInfoCard from '@/components/assessment/StudentInfoCard';
 import { useStudentDetails } from '@/hooks/useStudentDetails';
 
+// Define a type for the scores
+interface ScoreType {
+  [key: string]: number;
+}
+
 const SCCTResults = () => {
   const location = useLocation();
   const navigate = useNavigate();
   
   // Get scores from location state with proper typing
-  const scores = location.state?.scores || {};
+  const scores: ScoreType = location.state?.scores || {};
   
   // Use the shared hook to fetch student details
   const { studentDetails, loading } = useStudentDetails({
     redirectPath: '/assessment/scct'
   });
 
-  const domainLabels = {
+  const domainLabels: Record<string, string> = {
     "mathInt": "Mathematics",
     "scienceInt": "Science",
     "artInt": "Art",

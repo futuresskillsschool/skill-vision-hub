@@ -8,29 +8,34 @@ import Footer from '@/components/Footer';
 import StudentInfoCard from '@/components/assessment/StudentInfoCard';
 import { useStudentDetails } from '@/hooks/useStudentDetails';
 
+// Define a type for the scores
+interface ScoreType {
+  [key: string]: number;
+}
+
 const EQNavigatorResults = () => {
   const location = useLocation();
   const navigate = useNavigate();
   
-  // Get scores from location state
-  const scores = location.state?.scores || {};
-  const totalScore = location.state?.totalScore || 0;
+  // Get scores from location state with proper typing
+  const scores: ScoreType = location.state?.scores || {};
+  const totalScore: number = location.state?.totalScore || 0;
   
   // Use the shared hook to fetch student details
   const { studentDetails, loading } = useStudentDetails({
     redirectPath: '/assessment/eq-navigator'
   });
 
-  const getCategoryScore = (category) => {
+  const getCategoryScore = (category: string): number => {
     return scores[category] || 0;
   };
 
-  const getPercentage = (category) => {
+  const getPercentage = (category: string): number => {
     const score = getCategoryScore(category);
     return Math.round((score / 5) * 100);
   };
 
-  const getLevel = () => {
+  const getLevel = (): string => {
     if (totalScore >= 35) {
       return "High";
     } else if (totalScore >= 25) {
