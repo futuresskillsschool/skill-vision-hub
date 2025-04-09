@@ -20,7 +20,7 @@ const SCCTResults = () => {
     redirectPath: '/assessment/scct'
   });
 
-  const domainLabels = {
+  const domainLabels: Record<string, string> = {
     "mathInt": "Mathematics",
     "scienceInt": "Science",
     "artInt": "Art",

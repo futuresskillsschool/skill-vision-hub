@@ -21,16 +21,16 @@ const EQNavigatorResults = () => {
     redirectPath: '/assessment/eq-navigator'
   });
 
-  const getCategoryScore = (category) => {
-    return scores[category] || 0;
+  const getCategoryScore = (category: string): number => {
+    return Number(scores[category]) || 0;
   };
 
-  const getPercentage = (category) => {
+  const getPercentage = (category: string): number => {
     const score = getCategoryScore(category);
     return Math.round((score / 5) * 100);
   };
 
-  const getLevel = () => {
+  const getLevel = (): string => {
     if (totalScore >= 35) {
       return "High";
     } else if (totalScore >= 25) {
