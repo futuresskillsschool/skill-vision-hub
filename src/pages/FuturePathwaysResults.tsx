@@ -8,12 +8,17 @@ import Footer from '@/components/Footer';
 import StudentInfoCard from '@/components/assessment/StudentInfoCard';
 import { useStudentDetails } from '@/hooks/useStudentDetails';
 
+// Define the type for scores
+interface ScoresType {
+  [category: string]: number;
+}
+
 const FuturePathwaysResults = () => {
   const location = useLocation();
   const navigate = useNavigate();
   
-  // Get scores from location state
-  const scores = location.state?.scores || {};
+  // Get scores from location state and ensure it's the correct type
+  const scores: ScoresType = location.state?.scores || {};
   
   // Use the shared hook to fetch student details
   const { studentDetails, loading } = useStudentDetails({
@@ -27,7 +32,7 @@ const FuturePathwaysResults = () => {
   const topCategories = sortedScores.slice(0, 3).map(([category]) => category);
   
   // Get the total score - ensure we're working with numbers
-  const totalScore = Object.values(scores).reduce(
+  const totalScore: number = Object.values(scores).reduce(
     (sum, score) => sum + Number(score || 0), 
     0
   );
