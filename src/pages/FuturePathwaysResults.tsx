@@ -32,7 +32,7 @@ const FuturePathwaysResults = () => {
   const topCategories = sortedScores.slice(0, 3).map(([category]) => category);
   
   // Get the total score - ensure we're working with numbers
-  const totalScore: number = Object.values(scores).reduce(
+  const totalScore = Object.values(scores).reduce(
     (sum, score) => sum + Number(score || 0), 
     0
   );
