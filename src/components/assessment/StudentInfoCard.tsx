@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { motion } from "framer-motion";
 import { User, BookOpen, School } from "lucide-react";
 
@@ -16,7 +16,16 @@ interface StudentInfoCardProps {
 }
 
 const StudentInfoCard = ({ studentDetails }: StudentInfoCardProps) => {
-  if (!studentDetails) return null;
+  useEffect(() => {
+    // Debug: Log student details when the component mounts or details change
+    console.log("StudentInfoCard received details:", studentDetails);
+  }, [studentDetails]);
+
+  // Return null early if no student details are available
+  if (!studentDetails) {
+    console.log("No student details available");
+    return null;
+  }
   
   return (
     <motion.div 
@@ -30,21 +39,21 @@ const StudentInfoCard = ({ studentDetails }: StudentInfoCardProps) => {
           <User className="h-5 w-5 text-brand-purple mr-2" />
           <div>
             <p className="text-sm text-gray-600">Name</p>
-            <p className="font-medium">{studentDetails.name}</p>
+            <p className="font-medium">{studentDetails.name || 'Not provided'}</p>
           </div>
         </div>
         <div className="flex items-center">
           <BookOpen className="h-5 w-5 text-brand-purple mr-2" />
           <div>
             <p className="text-sm text-gray-600">Class & Section</p>
-            <p className="font-medium">{studentDetails.class} - {studentDetails.section}</p>
+            <p className="font-medium">{studentDetails.class || 'Not specified'} - {studentDetails.section || 'Not specified'}</p>
           </div>
         </div>
         <div className="flex items-center md:col-span-2">
           <School className="h-5 w-5 text-brand-purple mr-2" />
           <div>
             <p className="text-sm text-gray-600">School</p>
-            <p className="font-medium">{studentDetails.school}</p>
+            <p className="font-medium">{studentDetails.school || 'Not specified'}</p>
           </div>
         </div>
       </div>

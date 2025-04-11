@@ -1,6 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from "sonner";
+import { StudentDetails } from '@/components/assessment/StudentInfoCard';
 
 /**
  * Determines the primary result category based on the assessment score
@@ -21,6 +22,7 @@ export const getPrimaryResult = (totalScore: number) => {
  * Fetches a user's profile from Supabase
  */
 export const fetchUserProfile = async (userId: string) => {
+  console.log("Fetching user profile for:", userId);
   const { data: profileData, error: profileError } = await supabase
     .from('profiles')
     .select('*')
@@ -39,24 +41,32 @@ export const fetchUserProfile = async (userId: string) => {
  * Creates a new student record in the database
  */
 export const createStudentRecord = async (userId: string, profileData: any, assessmentType: string) => {
+  console.log("Creating student record for user:", userId, "with assessment type:", assessmentType);
+  
+  const studentRecord = {
+    name: profileData?.first_name && profileData?.last_name 
+      ? `${profileData.first_name} ${profileData.last_name}` 
+      : (userId ? 'User' : 'Anonymous User'),
+    class: profileData?.stream || 'Not specified',
+    section: profileData?.interest || 'Not specified',
+    school: 'Not specified', // Use a default value since 'school' may not exist in profileData
+    assessment_type: assessmentType,
+    user_id: userId
+  };
+  
+  console.log("Student record to create:", studentRecord);
+  
   const { data: studentData, error: studentError } = await supabase
     .from('student_details')
-    .insert({
-      name: profileData?.first_name && profileData?.last_name 
-        ? `${profileData.first_name} ${profileData.last_name}` 
-        : (userId ? 'User' : 'Anonymous User'),
-      class: profileData?.stream || 'Not specified',
-      section: profileData?.interest || 'Not specified',
-      school: 'Not specified', // Use a default value since 'school' may not exist in profileData
-      assessment_type: assessmentType,
-      user_id: userId
-    })
+    .insert(studentRecord)
     .select('id')
     .single();
     
   if (studentError) {
     console.error('Error creating student record:', studentError);
     toast.error("Could not save your assessment details");
+  } else {
+    console.log("Student record created successfully:", studentData);
   }
   
   return { studentData, studentError };
@@ -66,13 +76,21 @@ export const createStudentRecord = async (userId: string, profileData: any, asse
  * Fetches the latest student record for a user and assessment type
  */
 export const fetchLatestStudentRecord = async (userId: string, assessmentType: string) => {
+  console.log("Fetching latest student record for user:", userId);
+  
   const { data: existingStudent, error: fetchError } = await supabase
     .from('student_details')
     .select('id')
     .eq('user_id', userId)
-    // Remove assessment type filter to get any student record for the user
+    .order('created_at', { ascending: false })
     .limit(1)
-    .single();
+    .maybeSingle();
+  
+  if (fetchError) {
+    console.error('Error fetching student record:', fetchError);
+  } else {
+    console.log("Fetch student record result:", existingStudent);
+  }
     
   return { existingStudent, fetchError };
 };
@@ -81,13 +99,24 @@ export const fetchLatestStudentRecord = async (userId: string, assessmentType: s
  * Fetches complete student details by ID
  */
 export const fetchStudentDetails = async (studentId: string) => {
+  console.log("Fetching complete student details for ID:", studentId);
+  
   const { data: fullStudentDetails, error: detailsError } = await supabase
     .from('student_details')
     .select('*')
     .eq('id', studentId)
     .single();
+  
+  if (detailsError) {
+    console.error('Error fetching complete student details:', detailsError);
+  } else {
+    console.log("Fetched student details:", fullStudentDetails);
+  }
     
-  return { fullStudentDetails, detailsError };
+  return { 
+    fullStudentDetails: fullStudentDetails as StudentDetails | null, 
+    detailsError 
+  };
 };
 
 /**

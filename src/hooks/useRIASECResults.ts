@@ -32,6 +32,7 @@ export const useRIASECResults = (): UseRIASECResultsReturn => {
   
   useEffect(() => {
     if (!location.state) {
+      console.log("No location state found, redirecting to assessment page");
       navigate('/assessment/riasec');
       return;
     }
@@ -40,88 +41,110 @@ export const useRIASECResults = (): UseRIASECResultsReturn => {
     setLoading(true);
     
     const fetchStudentDetails = async () => {
-      // First, check if studentDetails are already available in location state
-      if (location.state?.studentDetails) {
-        console.log("Using student details from location state:", location.state.studentDetails);
-        setStudentDetails(location.state.studentDetails);
-        setLoading(false);
-        return;
-      }
-      
-      // Otherwise, try to fetch from student_details table using studentId
-      if (location.state?.studentId) {
-        try {
-          console.log("Fetching student details by ID:", location.state.studentId);
-          const { data, error } = await supabase
-            .from('student_details')
-            .select('*')
-            .eq('id', location.state.studentId)
-            .single();
-            
-          if (error) {
-            console.error('Error fetching student details:', error);
-            await tryFetchProfileAsFallback();
-            return;
-          }
-          
-          if (data) {
-            console.log("Found student details:", data);
-            setStudentDetails({
-              id: data.id,
-              name: data.name,
-              class: data.class || 'Not specified',
-              section: data.section || 'Not specified',
-              school: data.school || 'Not specified'
-            });
-          } else {
-            await tryFetchProfileAsFallback();
-          }
-        } catch (error) {
-          console.error('Error in student details fetch:', error);
-          await tryFetchProfileAsFallback();
+      try {
+        console.log("Fetching student details, location state:", location.state);
+        
+        // First, check if studentDetails are already available in location state
+        if (location.state?.studentDetails) {
+          console.log("Using student details from location state:", location.state.studentDetails);
+          setStudentDetails(location.state.studentDetails);
+          setLoading(false);
+          return;
         }
-      } else if (user) {
-        // If no studentId but user is logged in, try to get the latest student record
-        try {
-          console.log("Looking for latest student record for user:", user.id);
-          const { data, error } = await supabase
-            .from('student_details')
-            .select('*')
-            .eq('user_id', user.id)
-            .limit(1)
-            .maybeSingle();
+        
+        // Otherwise, try to fetch from student_details table using studentId
+        if (location.state?.studentId) {
+          try {
+            console.log("Fetching student details by ID:", location.state.studentId);
+            const { data, error } = await supabase
+              .from('student_details')
+              .select('*')
+              .eq('id', location.state.studentId)
+              .single();
+              
+            if (error) {
+              console.error('Error fetching student details:', error);
+              await tryFetchProfileAsFallback();
+              return;
+            }
             
-          if (error) {
-            console.error('Error fetching latest student record:', error);
+            if (data) {
+              console.log("Found student details:", data);
+              const studentData: StudentDetails = {
+                id: data.id,
+                name: data.name || 'Not specified',
+                class: data.class || 'Not specified',
+                section: data.section || 'Not specified',
+                school: data.school || 'Not specified'
+              };
+              setStudentDetails(studentData);
+            } else {
+              console.log("No student details found with ID:", location.state.studentId);
+              await tryFetchProfileAsFallback();
+            }
+          } catch (error) {
+            console.error('Error in student details fetch:', error);
             await tryFetchProfileAsFallback();
-            return;
           }
+        } else if (user) {
+          // If no studentId but user is logged in, try to get the latest student record
+          await tryFetchLatestStudentRecord();
+        } else {
+          console.log("No user and no studentId, cannot fetch student details");
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Top-level error in fetchStudentDetails:', error);
+        setLoading(false);
+      }
+    };
+    
+    const tryFetchLatestStudentRecord = async () => {
+      if (!user) return;
+      
+      try {
+        console.log("Looking for latest student record for user:", user.id);
+        const { data, error } = await supabase
+          .from('student_details')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
           
-          if (data) {
-            console.log("Found latest student record:", data);
-            setStudentDetails({
-              id: data.id,
-              name: data.name,
-              class: data.class || 'Not specified',
-              section: data.section || 'Not specified',
-              school: data.school || 'Not specified'
-            });
-          } else {
-            await tryFetchProfileAsFallback();
-          }
-        } catch (error) {
+        if (error) {
           console.error('Error fetching latest student record:', error);
           await tryFetchProfileAsFallback();
+          return;
         }
-      } else {
+        
+        if (data) {
+          console.log("Found latest student record:", data);
+          const studentData: StudentDetails = {
+            id: data.id,
+            name: data.name || 'Not specified',
+            class: data.class || 'Not specified',
+            section: data.section || 'Not specified',
+            school: data.school || 'Not specified'
+          };
+          setStudentDetails(studentData);
+        } else {
+          console.log("No student records found for user:", user.id);
+          await tryFetchProfileAsFallback();
+        }
+      } catch (error) {
+        console.error('Error fetching latest student record:', error);
         await tryFetchProfileAsFallback();
+      } finally {
+        setLoading(false);
       }
-      
-      setLoading(false);
     };
     
     const tryFetchProfileAsFallback = async () => {
-      if (!user) return;
+      if (!user) {
+        setLoading(false);
+        return;
+      }
       
       try {
         console.log("Using profile data as fallback for student details");
@@ -133,6 +156,7 @@ export const useRIASECResults = (): UseRIASECResultsReturn => {
           
         if (profileError) {
           console.error('Error fetching profile data:', profileError);
+          setLoading(false);
           return;
         }
         
@@ -149,9 +173,13 @@ export const useRIASECResults = (): UseRIASECResultsReturn => {
           
           console.log("Created student details from profile:", studentDetails);
           setStudentDetails(studentDetails);
+        } else {
+          console.log("No profile data found for user:", user.id);
         }
       } catch (error) {
         console.error('Error fetching profile data:', error);
+      } finally {
+        setLoading(false);
       }
     };
     

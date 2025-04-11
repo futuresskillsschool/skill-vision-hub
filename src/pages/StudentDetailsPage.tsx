@@ -23,6 +23,11 @@ const StudentDetailsPage = () => {
   const resultsData = location.state;
   
   useEffect(() => {
+    // Debug log
+    console.log("StudentDetailsPage - Assessment type:", id);
+    console.log("StudentDetailsPage - Results data:", resultsData);
+    console.log("StudentDetailsPage - User:", user);
+    
     // Redirect to the assessment page if no results data
     if (!resultsData) {
       console.log("No results data, redirecting to assessment page");
@@ -37,6 +42,7 @@ const StudentDetailsPage = () => {
         if (user) {
           // Get user profile from profiles table
           const { profileData } = await fetchUserProfile(user.id);
+          console.log("Fetched profile data:", profileData);
             
           // Only create a student record if one doesn't already exist or if not downloading PDF
           let studentId = resultsData.studentId;
@@ -61,6 +67,7 @@ const StudentDetailsPage = () => {
               
             if (existingStudent) {
               studentId = existingStudent.id;
+              console.log("Found existing student record:", existingStudent);
             }
           }
           
@@ -82,6 +89,7 @@ const StudentDetailsPage = () => {
               section: profileData.interest || 'Not specified',
               school: 'Not specified'  // Since 'school' doesn't exist in profileData type, use default string
             };
+            console.log("Created student details from profile:", studentDetails);
           }
           
           const assessmentType = id || 'scct';
@@ -93,6 +101,12 @@ const StudentDetailsPage = () => {
           const shouldDownloadPdf = resultsData.downloadPdf || false;
           
           // Navigate directly to results page with the student ID and student details
+          console.log("Navigating to results page with data:", {
+            studentId,
+            studentDetails,
+            downloadPdf: shouldDownloadPdf
+          });
+          
           navigate(`/assessment/${assessmentType}/results`, {
             state: {
               ...resultsData,
@@ -104,6 +118,7 @@ const StudentDetailsPage = () => {
           });
         } else {
           // Not logged in, redirect to login
+          console.log("User not logged in, redirecting to login page");
           navigate('/login', { 
             state: { 
               returnPath: `/assessment/${id || 'scct'}/take`,

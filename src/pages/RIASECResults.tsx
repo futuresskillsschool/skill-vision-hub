@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
@@ -14,6 +14,12 @@ import riasecTypes from '@/constants/riasecTypes';
 const RIASECResults = () => {
   const navigate = useNavigate();
   const { scores, studentDetails, loading } = useRIASECResults();
+  
+  useEffect(() => {
+    // Debug: Log the student details and loading state
+    console.log("RIASECResults - Student details:", studentDetails);
+    console.log("RIASECResults - Loading state:", loading);
+  }, [studentDetails, loading]);
   
   if (loading) {
     return (
