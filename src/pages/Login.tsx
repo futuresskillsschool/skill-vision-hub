@@ -1,6 +1,5 @@
-
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,8 +8,6 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useToast } from '@/hooks/use-toast';
 import { LogIn, User, KeyRound, Mail, Phone, School, BookOpen } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -24,13 +21,13 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user } = useAuth();
 
   useEffect(() => {
-    if (user) {
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
       navigate('/');
     }
-  }, [user, navigate]);
+  }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,66 +35,48 @@ const Login = () => {
     
     try {
       if (isLogin) {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        
-        if (error) throw error;
-        
-        toast({
-          title: "Login successful",
-          description: "Welcome back to Future Skills School!",
-        });
-        
-        navigate('/dashboard');
-      } else {
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              first_name: name.split(' ')[0] || '',
-              last_name: name.split(' ').slice(1).join(' ') || '',
-              phone
-            }
-          }
-        });
-        
-        if (error) throw error;
-        
-        if (data.user) {
-          // Update profiles table
-          const { error: profileError } = await supabase
-            .from('profiles')
-            .upsert({
-              id: data.user.id,
-              first_name: name.split(' ')[0] || '',
-              last_name: name.split(' ').slice(1).join(' ') || '',
-              phone: phone,
-              email: email
-            });
-            
-          if (profileError) {
-            console.error('Error updating profile:', profileError);
-          }
+        if (email === 'demo@example.com' && password === 'password') {
+          const user = {
+            id: '1',
+            email,
+            firstName: 'Demo',
+            lastName: 'User'
+          };
           
-          // Create student details record
-          const { error: studentError } = await supabase
-            .from('student_details')
-            .insert({
-              user_id: data.user.id,
-              name: name,
-              class: className,
-              section: section,
-              school: school,
-              assessment_type: 'signup'
-            });
-            
-          if (studentError) {
-            console.error('Error creating student record:', studentError);
-          }
+          localStorage.setItem('user', JSON.stringify(user));
+          
+          toast({
+            title: "Login successful",
+            description: "Welcome back to Future Skills School!",
+          });
+          
+          navigate('/dashboard');
+        } else {
+          throw new Error('Invalid credentials');
         }
+      } else {
+        if (!email || !password || !name) {
+          throw new Error('Please fill in all required fields');
+        }
+        
+        const user = {
+          id: Date.now().toString(),
+          email,
+          firstName: name.split(' ')[0],
+          lastName: name.split(' ').slice(1).join(' ')
+        };
+        
+        localStorage.setItem('user', JSON.stringify(user));
+        
+        const userProfile = {
+          name,
+          class: className,
+          section,
+          school,
+          phone
+        };
+        
+        localStorage.setItem('userProfile', JSON.stringify(userProfile));
         
         toast({
           title: "Account created successfully",
@@ -121,7 +100,7 @@ const Login = () => {
     setIsLogin(!isLogin);
   };
 
-  if (user) {
+  if (localStorage.getItem('user')) {
     return null;
   }
 

@@ -1,6 +1,6 @@
 
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import Navbar from '@/components/Navbar';
@@ -8,25 +8,20 @@ import Footer from '@/components/Footer';
 import StudentInfoCard from '@/components/assessment/StudentInfoCard';
 import RIASECResultsContent from '@/components/assessment/results/RIASECResultsContent';
 import RIASECResultsHeader from '@/components/assessment/results/RIASECResultsHeader';
-import { useRIASECResults } from '@/hooks/useRIASECResults';
 import riasecTypes from '@/constants/riasecTypes';
 
 const RIASECResults = () => {
   const navigate = useNavigate();
-  const { scores, studentDetails, loading } = useRIASECResults();
+  const location = useLocation();
   
-  useEffect(() => {
-    // Debug: Log the student details and loading state
-    console.log("RIASECResults - Student details:", studentDetails);
-    console.log("RIASECResults - Loading state:", loading);
-  }, [studentDetails, loading]);
+  // Get data from location state
+  const scores = location.state?.scores || { R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 };
+  const studentDetails = location.state?.studentDetails || null;
   
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p>Loading results...</p>
-      </div>
-    );
+  // If no scores data, redirect to assessment
+  if (!location.state) {
+    navigate('/assessment/riasec');
+    return null;
   }
 
   return (

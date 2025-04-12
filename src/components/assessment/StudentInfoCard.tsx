@@ -1,5 +1,5 @@
 
-import React, { useEffect } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import { User, BookOpen, School } from "lucide-react";
 
@@ -16,14 +16,8 @@ interface StudentInfoCardProps {
 }
 
 const StudentInfoCard = ({ studentDetails }: StudentInfoCardProps) => {
-  useEffect(() => {
-    // Debug: Log student details when the component mounts or details change
-    console.log("StudentInfoCard received details:", studentDetails);
-  }, [studentDetails]);
-
   // Return null early if no student details are available
   if (!studentDetails) {
-    console.log("No student details available");
     return null;
   }
   

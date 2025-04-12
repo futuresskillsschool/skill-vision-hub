@@ -1,7 +1,18 @@
+
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
-import type { User, Session } from '@supabase/supabase-js';
+
+// Define types for user and session
+type User = {
+  id: string;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+};
+
+type Session = {
+  user: User | null;
+};
 
 type AuthContextType = {
   user: User | null;
@@ -22,42 +33,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Check for active session on mount
-    const getSession = async () => {
-      setIsLoading(true);
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        if (error) {
-          throw error;
-        }
-        setSession(session);
-        setUser(session?.user ?? null);
-      } catch (error) {
-        console.error('Error getting session:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    getSession();
-
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        setIsLoading(false);
-      }
-    );
-
-    return () => {
-      subscription.unsubscribe();
-    };
+    // Check for stored user on mount
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+      setUser(parsedUser);
+      setSession({ user: parsedUser });
+    }
+    setIsLoading(false);
   }, []);
 
   const signOut = async () => {
     try {
-      await supabase.auth.signOut();
+      localStorage.removeItem('user');
+      localStorage.removeItem('assessmentResults');
+      setUser(null);
+      setSession(null);
+      
       toast({
         title: "Signed out",
         description: "You have been successfully signed out.",
@@ -73,11 +65,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const storeAssessmentResult = async (assessmentType: string, resultData: any) => {
-    // TEMPORARILY DISABLED - returning early without doing anything
-    console.log('Assessment result storage temporarily disabled');
-    return;
-    
-    /* Original implementation - commented out 
     if (!user) {
       toast({
         title: "Authentication required",
@@ -88,51 +75,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     try {
-      // First, check if this user already has this exact assessment type
-      const { data: existingResults, error: fetchError } = await supabase
-        .from('assessment_results')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('assessment_type', assessmentType)
-        .order('created_at', { ascending: false })
-        .limit(1);
-
-      if (fetchError) throw fetchError;
-
-      // If the user already has at least one result of this assessment type
-      if (existingResults && existingResults.length > 0) {
-        // Update the most recent result instead of creating a new one
-        const { error: updateError } = await supabase
-          .from('assessment_results')
-          .update({
-            result_data: resultData,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', existingResults[0].id);
-
-        if (updateError) throw updateError;
-
-        toast({
-          title: "Results updated",
-          description: "Your assessment results have been updated successfully.",
-        });
-      } else {
-        // This is the first time the user is taking this assessment, create a new record
-        const { error: insertError } = await supabase
-          .from('assessment_results')
-          .insert({
-            user_id: user.id,
-            assessment_type: assessmentType,
-            result_data: resultData
-          });
-
-        if (insertError) throw insertError;
-
-        toast({
-          title: "Results saved",
-          description: "Your assessment results have been saved successfully.",
-        });
-      }
+      // Get existing results from localStorage
+      const storedResults = localStorage.getItem('assessmentResults');
+      let assessmentResults = storedResults ? JSON.parse(storedResults) : {};
+      
+      // Update or create the assessment result
+      assessmentResults[assessmentType] = {
+        ...resultData,
+        updatedAt: new Date().toISOString()
+      };
+      
+      // Store back in localStorage
+      localStorage.setItem('assessmentResults', JSON.stringify(assessmentResults));
+      
+      toast({
+        title: "Results saved",
+        description: "Your assessment results have been saved successfully.",
+      });
     } catch (error: any) {
       console.error('Error storing assessment result:', error);
       toast({
@@ -141,21 +100,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         variant: "destructive",
       });
     }
-    */
   };
 
   const getUserProfile = async () => {
     if (!user) return null;
 
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-
-      if (error) throw error;
-      return data;
+      // Get profile data from localStorage
+      const storedProfile = localStorage.getItem('userProfile');
+      return storedProfile ? JSON.parse(storedProfile) : null;
     } catch (error) {
       console.error('Error fetching user profile:', error);
       return null;
@@ -173,12 +126,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update(profileData)
-        .eq('id', user.id);
-
-      if (error) throw error;
+      // Save profile data to localStorage
+      localStorage.setItem('userProfile', JSON.stringify(profileData));
 
       toast({
         title: "Profile updated",

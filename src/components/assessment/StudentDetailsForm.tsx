@@ -1,16 +1,14 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
-import { useAuth } from "@/contexts/AuthContext";
 import FormHeader from "./form/FormHeader";
 import StudentFormContent from "./form/StudentFormContent";
 
 interface StudentDetailsFormProps {
   assessmentType: string;
   resultsData: any;
-  onSubmitSuccess: (studentId: string) => void;
+  onSubmitSuccess: (studentDetails: any) => void;
 }
 
 const StudentDetailsForm = ({ 
@@ -18,12 +16,8 @@ const StudentDetailsForm = ({
   resultsData, 
   onSubmitSuccess 
 }: StudentDetailsFormProps) => {
-  const { user } = useAuth();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  console.log("StudentDetailsForm - Assessment type:", assessmentType);
-  console.log("StudentDetailsForm - Results data:", resultsData);
   
   const onSubmit = async (data: {
     name: string;
@@ -35,36 +29,23 @@ const StudentDetailsForm = ({
     
     try {
       console.log("Submitting student details:", data);
-      console.log("Assessment type:", assessmentType);
       
-      // Save student details to Supabase
-      const { data: studentData, error } = await supabase
-        .from("student_details")
-        .insert({
-          name: data.name,
-          class: data.class,
-          section: data.section,
-          school: data.school,
-          assessment_type: assessmentType,
-          user_id: user?.id || null,
-        })
-        .select("id")
-        .single();
+      // Create studentDetails object
+      const studentDetails = {
+        id: Date.now().toString(), // Generate a random ID
+        name: data.name,
+        class: data.class,
+        section: data.section,
+        school: data.school
+      };
 
-      if (error) {
-        console.error("Supabase error:", error);
-        throw error;
-      }
-
-      console.log("Student details saved, ID:", studentData.id);
-      
       toast({
         title: "Information saved",
         description: "Your details have been saved successfully.",
       });
 
-      // Call the onSubmitSuccess callback with the student ID
-      onSubmitSuccess(studentData.id);
+      // Call the onSubmitSuccess callback with the student details
+      onSubmitSuccess(studentDetails);
       
     } catch (error) {
       console.error("Error saving student details:", error);

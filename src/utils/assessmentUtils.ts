@@ -1,5 +1,4 @@
 
-import { supabase } from '@/integrations/supabase/client';
 import { toast } from "sonner";
 import { StudentDetails } from '@/components/assessment/StudentInfoCard';
 
@@ -19,103 +18,84 @@ export const getPrimaryResult = (totalScore: number) => {
 };
 
 /**
- * Fetches a user's profile from Supabase
+ * Fetches a user's profile from local storage
  */
 export const fetchUserProfile = async (userId: string) => {
   console.log("Fetching user profile for:", userId);
-  const { data: profileData, error: profileError } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', userId)
-    .single();
+  
+  // Get profile from localStorage
+  const storedProfile = localStorage.getItem('userProfile');
+  const profileData = storedProfile ? JSON.parse(storedProfile) : null;
     
-  if (profileError) {
-    console.error('Error fetching user profile:', profileError);
-    toast.error("Could not load your profile information");
-  }
-
-  return { profileData, profileError };
+  return { profileData, profileError: null };
 };
 
 /**
- * Creates a new student record in the database
+ * Creates a new student record in localStorage
  */
 export const createStudentRecord = async (userId: string, profileData: any, assessmentType: string) => {
   console.log("Creating student record for user:", userId, "with assessment type:", assessmentType);
   
   const studentRecord = {
+    id: Date.now().toString(),
     name: profileData?.first_name && profileData?.last_name 
       ? `${profileData.first_name} ${profileData.last_name}` 
       : (userId ? 'User' : 'Anonymous User'),
     class: profileData?.stream || 'Not specified',
     section: profileData?.interest || 'Not specified',
-    school: 'Not specified', // Use a default value since 'school' may not exist in profileData
+    school: 'Not specified',
     assessment_type: assessmentType,
     user_id: userId
   };
   
   console.log("Student record to create:", studentRecord);
   
-  const { data: studentData, error: studentError } = await supabase
-    .from('student_details')
-    .insert(studentRecord)
-    .select('id')
-    .single();
+  // Store in localStorage
+  const storedStudents = localStorage.getItem('studentDetails');
+  const students = storedStudents ? JSON.parse(storedStudents) : [];
+  students.push(studentRecord);
+  localStorage.setItem('studentDetails', JSON.stringify(students));
     
-  if (studentError) {
-    console.error('Error creating student record:', studentError);
-    toast.error("Could not save your assessment details");
-  } else {
-    console.log("Student record created successfully:", studentData);
-  }
-  
-  return { studentData, studentError };
+  return { studentData: studentRecord, studentError: null };
 };
 
 /**
- * Fetches the latest student record for a user and assessment type
+ * Fetches the latest student record from localStorage
  */
 export const fetchLatestStudentRecord = async (userId: string, assessmentType: string) => {
   console.log("Fetching latest student record for user:", userId);
   
-  const { data: existingStudent, error: fetchError } = await supabase
-    .from('student_details')
-    .select('id')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .maybeSingle();
+  // Get students from localStorage
+  const storedStudents = localStorage.getItem('studentDetails');
+  const students = storedStudents ? JSON.parse(storedStudents) : [];
   
-  if (fetchError) {
-    console.error('Error fetching student record:', fetchError);
-  } else {
-    console.log("Fetch student record result:", existingStudent);
-  }
+  // Find the latest record for this user
+  const userStudents = students.filter((s: any) => s.user_id === userId);
+  const existingStudent = userStudents.length > 0 ? userStudents[userStudents.length - 1] : null;
+  
+  console.log("Fetch student record result:", existingStudent);
     
-  return { existingStudent, fetchError };
+  return { existingStudent, fetchError: null };
 };
 
 /**
- * Fetches complete student details by ID
+ * Fetches complete student details by ID from localStorage
  */
 export const fetchStudentDetails = async (studentId: string) => {
   console.log("Fetching complete student details for ID:", studentId);
   
-  const { data: fullStudentDetails, error: detailsError } = await supabase
-    .from('student_details')
-    .select('*')
-    .eq('id', studentId)
-    .single();
+  // Get students from localStorage
+  const storedStudents = localStorage.getItem('studentDetails');
+  const students = storedStudents ? JSON.parse(storedStudents) : [];
   
-  if (detailsError) {
-    console.error('Error fetching complete student details:', detailsError);
-  } else {
-    console.log("Fetched student details:", fullStudentDetails);
-  }
+  // Find the student with the matching ID
+  const fullStudentDetails = students.find((s: any) => s.id === studentId) || null;
+  
+  console.log("Fetched student details:", fullStudentDetails);
     
   return { 
     fullStudentDetails: fullStudentDetails as StudentDetails | null, 
-    detailsError 
+    detailsError: null 
   };
 };
 
@@ -124,35 +104,26 @@ export const fetchStudentDetails = async (studentId: string) => {
  */
 export const checkAndSaveAssessmentResult = async (userId: string, assessmentType: string, resultsData: any) => {
   if (assessmentType === 'eq-navigator' && resultsData.totalScore !== undefined) {
-    // Check if an assessment with the same score already exists
-    const { data: existingResult, error: fetchError } = await supabase
-      .from('assessment_results')
-      .select('id')
-      .eq('user_id', userId)
-      .eq('assessment_type', assessmentType)
-      .eq('result_data->>totalScore', resultsData.totalScore.toString())
-      .maybeSingle();
+    // Get existing assessment results
+    const storedResults = localStorage.getItem('assessmentResults');
+    const assessmentResults = storedResults ? JSON.parse(storedResults) : {};
+    
+    // Check if this assessment type already exists for the user
+    const userAssessments = assessmentResults[userId] || {};
+    
+    // Only save if not in viewOnly mode
+    if (!resultsData.viewOnly) {
+      // Add or update the assessment result
+      userAssessments[assessmentType] = {
+        totalScore: resultsData.totalScore,
+        selectedOptions: resultsData.selectedOptions,
+        primary_result: getPrimaryResult(resultsData.totalScore)
+      };
       
-    // Only save if no existing result with the same score is found
-    if (!existingResult && !resultsData.viewOnly) {
-      const { error: resultError } = await supabase
-        .from('assessment_results')
-        .insert({
-          user_id: userId,
-          assessment_type: assessmentType,
-          result_data: {
-            totalScore: resultsData.totalScore,
-            selectedOptions: resultsData.selectedOptions,
-            primary_result: getPrimaryResult(resultsData.totalScore)
-          }
-        });
-        
-      if (resultError) {
-        console.error('Error saving assessment results:', resultError);
-        toast.error("Could not save your assessment results");
-      } else {
-        console.log('Assessment results saved successfully');
-      }
+      assessmentResults[userId] = userAssessments;
+      localStorage.setItem('assessmentResults', JSON.stringify(assessmentResults));
+      
+      console.log('Assessment results saved successfully');
     } else {
       console.log('Using existing assessment result or view-only mode');
     }
