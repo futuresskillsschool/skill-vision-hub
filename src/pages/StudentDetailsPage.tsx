@@ -1,7 +1,9 @@
-import { useState, useEffect } from "react";
+
+import React, { useState, useEffect, lazy, Suspense } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import LoadingScreen from '@/components/assessment/LoadingScreen';
 import { toast } from "sonner";
+import StudentDetailsForm from '@/components/assessment/StudentDetailsForm';
 
 const StudentDetailsPage = () => {
   const location = useLocation();
@@ -55,18 +57,13 @@ const StudentDetailsPage = () => {
     return <LoadingScreen />;
   }
   
-  // Import components lazily to prevent circular dependencies
-  const StudentDetailsForm = React.lazy(() => import('@/components/assessment/StudentDetailsForm'));
-  
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <React.Suspense fallback={<LoadingScreen />}>
-        <StudentDetailsForm
-          assessmentType={id || 'scct'}
-          resultsData={resultsData}
-          onSubmitSuccess={handleStudentDetailsSubmit}
-        />
-      </React.Suspense>
+      <StudentDetailsForm
+        assessmentType={id || 'scct'}
+        resultsData={resultsData}
+        onSubmitSuccess={handleStudentDetailsSubmit}
+      />
     </div>
   );
 };
